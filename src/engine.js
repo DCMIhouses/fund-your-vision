@@ -1,5 +1,7 @@
-import { CARDS, PARTNERS, DEFAULT_PROFILE, clamp, estimatedLimit, fundabilityScore } from './game'
-import { INDUSTRIES, SQUAD, SQUAD_SLOTS, EVENT_IDS, DEMO_SCENARIOS } from './data'
+import { CARDS, PARTNERS, DEFAULT_PROFILE, clamp, estimatedLimit, fmt, fmtK, fundabilityScore } from './game'
+import { INDUSTRIES, SQUAD, SQUAD_SLOTS, EVENT_IDS, DEMO_SCENARIOS, TOURNAMENT_SCENARIOS } from './data'
+
+export const findScenario = (id) => DEMO_SCENARIOS.find((d) => d.id === id) || TOURNAMENT_SCENARIOS.find((d) => d.id === id)
 
 export const MONTHS = 18
 export const BOSS_MONTH = 12
@@ -50,9 +52,11 @@ const EMPTY_MODS = {
 export function initialState(overrides = {}) {
   return {
     phase: 'setup',
+    mode: 'arcade',
     scenarioId: null,
     seed: 0,
-    startup: { name: '', industry: 'saas', target: 150000, monthlyBurn: INDUSTRIES.saas.burn, savings: 25000 },
+    seq: 0,
+    startup: { name: '', industry: 'saas', target: 150000, monthlyBurn: INDUSTRIES.saas.burn, founderPay: 3000, savings: 25000 },
     profile: { ...DEFAULT_PROFILE },
     startDays: 27,
     underwritten: false,
@@ -65,6 +69,10 @@ export function initialState(overrides = {}) {
     mods: { ...EMPTY_MODS, installments: [] },
     log: [],
     result: null,
+    bossMoves: [],
+    actionLog: [],
+    achievements: [],
+    level: -1,
     ...overrides,
   }
 }
@@ -113,8 +121,10 @@ export function monthlyBurn(s) {
   const cut = s.funding.some((f) => f.type === 'cut' && f.status === 'available') ? 0.85 : 1
   const ops = has(s, 'operator') ? 0.95 : 1
   const squadCost = s.squad.reduce((a, id) => a + SQUAD.find((r) => r.id === id).cost, 0)
-  return s.startup.monthlyBurn * cut * ops * s.mods.burnMult + s.mods.burnDelta + squadCost
+  return (s.startup.monthlyBurn * cut * ops + (s.startup.founderPay || 0)) * s.mods.burnMult + s.mods.burnDelta + squadCost
 }
+
+export const teamVariance = (s, role) => 0.75 + 0.5 * mulberry32((s.seed || 1) + (role === 'marketing' ? 11 : 23))()
 
 export function projectedRevenue(s, m) {
   const ind = INDUSTRIES[s.startup.industry]
@@ -122,17 +132,15 @@ export function projectedRevenue(s, m) {
   const start = ind.launch + delay
   if (m < start) return 0
   let mult = s.mods.revenueMult
-  if (has(s, 'marketing')) mult *= 1.2
-  if (has(s, 'sales')) mult *= 1.15
+  const ramp = clamp((m - start + 1) / 3, 0, 1)
+  if (has(s, 'marketing')) mult *= 1 + 0.2 * ramp * teamVariance(s, 'marketing')
+  if (has(s, 'sales')) mult *= 1 + 0.15 * ramp * teamVariance(s, 'sales')
   if (s.funding.some((f) => f.type === 'cut' && f.status === 'available')) mult *= 0.92
   return Math.min(ind.cap, ind.base * ind.growth ** (m - start)) * mult
 }
 
-let uid = 0
-const nextId = (p) => `${p}${Date.now().toString(36)}${(uid++).toString(36)}`
-
 function log(s, text, tone = 'neon') {
-  return { ...s, log: [{ id: nextId('l'), text, tone }, ...s.log].slice(0, 40) }
+  return { ...s, seq: s.seq + 1, log: [{ id: `l${s.seq}`, text, tone }, ...s.log].slice(0, 40) }
 }
 
 function creditCap(s) {
@@ -199,20 +207,31 @@ function tick(s) {
 }
 
 function addFunding(s, entry) {
-  return { ...s, funding: [...s.funding, { id: nextId('f'), turns: 0, ...entry }] }
+  return { ...s, seq: s.seq + 1, funding: [...s.funding, { id: `f${s.seq}`, turns: 0, ...entry }] }
 }
 
 export function reducer(s, a) {
   switch (a.type) {
-    case 'SETUP': return { ...s, startup: { ...s.startup, ...a.patch } }
-    case 'PROFILE': return { ...s, profile: { ...s.profile, ...a.patch } }
+    case 'SETUP': {
+      if (s.phase !== 'setup') return s
+      const patch = s.mode === 'tournament' ? { name: a.patch.name ?? s.startup.name } : a.patch
+      return { ...s, startup: { ...s.startup, ...patch } }
+    }
+    case 'PROFILE': return s.phase !== 'setup' || s.mode === 'tournament' ? s : { ...s, profile: { ...s.profile, ...a.patch } }
+    case 'SET_MODE': {
+      const base = initialState({ mode: a.mode, startDays: s.startDays })
+      return a.mode === 'tournament' ? reducer(base, { type: 'LOAD_SCENARIO', id: TOURNAMENT_SCENARIOS[0].id }) : base
+    }
     case 'START_DAYS': return { ...s, startDays: a.value }
     case 'LOAD_SCENARIO': {
-      const sc = DEMO_SCENARIOS.find((d) => d.id === a.id)
-      return initialState({ scenarioId: sc.id, startup: { ...sc.startup }, profile: { ...sc.profile }, startDays: s.startDays })
+      const sc = findScenario(a.id)
+      if (!sc || (s.mode === 'tournament') !== TOURNAMENT_SCENARIOS.includes(sc)) return s
+      return initialState({ mode: s.mode, scenarioId: sc.id, startup: { ...sc.startup }, profile: { ...sc.profile }, startDays: s.startDays })
     }
     case 'START': {
-      const sc = DEMO_SCENARIOS.find((d) => d.id === s.scenarioId)
+      if (s.phase !== 'setup') return s
+      if (s.mode === 'tournament' && !s.scenarioId) return s
+      const sc = findScenario(s.scenarioId)
       const seed = sc ? sc.seed : hashSeed(`${s.startup.name}|${s.startup.industry}|${s.startup.target}`)
       const name = s.startup.name.trim() || 'Stealth Startup'
       return log({ ...s, phase: 'fund', seed, deck: shuffle(EVENT_IDS, seed), startup: { ...s.startup, name } }, `${name} is live. Target ${'$' + s.startup.target.toLocaleString()}.`, 'cyan')
@@ -263,16 +282,25 @@ export function reducer(s, a) {
       if (totals(s).available < s.startup.target) return s
       if (s.resolvedEvents.length < MIN_EVENTS) return drawEvent(s)
       const pending = s.funding.filter((f) => f.status === 'committed')
-      const landed = { ...s, phase: 'boss', funding: s.funding.map((f) => (f.status === 'committed' ? { ...f, status: 'available', turns: 0 } : f)) }
+      const landed = { ...s, phase: 'boss', bossMoves: [], funding: s.funding.map((f) => (f.status === 'committed' ? { ...f, status: 'available', turns: 0 } : f)) }
       return pending.length ? log(landed, `Committed funds landed in month 1: ${pending.map((f) => f.label).join(', ')}`, 'neon') : landed
     }
-    case 'BOSS': {
-      const forecast = runForecast(s, a.option)
-      const result = scoreGame(s, forecast, a.option)
-      return { ...s, phase: 'results', result: { option: a.option, forecast, ...result } }
+    case 'BOSS_MOVE': {
+      if (s.phase !== 'boss' || s.bossMoves.includes(a.option) || s.bossMoves.length >= bossLimit(s)) return s
+      const o = bossOptions(s).find((x) => x.id === a.option)
+      return !o || o.disabled ? s : { ...s, bossMoves: [...s.bossMoves, a.option] }
     }
-    case 'RESTART': return initialState({ startup: s.startup, profile: s.profile, scenarioId: s.scenarioId, startDays: s.startDays })
-    case 'RESET': return initialState()
+    case 'BOSS_UNDO': return s.phase === 'boss' && s.bossMoves.length ? { ...s, bossMoves: s.bossMoves.slice(0, -1) } : s
+    case 'BOSS': {
+      if (s.phase !== 'boss') return s
+      const moves = s.bossMoves
+      const forecast = runForecast(s, moves)
+      const result = scoreGame(s, forecast, moves)
+      const baseline = scoreGame(s, runForecast(s, []), [])
+      return { ...s, phase: 'results', result: { moves, forecast, baselineOutcome: baseline.outcome, ...result } }
+    }
+    case 'RESTART': return initialState({ mode: s.mode, startup: s.startup, profile: s.profile, scenarioId: s.scenarioId, startDays: s.startDays })
+    case 'RESET': return initialState({ startDays: s.startDays })
     default: return s
   }
 }
@@ -283,7 +311,7 @@ function playCard(s, a) {
       if (!s.underwritten || s.funding.some((f) => f.type === 'term' && f.status !== 'declined')) return s
       const d = termDecision(s, a.amount)
       const next = addFunding(s, {
-        type: 'term', label: 'Business Term Loan', requested: a.amount, amount: d.amount, apr: d.apr, inquiry: true,
+        type: 'term', label: 'Business Term Loan', requested: a.amount, amount: d.amount, apr: d.apr, inquiry: false,
         status: d.status === 'approved' ? 'committed' : d.status, turns: 1, reason: d.reason,
         requirement: d.status === 'conditional' ? 'Collateral or co-signer (17% APR)' : null,
       })
@@ -299,7 +327,7 @@ function playCard(s, a) {
       if (s.funding.some((f) => f.type === 'vc' && f.status !== 'declined')) return s
       const t = vcTerms(s, a.amount)
       return log(addFunding(s, {
-        type: 'vc', label: 'Angel / VC Round', requested: a.amount, amount: t.amount, equityPct: t.equityPct, status: 'conditional',
+        type: 'vc', label: 'Angel / VC Round', requested: a.amount, amount: t.amount, equityPct: t.equityPct, status: 'conditional', negotiated: has(s, 'attorney'),
         requirement: `Term sheet: ${(t.equityPct * 100).toFixed(1)}% equity at $${Math.round(t.preMoney / 1000)}K pre-money${t.equityPct >= 0.15 ? ' + 1 board seat' : ''}`,
         reason: 'Term sheet issued; diligence takes 2 turns',
       }), `Term sheet received: $${t.amount.toLocaleString()} for ${(t.equityPct * 100).toFixed(1)}%`, 'gold')
@@ -465,21 +493,45 @@ export const EVENTS = {
   },
 }
 
+export const bossLimit = (s) => (has(s, 'cpa') ? 3 : 2)
+
+export function bridgeTerms(s) {
+  const ind = INDUSTRIES[s.startup.industry]
+  const existing = s.funding.filter((f) => f.type === 'vc' && (f.status === 'available' || f.status === 'committed')).reduce((a, f) => a + f.amount, 0)
+  const amount = Math.max(0, Math.min(Math.round((s.startup.target * 0.15) / 1000) * 1000, ind.vcCap - existing))
+  const pre = ind.preMoney * 0.6 * (has(s, 'attorney') ? 1.2 : 1)
+  return { amount, equityPct: amount ? amount / (pre + amount) : 0, preMoney: pre }
+}
+
 export function bossOptions(s) {
+  const promo = promoDebt(s)
   const canRefi = s.mods.refiOffer != null || has(s, 'cco') || liveScore(s) >= 70
   const rate = s.mods.refiOffer ?? (has(s, 'cco') ? 0.1 : 0.13)
+  const b = bridgeTerms(s)
+  const own = ownership(s).founder
   return [
-    { id: 'refi', label: 'Refinance promo balances', detail: canRefi ? `Convert to a ${(rate * 100).toFixed(1)}% / 48-month loan at each cliff.` : 'Not eligible: needs fundability ≥ 70, a Capital Architect, or a locked refi offer.', disabled: !canRefi, rate },
-    { id: 'cut', label: 'Cut burn 20% from month 12', detail: 'Lower costs, revenue −5% after.' },
-    { id: 'paydown', label: 'Pay down 50% at month 12', detail: 'Use cash to shrink promo balances.' },
-    { id: 'ride', label: 'Ride it out', detail: 'Minimum payments at ~24% APR.' },
+    {
+      id: 'refi', label: 'Restructure the debt', rate,
+      detail: !promo ? 'No promo balances to restructure.' : canRefi ? `Convert promo balances to a ${(rate * 100).toFixed(1)}% / 48-month loan as each promo ends.` : 'Not eligible: needs fundability ≥ 70, a Capital Architect, or a locked refi offer.',
+      disabled: !promo || !canRefi,
+    },
+    { id: 'cut', label: 'Cut expenses 20%', detail: 'From month 12: burn −20%, revenue −5% from slower growth.' },
+    { id: 'founderpay', label: 'Defer half your founder pay', detail: s.startup.founderPay > 0 ? `Saves ${fmt(s.startup.founderPay / 2)}/mo from month 12.` : 'You are not paying yourself.', disabled: !(s.startup.founderPay > 0) },
+    {
+      id: 'equity', label: 'Negotiate a bridge equity round',
+      detail: b.amount >= 5000 ? `${fmt(b.amount)} at a down-round ${fmtK(b.preMoney)} pre-money: ${(b.equityPct * 100).toFixed(1)}% dilution. Lands month 12.` : 'Investors are tapped out for this industry.',
+      disabled: b.amount < 5000 || own * (1 - b.equityPct) < 0.51,
+    },
+    { id: 'paydown', label: 'Pay down promo balances', detail: promo ? 'At month 12, use cash above one month of expenses to retire 0% balances.' : 'No promo balances.', disabled: !promo },
   ]
 }
 
-export function runForecast(s, option = 'ride') {
+export function runForecast(s, moves = []) {
+  const on = (id) => moves.includes(id)
   const t = totals(s)
   const bossRate = bossOptions(s).find((o) => o.id === 'refi').rate
-  const shortfall = has(s, 'cpa') ? 0.9 : 0.75
+  const bridge = bridgeTerms(s)
+  const shortfall = 0.75
   const burn0 = monthlyBurn(s)
   const prepay = s.funding.find((f) => f.type === 'prepay' && f.status === 'available')
   const refundRisk = prepay && s.mods.launchDelay > 0 ? prepay.amount * 0.3 : 0
@@ -487,7 +539,7 @@ export function runForecast(s, option = 'ride') {
     - s.funding.reduce((a, f) => a + (f.paidDown || 0), 0)
   const lines = s.funding
     .filter((f) => (f.type === 'credit' || f.type === 'partner') && f.status === 'available' && f.amount > 0)
-    .map((f) => ({ balance: f.amount - (f.paidDown || 0), promo: Math.max(1, (f.promo || 12) + s.mods.promoShift), refi: null, partner: f.type === 'partner' }))
+    .map((f) => ({ balance: f.amount - (f.paidDown || 0), promo: Math.max(1, (f.promo || 12) + s.mods.promoShift), refi: null }))
   const loans = s.funding.filter((f) => f.type === 'term' && f.status === 'available' && f.amount > 0)
     .map((f) => ({ balance: f.amount, payment: amortizedPayment(f.amount, f.apr, TERM_MONTHS), apr: f.apr }))
   const split = s.funding.filter((f) => f.type === 'partner' && f.status === 'available').reduce((a, f) => a + (f.split || 0), 0)
@@ -499,9 +551,9 @@ export function runForecast(s, option = 'ride') {
   let promoAtCliff = 0
 
   for (let m = 1; m <= MONTHS; m++) {
+    const late = m >= BOSS_MONTH
     let revenue = projectedRevenue(s, m)
-    if (m >= BOSS_MONTH) revenue *= shortfall
-    if (option === 'cut' && m >= BOSS_MONTH) revenue *= 0.95
+    if (late) revenue *= shortfall * (on('cut') ? 0.95 : 1)
     let recognized = revenue
     if (revenue > 0 && revenueDeferred > 0 && revenueMonths < 6) {
       const offset = Math.min(revenueDeferred, prepay.amount / 6, revenue)
@@ -509,27 +561,26 @@ export function runForecast(s, option = 'ride') {
       revenueDeferred -= offset
       revenueMonths++
     }
-    let expenses = burn0 * (option === 'cut' && m >= BOSS_MONTH ? 0.8 : 1)
+    let expenses = burn0 * (late && on('cut') ? 0.8 : 1) - (late && on('founderpay') ? s.startup.founderPay / 2 : 0)
     for (const i of installments) if (i.months > 0) { expenses += i.amount; i.months-- }
 
     if (m === BOSS_MONTH) {
+      if (on('equity')) cash += bridge.amount
       promoAtCliff = lines.reduce((a, l) => a + l.balance, 0)
-      if (option === 'paydown') {
-        const pay = Math.min(Math.max(0, cash) , promoAtCliff * 0.5)
-        let left = pay
-        for (const l of lines) { const p = Math.min(l.balance, left * (l.balance / promoAtCliff)); l.balance -= p }
+      if (on('paydown') && promoAtCliff > 0) {
+        const pay = Math.min(Math.max(0, cash - expenses), promoAtCliff)
+        for (const l of lines) l.balance -= pay * (l.balance / promoAtCliff)
         cash -= pay
-        left = 0
       }
     }
 
     let debt = 0
     for (const l of lines) {
-      if (l.balance <= 0) continue
+      if (l.balance <= 0.5) { l.balance = 0; continue }
       if (m <= l.promo) {
         const p = l.balance * 0.01
         l.balance -= p; debt += p
-      } else if (option === 'refi' && bossRate != null) {
+      } else if (on('refi') && bossRate != null) {
         if (!l.refi) l.refi = amortizedPayment(l.balance, bossRate, 48)
         const interest = l.balance * (bossRate / 12)
         l.balance -= l.refi - interest; debt += l.refi
@@ -551,26 +602,31 @@ export function runForecast(s, option = 'ride') {
     months.push({ m, revenue: recognized, expenses, debt, share, cash, promoBalance: lines.reduce((a, l) => a + Math.max(0, l.balance), 0) })
   }
   const last = months[MONTHS - 1]
+  const endLoans = loans.reduce((a, l) => a + Math.max(0, l.balance), 0)
   return {
     months, insolventMonth, endCash: last.cash, minCash: Math.min(...months.map((x) => x.cash)),
     endExpenses: last.expenses, endDebt: last.debt, promoAtCliff, endPromo: last.promoBalance,
-    endLoans: loans.reduce((a, l) => a + Math.max(0, l.balance), 0),
+    endLoans, debtRemaining: last.promoBalance + endLoans, bridge: on('equity') ? bridge : null,
   }
 }
 
-export function scoreGame(s, f, option = 'ride') {
+export function scoreGame(s, f, moves = []) {
   const t = totals(s)
-  const own = ownership(s)
+  const own = { ...ownership(s) }
+  if (f.bridge) {
+    own.founder *= 1 - f.bridge.equityPct
+    if (f.bridge.equityPct >= 0.15) own.seats += 1
+  }
   const target = s.startup.target
   const funding = 25 * Math.min(1, t.available / target)
   const reserveOk = f.endCash >= f.endExpenses + f.endDebt
   const cashflow = f.insolventMonth ? 25 * ((f.insolventMonth - 1) / MONTHS) * 0.8 : reserveOk ? 25 : 12
   const hasDebt = t.debt > 0
-  const cliffHandled = !hasDebt || f.promoAtCliff === 0 || option === 'refi' || (f.endCash > 0 && f.endCash >= f.endPromo * 0.5)
+  const cliffHandled = !hasDebt || f.promoAtCliff === 0 || moves.includes('refi') || (f.endCash > 0 && f.endCash >= f.endPromo * 0.5)
   const repayment = !hasDebt ? 20 : f.insolventMonth ? 2 : cliffHandled ? 20 : 5
   let governance = own.founder >= 0.9 ? 10 : own.founder >= 0.75 ? 8 : own.founder >= 0.51 ? 5 : 1
   governance -= own.seats * 2
-  if (s.funding.some((f2) => f2.type === 'partner' && f2.status === 'available' && !f2.agreement)) governance -= 3
+  if (s.funding.some((x) => x.type === 'partner' && x.status === 'available' && !x.agreement)) governance -= 3
   if (s.mods.disputeFlag) governance -= 2
   governance = clamp(governance, 0, 10)
   const pri = INDUSTRIES[s.startup.industry].priorities
@@ -597,5 +653,5 @@ export function scoreGame(s, f, option = 'ride') {
   const met = t.available >= target
   const outcome = f.insolventMonth ? 'failure' : met && checks.every((c) => c.ok) ? 'victory' : 'partial'
   const badge = score >= 85 ? 'Capital Master' : score >= 60 ? 'Launch-ready' : 'Rebuild'
-  return { score, breakdown, checks, outcome, badge }
+  return { score, breakdown, checks, outcome, badge, founderOwnership: own.founder, seats: own.seats, debtRemaining: f.debtRemaining, hadDebt: hasDebt }
 }

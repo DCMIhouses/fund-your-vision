@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { addDays, daysUntil, fmt, FULL_RUNWAY_DAYS, runwayClock, runwayDays, SALARY_VAULT_PCT, toDateInput } from '../game'
+import { addDays, daysUntil, fmt, FULL_RUNWAY_DAYS, runwayClock, runwayDays, toDateInput } from '../game'
 import { totals, ownership, monthlyBurn, liveScore, MIN_EVENTS } from '../engine'
+import { LevelTrack } from './Medals'
 
 const STEPS = [['setup', 'Setup'], ['fund', 'Fund & Survive'], ['boss', 'Final Boss'], ['results', 'Results']]
 
@@ -115,7 +116,7 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-neon font-mono text-sm font-black text-ink md:h-10 md:w-10 md:rounded-xl md:text-lg">0%</span>
             <div className="min-w-0">
               <h1 className="text-xs font-black uppercase leading-tight tracking-tight text-white sm:text-base md:text-xl">
-                <span className="text-hot">SCREW VCs:</span> The Startup Funding Challenge
+                <span className="text-neon">FUND YOUR VISION</span> <span className="text-slate-400">(FYV)</span>
               </h1>
               <p className="truncate text-[10px] text-slate-400 md:text-[11px]">
                 Powered by <span className="font-semibold text-cyan">NationwideBusinessFunding.com</span><span className="max-sm:hidden"> · Fractional Chief Capital Officer Platform</span>
@@ -123,6 +124,7 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
+            <span className={`rounded-lg px-2 py-1 text-[10px] font-black uppercase ${s.mode === 'tournament' ? 'bg-gold text-ink' : 'border border-edge text-slate-400'}`}>{s.mode === 'tournament' ? 'Tournament' : 'Arcade'}</span>
             {s.phase !== 'setup' && <span className="hidden rounded-lg border border-cyan/50 px-2 py-1 font-mono text-[11px] text-cyan sm:inline">Fundability {liveScore(s)}</span>}
             <button onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'} className="rounded-lg border border-edge px-2 py-1 text-[11px] text-slate-400 hover:text-white">{muted ? 'SFX OFF' : 'SFX ON'}</button>
             {s.phase !== 'setup' && <button onClick={() => dispatch({ type: 'RESTART' })} className="rounded-lg border border-edge px-2 py-1 text-[11px] text-slate-400 hover:border-gold hover:text-gold">Restart</button>}
@@ -134,6 +136,8 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
             <div key={id} className={`flex-1 rounded-md px-1 py-0.5 text-center text-[9px] font-black uppercase tracking-wider md:text-[10px] ${i === stepIdx ? 'bg-neon text-ink' : i < stepIdx ? 'bg-neon/20 text-neon' : 'bg-edge/60 text-slate-500'}`}>{i + 1}. {label}</div>
           ))}
         </div>
+
+        <div className={`mt-1 ${mobileHide}`}><LevelTrack level={s.level} /></div>
 
         <div className="mt-2 grid gap-2 md:gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div>
@@ -168,10 +172,10 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
               </button>
               {showRunway && <RunwaySettings s={s} dispatch={dispatch} onClose={() => setShowRunway(false)} />}
             </div>
-            <div className="rounded-xl border border-edge bg-panel p-1.5 text-center md:p-2" title="Budgeted from available capital. Must fit each lender's permitted use of funds; borrowing to pay yourself does not create profit.">
-              <div className="text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Founder Salary Budget</div>
-              <div className="font-mono text-base font-black text-gold md:text-xl">{fmt(t.cash * SALARY_VAULT_PCT)}</div>
-              <div className="text-[9px] text-slate-500 md:text-[10px]">20% of available cash</div>
+            <div className="rounded-xl border border-edge bg-panel p-1.5 text-center md:p-2" title="Your choice, set in Setup. Paying yourself from loan proceeds must fit each lender's permitted uses, and borrowing to pay yourself does not create profit.">
+              <div className="text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Founder Pay</div>
+              <div className="font-mono text-base font-black text-gold md:text-xl">{fmt(s.startup.founderPay || 0)}<span className="text-[10px]">/mo</span></div>
+              <div className="text-[9px] text-slate-500 md:text-[10px]">Discretionary · in burn</div>
             </div>
             <div className="rounded-xl border border-edge bg-panel p-1.5 text-center md:p-2">
               <div className="text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Equity Kept</div>

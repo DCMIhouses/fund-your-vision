@@ -1,8 +1,8 @@
 export const INDUSTRIES = {
-  saas: { label: 'AI / SaaS Software', launch: 3, base: 6000, growth: 1.10, cap: 50000, burn: 16000, preMoney: 2000000, vcCap: 500000, priorities: ['marketing', 'attorney', 'operator'] },
-  ecom: { label: 'E-commerce Brand', launch: 2, base: 8000, growth: 1.08, cap: 45000, burn: 10000, preMoney: 1000000, vcCap: 250000, priorities: ['marketing', 'cpa', 'operator'] },
-  services: { label: 'Professional Services', launch: 1, base: 9000, growth: 1.05, cap: 30000, burn: 9000, preMoney: 500000, vcCap: 100000, priorities: ['sales', 'cpa', 'attorney'] },
-  events: { label: 'Live Events / Festival', launch: 6, base: 28000, growth: 1.03, cap: 60000, burn: 14000, preMoney: 750000, vcCap: 150000, priorities: ['operator', 'attorney', 'sales'] },
+  saas: { label: 'AI / SaaS Software', launch: 3, base: 6000, growth: 1.10, cap: 50000, burn: 12000, preMoney: 2000000, vcCap: 500000, priorities: ['marketing', 'attorney', 'operator'] },
+  ecom: { label: 'E-commerce Brand', launch: 2, base: 8000, growth: 1.08, cap: 45000, burn: 7500, preMoney: 1000000, vcCap: 250000, priorities: ['marketing', 'cpa', 'operator'] },
+  services: { label: 'Professional Services', launch: 1, base: 9000, growth: 1.05, cap: 30000, burn: 6500, preMoney: 500000, vcCap: 100000, priorities: ['sales', 'cpa', 'attorney'] },
+  events: { label: 'Live Events / Festival', launch: 6, base: 28000, growth: 1.03, cap: 60000, burn: 11000, preMoney: 750000, vcCap: 150000, priorities: ['operator', 'attorney', 'sales'] },
 }
 
 export const SQUAD_SLOTS = 4
@@ -10,9 +10,9 @@ export const SQUAD_SLOTS = 4
 export const SQUAD = [
   { id: 'cco', name: 'Capital Architect', short: 'CCO', area: 'Financing', cost: 750, effect: '+10% debt limits; unlocks a 10% refinance at the promo cliff.' },
   { id: 'attorney', name: 'Attorney', short: 'LAW', area: 'Governance', cost: 400, effect: 'Auto-papers partner agreements; better VC valuation; cheaper disputes.' },
-  { id: 'cpa', name: 'CPA', short: 'CPA', area: 'Financial controls', cost: 350, effect: 'Sharper forecasts: boss revenue shortfall 10% instead of 25%; trims surprise costs.' },
-  { id: 'marketing', name: 'Marketing Specialist', short: 'MKT', area: 'Customer acquisition', cost: 1200, effect: '+20% revenue; softens acquisition failures.' },
-  { id: 'sales', name: 'Sales Specialist', short: 'SLS', area: 'Revenue', cost: 1200, effect: '+15% revenue; full customer prepayments; bigger deposits.' },
+  { id: 'cpa', name: 'CPA', short: 'CPA', area: 'Financial controls', cost: 350, effect: 'Early-warning cash forecast; +1 turnaround move at the boss; trims surprise costs.' },
+  { id: 'marketing', name: 'Marketing Specialist', short: 'MKT', area: 'Customer acquisition', cost: 1200, effect: 'Up to +20% revenue, ramping over 3 months; results vary. Softens acquisition failures.' },
+  { id: 'sales', name: 'Sales Specialist', short: 'SLS', area: 'Revenue', cost: 1200, effect: 'Up to +15% revenue, ramping over 3 months; results vary. Full prepayments; bigger deposits.' },
   { id: 'operator', name: 'Operating Partner', short: 'OPS', area: 'Execution', cost: 1000, effect: '−5% burn; launch delays cut by 1 month; vendor leverage.' },
 ]
 
@@ -20,12 +20,12 @@ export const FINANCE_CARDS = [
   {
     id: 'credit', kind: 'Debt', name: '0% Intro APR Business Credit',
     tagline: 'Apply issuer by issuer in the Card Stack panel',
-    capital: 'Depends on fundability; capped at 100% of stated income in total',
+    capital: 'Depends on fundability; total capped at 100% of income (game assumption, not a bank rule)',
     cost: '0% for 6–18 months, then ~24% APR',
     eligibility: 'Approved at or above each issuer threshold; up to 8 points under it = conditional (income verification)',
     repayment: 'Min. 1%/mo during promo; interest + 3% principal after',
     ownership: 'None',
-    risks: 'Personal guarantee. Each application is a hard inquiry. Promo cliff.',
+    risks: 'Personal guarantee. Each application is modeled as a personal hard inquiry. Promo cliff.',
   },
   {
     id: 'term', kind: 'Debt', name: 'Business Term Loan',
@@ -35,7 +35,7 @@ export const FINANCE_CARDS = [
     eligibility: 'Fundability ≥ 70 and no derogatories = approved; 55–69 = conditional (collateral or co-signer)',
     repayment: 'Amortized monthly payment from month 1',
     ownership: 'None',
-    risks: 'Personal guarantee. Funds land after one turn.',
+    risks: 'Personal guarantee. Business-credit application: modeled as a soft personal pull (no hard inquiry). Funds land after one turn.',
   },
   {
     id: 'savings', kind: 'Self', name: 'Personal Savings',
@@ -93,20 +93,35 @@ export const DEMO_SCENARIOS = [
   {
     id: 'all-debt', label: 'Demo A: The All-Debt Sprint', seed: 1337,
     blurb: 'Strong credit, no team. Stack 0% cards and a partner line to hit the target fast, ride out the promo cliff, then watch the boss.',
-    startup: { name: 'NeuralNest AI', industry: 'saas', target: 150000, monthlyBurn: 16000, savings: 25000 },
+    startup: { name: 'NeuralNest AI', industry: 'saas', target: 150000, monthlyBurn: 12000, founderPay: 4000, savings: 25000 },
     profile: { fico: 765, utilization: 8, inquiries: 1, oldestYears: 10, openAccounts: 6, income: 160000, derogatory: false },
-    script: ['Run AI Underwriting', 'Apply to all 7 issuers in the 0% Card Stack', 'Match Luis Ortega, proceed on a handshake', 'Events: pick the "keep moving" option (Accept / Ignore / Reinvest / Pass)', 'Start the Final Boss, choose "Ride it out"'],
+    script: ['Run AI Underwriting', 'Apply to all 7 issuers in the 0% Card Stack', 'Match Luis Ortega, proceed on a handshake', 'Events: pick the "keep moving" option (Accept / Ignore / Reinvest / Pass)', 'Boss: make no turnaround moves, just lock it in'],
   },
   {
     id: 'diversified', label: 'Demo B: The Capital Architect', seed: 2026,
     blurb: 'Same founder. Build a team, diversify the capital stack, and plan for the promo cliff.',
-    startup: { name: 'NeuralNest AI', industry: 'saas', target: 150000, monthlyBurn: 16000, savings: 25000 },
+    startup: { name: 'NeuralNest AI', industry: 'saas', target: 150000, monthlyBurn: 12000, founderPay: 4000, savings: 25000 },
     profile: { fico: 765, utilization: 8, inquiries: 1, oldestYears: 10, openAccounts: 6, income: 160000, derogatory: false },
-    script: ['Hire Capital Architect, CPA, Marketing, Sales', 'Run AI Underwriting; apply to Tier-1, Big-4, Regional, Personal Travel', 'Term loan $60K, Angel $60K (accept term sheet), Expense Reduction', 'Events: pick the prudent option (Appeal / Cut / Mediate / Pay down / Lock)', 'Start the Final Boss, choose "Refinance"'],
+    script: ['Hire Capital Architect, CPA, Marketing, Sales', 'Run AI Underwriting; apply to Tier-1, Big-4, Regional, Personal Travel', 'Term loan $60K, Angel $60K (accept term sheet), Expense Reduction', 'Events: pick the prudent option (Appeal / Cut / Mediate / Pay down / Lock)', 'Boss: Restructure the debt + Cut expenses, then lock it in'],
   },
 ]
 
 export const EVENT_IDS = [
   'loan_denied', 'utilization', 'launch_delay', 'surprise_expense', 'strong_sales', 'cac_fail',
   'promo_expire', 'partner_withdraws', 'vendor_hike', 'refi_offer', 'dispute', 'big_customer',
+]
+
+export const TOURNAMENT_SCENARIOS = [
+  {
+    id: 't-ai', label: 'Tournament #1: AI Startup Sprint', seed: 777,
+    blurb: 'Standardized founder, fixed event deck. Everyone starts here.',
+    startup: { name: 'Tournament AI Co', industry: 'saas', target: 150000, monthlyBurn: 12000, founderPay: 3000, savings: 20000 },
+    profile: { fico: 720, utilization: 22, inquiries: 2, oldestYears: 7, openAccounts: 5, income: 110000, derogatory: false },
+  },
+  {
+    id: 't-fest', label: 'Tournament #2: Festival Launch', seed: 4242,
+    blurb: 'Lumpy revenue, late launch, bigger target.',
+    startup: { name: 'Tournament Fest', industry: 'events', target: 200000, monthlyBurn: 11000, founderPay: 3000, savings: 30000 },
+    profile: { fico: 705, utilization: 28, inquiries: 3, oldestYears: 9, openAccounts: 7, income: 130000, derogatory: false },
+  },
 ]

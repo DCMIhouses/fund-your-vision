@@ -1,6 +1,7 @@
 import Panel from './Panel'
 import { fmt } from '../game'
-import { totals, has, MIN_EVENTS } from '../engine'
+import { totals, has, MIN_EVENTS, runForecast } from '../engine'
+import Chart from './Chart'
 import { SQUAD_SLOTS } from '../data'
 
 const CHIP = {
@@ -10,6 +11,7 @@ const CHIP = {
 
 export default function Ledger({ s, dispatch, blocked }) {
   const t = totals(s)
+  const creditLines = s.funding.filter((f) => (f.type === 'credit' || f.type === 'partner') && f.status === 'available').reduce((a, f) => a + f.amount, 0)
   const conditionals = s.funding.filter((f) => f.status === 'conditional')
   const canHireAttorney = has(s, 'attorney') || s.squad.length < SQUAD_SLOTS
 
@@ -35,6 +37,19 @@ export default function Ledger({ s, dispatch, blocked }) {
           <div key={k} className="rounded-lg border border-edge bg-ink/60 p-2"><div className="text-[9px] uppercase tracking-widest text-slate-500">{k}</div><div className={`font-mono text-sm font-black ${c}`}>{fmt(v)}</div></div>
         ))}
       </div>
+
+      <div className="mt-1 text-center text-[10px] text-slate-500">
+        Available = cash {fmt(t.cash - creditLines)} + approved credit lines {fmt(creditLines)}{t.freed ? ` + freed capital ${fmt(t.freed)}` : ''}
+      </div>
+      {has(s, 'cpa') && (() => {
+        const f = runForecast(s, [])
+        return (
+          <div className="mt-3 rounded-xl border border-cyan/50 bg-cyan/5 p-2">
+            <div className="flex justify-between text-[10px] font-black uppercase text-cyan"><span>CPA early warning: 18-month forecast</span><span className={f.insolventMonth ? 'text-hot' : 'text-neon'}>{f.insolventMonth ? `cash out month ${f.insolventMonth}` : `month 18: ${fmt(f.endCash)}`}</span></div>
+            <Chart forecast={f} height={110} />
+          </div>
+        )
+      })()}
 
       {conditionals.length > 0 && (
         <div className="mt-3 space-y-2">

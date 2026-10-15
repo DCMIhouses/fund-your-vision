@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import TopBar from './components/TopBar'
 import Setup from './components/Setup'
 import Underwriting from './components/Underwriting'
@@ -10,10 +10,14 @@ import Ledger from './components/Ledger'
 import EventModal from './components/EventModal'
 import Boss from './components/Boss'
 import Results from './components/Results'
-import { initialState, reducer } from './engine'
+import { initialState } from './engine'
+import { gameReducer } from './store'
+import { AchievementToasts, TrophyRoom } from './components/Medals'
 import { isMuted, play, setMuted } from './sfx'
 
-const STORAGE_KEY = 'screw-vcs-v2'
+const STORAGE_KEY = 'fyv-game-v3'
+const TROPHY_KEY = 'fyv-trophies'
+const loadTrophies = () => { try { return JSON.parse(localStorage.getItem(TROPHY_KEY)) || {} } catch { return {} } }
 
 function load() {
   try {
@@ -28,7 +32,11 @@ const TONE_SFX = { neon: 'approve', hot: 'decline', gold: 'warn', cyan: 'click' 
 const TOAST = { neon: 'border-neon text-neon', cyan: 'border-cyan text-cyan', hot: 'border-hot text-hot', gold: 'border-gold text-gold' }
 
 export default function App() {
-  const [s, dispatch] = useReducer(reducer, undefined, load)
+  const [s, dispatch] = useReducer(gameReducer, undefined, load)
+  const [collection, setCollection] = useState(loadTrophies)
+  const [medalQueue, setMedalQueue] = useState([])
+  const seenMedals = useRef(s.achievements)
+  const seenLevel = useRef(s.level)
   const [muted, setMutedState] = useState(isMuted)
   const [toasts, setToasts] = useState([])
   const lastLog = useRef(s.log[0]?.id)
@@ -36,6 +44,22 @@ export default function App() {
   const lastPhase = useRef(s.phase)
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)) }, [s])
+
+  useEffect(() => {
+    const fresh = s.achievements.filter((id) => !seenMedals.current.includes(id))
+    const levelUp = s.level > seenLevel.current && s.level > 0 ? [`level:${s.level}`] : []
+    seenMedals.current = s.achievements
+    seenLevel.current = s.level
+    if (!fresh.length && !levelUp.length) return
+    play('victory')
+    setMedalQueue((q) => [...q, ...levelUp, ...fresh])
+    setCollection((c) => {
+      const next = { ...c }
+      for (const id of fresh) next[id] = next[id] || Date.now()
+      localStorage.setItem(TROPHY_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [s.achievements, s.level])
 
   useEffect(() => {
     const top = s.log[0]
@@ -62,6 +86,7 @@ export default function App() {
     lastPhase.current = s.phase
   }, [s.phase, s.result])
 
+  const dropMedal = useCallback((id) => setMedalQueue((q) => q.filter((x) => x !== id)), [])
   const toggleMute = () => { setMuted(!muted); setMutedState(!muted) }
   const blocked = !!s.activeEvent
 
@@ -103,6 +128,7 @@ export default function App() {
 
         {s.phase === 'boss' && <Boss s={s} dispatch={dispatch} />}
         {s.phase === 'results' && s.result && <Results s={s} dispatch={dispatch} />}
+        <div className="mt-5"><TrophyRoom s={s} collection={collection} /></div>
 
         <footer className="mt-10 border-t border-edge pt-4 text-center text-[10px] leading-relaxed text-slate-500">
           Educational simulation. The game does not approve loans, create binding offers, or match you with verified capital partners. Scores, approvals, limits, and forecasts are illustrative mock rules, not Experian or lender decisions.
@@ -113,6 +139,7 @@ export default function App() {
       </main>
 
       <EventModal s={s} dispatch={dispatch} />
+      <AchievementToasts queue={medalQueue} onDone={dropMedal} />
 
       <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 max-md:[&>*:not(:last-child)]:hidden">
         {toasts.map((t) => (

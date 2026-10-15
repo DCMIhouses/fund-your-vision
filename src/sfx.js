@@ -1,10 +1,10 @@
 let ctx = null
-let muted = localStorage.getItem('screw-vcs-muted') === '1'
+let muted = localStorage.getItem('fyv-muted') === '1'
 
 export const isMuted = () => muted
 export function setMuted(v) {
   muted = v
-  localStorage.setItem('screw-vcs-muted', v ? '1' : '0')
+  localStorage.setItem('fyv-muted', v ? '1' : '0')
 }
 
 const PATTERNS = {

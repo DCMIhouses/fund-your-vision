@@ -1,4 +1,4 @@
-# SCREW VCs: The Startup Funding Challenge
+# FUND YOUR VISION (FYV): The Startup Funding Challenge
 
 A dark-arcade startup funding strategy game built with React, Tailwind CSS v4 and Vite.
 Powered by NationwideBusinessFunding.com (Fractional Chief Capital Officer Platform).

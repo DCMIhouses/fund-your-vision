@@ -54,3 +54,6 @@ input[type=range] { accent-color: #39ff88; }
 .btn-play { width: 100%; border-radius: .5rem; background: #fbbf24; color: #05070d; padding: .4rem 0; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
 .btn-play:hover { filter: brightness(1.1); }
 .btn-play:disabled { opacity: .4; cursor: not-allowed; filter: none; }
+
+@keyframes medal-pop { 0% { transform: scale(.4) translateY(-20px); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+.medal-pop { animation: medal-pop .5s cubic-bezier(.2,1.4,.4,1) both; }
