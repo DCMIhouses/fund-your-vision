@@ -1,22 +1,36 @@
 import { useEffect, useState } from 'react'
-import { fmt, FULL_RUNWAY_DAYS, SALARY_VAULT_PCT, runwayDays } from '../game'
+import { addDays, daysUntil, fmt, FULL_RUNWAY_DAYS, runwayClock, runwayDays, SALARY_VAULT_PCT, toDateInput } from '../game'
 import { totals, ownership, monthlyBurn, liveScore, MIN_EVENTS } from '../engine'
 
 const STEPS = [['setup', 'Setup'], ['fund', 'Fund & Survive'], ['boss', 'Final Boss'], ['results', 'Results']]
 
 function RunwaySettings({ s, dispatch, onClose }) {
+  const [today] = useState(() => new Date())
+  const setDays = (v) => dispatch({ type: 'START_DAYS', value: Math.max(0, Math.min(3650, Math.round(v) || 0)) })
   return (
-    <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-edge bg-panel p-3 text-left shadow-2xl shadow-black/60">
+    <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-edge bg-panel p-3 text-left shadow-2xl shadow-black/60 lg:left-auto lg:right-0">
       <div className="flex items-center justify-between">
-        <div className="text-[11px] font-black uppercase tracking-widest text-white">Set Your Runway</div>
+        <div className="text-[11px] font-black uppercase tracking-widest text-white">Set Your Cash Runway</div>
         <button onClick={onClose} className="text-slate-500 hover:text-white">×</button>
       </div>
-      <label className="mt-3 block text-[11px] text-slate-400">
-        Starting cash buffer (days)
-        <input type="number" min={0} max={3650} value={s.startDays}
-          onChange={(e) => dispatch({ type: 'START_DAYS', value: Math.max(0, Math.min(3650, Number(e.target.value) || 0)) })}
-          className="mt-1 w-full rounded-lg border border-edge bg-ink px-2 py-1.5 font-mono text-sm text-white focus:border-neon focus:outline-none" />
-      </label>
+      <div className="mt-3 text-[11px] text-slate-400">How long your current cash lasts without new funding</div>
+      <div className="mt-1 grid grid-cols-4 gap-1">
+        {[[27, '27d'], [90, '90d'], [180, '180d'], [365, '1 yr']].map(([d, label]) => (
+          <button key={d} onClick={() => setDays(d)}
+            className={`rounded-md py-1 text-[11px] font-bold ${s.startDays === d ? 'bg-neon text-ink' : 'border border-edge text-slate-300 hover:border-neon'}`}>{label}</button>
+        ))}
+      </div>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <label className="block text-[10px] text-slate-500">Days
+          <input type="number" min={0} max={3650} value={s.startDays} onChange={(e) => setDays(Number(e.target.value))}
+            className="mt-0.5 w-full rounded-lg border border-edge bg-ink px-2 py-1.5 font-mono text-sm text-white focus:border-neon focus:outline-none" />
+        </label>
+        <label className="block text-[10px] text-slate-500">or cash runs out on
+          <input type="date" min={toDateInput(today)} value={toDateInput(addDays(today, s.startDays))}
+            onChange={(e) => e.target.value && setDays(daysUntil(e.target.value, today))}
+            className="mt-0.5 w-full rounded-lg border border-edge bg-ink px-1.5 py-1.5 font-mono text-xs text-white [color-scheme:dark] focus:border-neon focus:outline-none" />
+        </label>
+      </div>
       <label className="mt-3 block text-[11px] text-slate-400">
         Monthly burn {s.phase !== 'setup' && <span className="text-slate-600">(locked after launch)</span>}
         <div className="mt-1 flex items-center rounded-lg border border-edge bg-ink px-2 focus-within:border-neon">
@@ -28,8 +42,24 @@ function RunwaySettings({ s, dispatch, onClose }) {
         </div>
       </label>
       <p className="mt-2 text-[10px] leading-snug text-slate-500">
-        Runway = starting days + available cash ÷ daily burn (incl. squad). The 27-day default is the JPMorgan Chase Institute median cash buffer.
+        Runway = your starting buffer + available funding ÷ daily burn (incl. squad). 27 days is the JPMorgan Chase Institute median small-business cash buffer.
       </p>
+    </div>
+  )
+}
+
+function Clock({ days, className }) {
+  const c = runwayClock(days)
+  const unit = (n, l) => (
+    <span className="inline-flex items-baseline">
+      <span className="tabular-nums">{n}</span><span className="ml-px text-[0.55em] font-bold opacity-80">{l}</span>
+    </span>
+  )
+  return (
+    <div className={`flex items-baseline justify-center gap-1 font-mono font-black leading-tight ${className}`}>
+      {c.years > 0 && unit(c.years, 'Y')}
+      {(c.years > 0 || c.months > 0) && unit(c.months, 'M')}
+      {unit(c.days, 'D')}
     </div>
   )
 }
@@ -131,8 +161,10 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
               <button onClick={() => setShowRunway((v) => !v)} title="Set your runway"
                 className="h-full w-full rounded-xl border border-edge bg-panel p-1.5 text-center hover:border-neon/60 md:p-2">
                 <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Cash Buffer Runway <span className="text-neon">⚙</span></div>
-                <div className={`font-mono text-lg font-black md:text-2xl ${runwayClass}`}>{runway.toLocaleString('en-US')}</div>
-                <div className="text-[9px] text-slate-500 md:text-[10px]">{secured ? 'DAYS · 365+ SECURED' : 'DAYS'}</div>
+                <Clock days={runway} className={`text-base md:text-xl ${runwayClass}`} />
+                <div className="text-[9px] leading-tight text-slate-500 md:text-[10px]">
+                  {secured && <span className="text-neon">1 YR+ SECURED · </span>}Out of cash {runwayClock(runway).date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </div>
               </button>
               {showRunway && <RunwaySettings s={s} dispatch={dispatch} onClose={() => setShowRunway(false)} />}
             </div>

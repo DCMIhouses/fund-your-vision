@@ -74,3 +74,36 @@ export function runwayDays(cash, startDays, monthlyBurn) {
   const daily = monthlyBurn / 30
   return Math.round(startDays + (daily > 0 ? Math.max(0, cash) / daily : 0))
 }
+
+const DAY_MS = 86400000
+const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+export function addDays(from, days) {
+  const d = startOfDay(from)
+  d.setDate(d.getDate() + days)
+  return d
+}
+
+export function daysUntil(dateStr, from = new Date()) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return Math.max(0, Math.round((new Date(y, m - 1, d) - startOfDay(from)) / DAY_MS))
+}
+
+export const toDateInput = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+export function runwayClock(totalDays, from = new Date()) {
+  const start = startOfDay(from)
+  const end = addDays(start, totalDays)
+  let years = end.getFullYear() - start.getFullYear()
+  let months = end.getMonth() - start.getMonth()
+  let days = end.getDate() - start.getDate()
+  if (days < 0) {
+    months -= 1
+    days += new Date(end.getFullYear(), end.getMonth(), 0).getDate()
+  }
+  if (months < 0) {
+    years -= 1
+    months += 12
+  }
+  return { years, months, days, date: end }
+}
