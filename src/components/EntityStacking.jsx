@@ -32,7 +32,7 @@ export default function EntityStacking({ entities, onAdd, onToggle, onStack, ent
         {entities.length}/{MAX_ENTITIES} entities · current capacity per fundable entity ≈ <span className="font-mono text-gold">{fmt(entityCapacity)}</span>
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {entities.length === 0 && (
           <div className="col-span-full rounded-xl border border-dashed border-edge p-4 text-center text-xs text-slate-500">
             No entities yet. Corporate America runs on subsidiaries. Form your first LLC.

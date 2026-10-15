@@ -7,13 +7,14 @@ import Tradelines from './components/Tradelines'
 import JVMatch from './components/JVMatch'
 import Victory from './components/Victory'
 import {
-  DEFAULT_PROFILE, buildPlan, ENTITY_BASE_CAPACITY, ENTITY_TASKS, PARTNERS, approvalOdds, clamp, effectiveProfile,
-  estimatedLimit, fmt, fundabilityScore, levelFor, runwayDays,
+  DEFAULT_PROFILE, DEFAULT_RUNWAY, buildPlan, ENTITY_BASE_CAPACITY, ENTITY_TASKS, PARTNERS, approvalOdds, clamp, effectiveProfile,
+  estimatedLimit, fmt, fundabilityScore, levelFor, monthlyBurnFor, runwayDays,
 } from './game'
 
 const STORAGE_KEY = 'screw-vcs-v1'
 const INITIAL = {
   target: 150000,
+  runway: DEFAULT_RUNWAY,
   profile: DEFAULT_PROFILE,
   underwriting: null,
   cards: {},
@@ -79,7 +80,9 @@ export default function App() {
     { label: 'AU Tradeline Spend', amount: -spend },
   ].filter((x) => x.amount !== 0)
 
-  const plan = buildPlan({ target: s.target, net, unlocked, spend, sources, runway: runwayDays(net, s.target) })
+  const monthlyBurn = monthlyBurnFor(s.runway, s.target)
+  const runway = runwayDays(net, s.runway.startDays, monthlyBurn)
+  const plan = buildPlan({ target: s.target, net, unlocked, spend, sources, runway })
 
   const funded = net >= s.target
   const wasFunded = useRef(funded)
@@ -139,10 +142,11 @@ export default function App() {
   return (
     <div className="grid-bg min-h-screen overflow-x-clip">
       <TopBar target={s.target} setTarget={(target) => update({ target })} unlocked={unlocked} spend={spend}
+        runway={runway} runwaySettings={s.runway} monthlyBurn={monthlyBurn} setRunway={(r) => update((p) => ({ runway: { ...p.runway, ...r } }))}
         xp={s.xp} onVictory={() => setVictoryOpen(true)} onReset={reset} />
 
       <main className="mx-auto max-w-7xl px-4 py-6">
-        <div className="mb-6 grid gap-3 md:grid-cols-3">
+        <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-hot/40 bg-hot/5 p-3 text-xs text-slate-300">
             <span className="font-black text-hot">VCs</span> take 30–50% equity and board seats, and can fire you from your own company.
           </div>
@@ -154,7 +158,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <Underwriting profile={s.profile} setProfile={(profile) => update({ profile })} effective={effective}
             result={s.underwriting} onRun={onRun} />
           <CardStacking score={liveScore} income={s.profile.income} locked={locked} results={s.cards} onApply={onApply} />

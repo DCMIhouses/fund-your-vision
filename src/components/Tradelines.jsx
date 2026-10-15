@@ -8,7 +8,7 @@ export default function Tradelines({ owned, onBuy, onRemove }) {
     <Panel num="5" accent="hot" title="Authorized User (AU) Tradelines"
       subtitle="Rent seasoned age and unused limit to lower utilization and lift your score. Buy BEFORE you stack."
       right={<div className="text-right"><div className="text-[10px] uppercase text-slate-500">Spend</div><div className="whitespace-nowrap font-mono font-black text-hot">−{fmt(spend)}</div></div>}>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {TRADELINES.map((t) => {
           const has = ids.has(t.id)
           return (

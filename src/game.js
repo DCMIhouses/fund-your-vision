@@ -110,9 +110,20 @@ export function estimatedLimit(score, income, card) {
   return Math.round((card.maxLimit * scoreFactor * incomeFactor) / 500) * 500
 }
 
-export function runwayDays(unlocked, target) {
-  const pct = target > 0 ? unlocked / target : 0
-  return Math.round(BASE_RUNWAY_DAYS + clamp(pct, 0, 1) * (FULL_RUNWAY_DAYS - BASE_RUNWAY_DAYS))
+export const DEFAULT_RUNWAY = { startDays: BASE_RUNWAY_DAYS, mode: 'auto', monthlyBurn: 12500 }
+
+export function autoMonthlyBurn(target, startDays) {
+  const days = Math.max(1, FULL_RUNWAY_DAYS - startDays)
+  return target / (days / 30)
+}
+
+export function monthlyBurnFor(runway, target) {
+  return runway.mode === 'auto' ? autoMonthlyBurn(target, runway.startDays) : runway.monthlyBurn
+}
+
+export function runwayDays(unlocked, startDays, monthlyBurn) {
+  const daily = monthlyBurn / 30
+  return Math.round(startDays + (daily > 0 ? unlocked / daily : 0))
 }
 
 export const LEVELS = [
@@ -141,7 +152,7 @@ export function buildPlan({ target, net, unlocked, spend, sources, runway }) {
     '*SCREW VCs: 0% Capital Plan CONFIRMED*',
     `Target Raise: ${fmt(target)} | Unlocked (net): ${fmt(net)} (${((net / target) * 100).toFixed(1)}%)`,
     `Gross: ${fmt(unlocked)} | AU tradeline spend: ${fmt(spend)}`,
-    `Cash buffer runway: ${runway >= 365 ? '365+' : runway} days | Founder salary vault (20%): ${fmt(net * SALARY_VAULT_PCT)}`,
+    `Cash buffer runway: ${runway.toLocaleString('en-US')} days | Founder salary vault (20%): ${fmt(net * SALARY_VAULT_PCT)}`,
     'Equity kept: 100% | Board seats lost: 0',
     '',
     '*Capital stack*',

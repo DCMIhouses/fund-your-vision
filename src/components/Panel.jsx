@@ -12,7 +12,7 @@ export default function Panel({ num, title, subtitle, accent = 'neon', right, ch
     gold: 'bg-gold text-ink',
   }[accent]
   return (
-    <section className={`rounded-2xl bg-gradient-to-br ${ring} to-transparent p-px ${className}`}>
+    <section className={`min-w-0 rounded-2xl bg-gradient-to-br ${ring} to-transparent p-px ${className}`}>
       <div className="h-full rounded-2xl bg-panel/95 p-5 backdrop-blur">
         <header className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">

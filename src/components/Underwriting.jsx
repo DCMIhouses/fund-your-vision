@@ -31,7 +31,7 @@ export default function Underwriting({ profile, setProfile, effective, result, o
   return (
     <Panel num="2" accent="cyan" title="Experian-Style AI Underwriting"
       subtitle="Simulated bureau scoring: fundability decides your approval odds and 0% limits.">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="FICO score (base)" value={profile.fico} min={500} max={850} onChange={set('fico')} />
         <Field label="Revolving utilization" value={profile.utilization} display={`${profile.utilization}%`} min={0} max={100} onChange={set('utilization')} />
         <Field label="Hard inquiries (6 mo)" value={profile.inquiries} min={0} max={12} onChange={set('inquiries')} />
