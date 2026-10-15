@@ -13,7 +13,7 @@ npm run build    # production build in dist/
 
 ## Sections
 
-1. **Sticky Target Raise Goal Bar & Scoreboard**: $25K–$500K goal slider, animated progress bar, Cash Buffer Runway (flashing red under 90 days, neon green at 365+). Click it to set starting buffer days (default 27) and monthly burn (Auto = 365 days at 100% funded, or a custom $/mo). Runway = start days + unlocked ÷ daily burn, Pay Yourself First Salary Vault (20%), Equity Kept vs VCs, Victory button.
+1. **Sticky Target Raise Goal Bar & Scoreboard** (compacts on mobile scroll): $25K–$500K goal slider, animated progress bar, Pay Yourself First Salary Vault (20%), Equity Kept vs VCs, Victory button, and a player-set **Cash Buffer Runway**: click it to set starting buffer days (default 27) and monthly burn (Auto = 365 days at 100% funded, or a custom $/mo). Runway = starting days + unlocked capital ÷ daily burn; flashing red under 90 days, neon green at 365+.
 2. **Experian-style AI Underwriting**: simulated fundability score (0–100) and tier from FICO, utilization, inquiries, age, accounts, income, derogatories.
 3. **0% Card Stacking**: approval odds and limits come from the fundability score. Every application adds an inquiry.
 4. **Multi-Entity Stacking**: form up to 4 LLCs, finish the fundability checklist, stack each one.

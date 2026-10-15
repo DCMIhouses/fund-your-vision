@@ -26,7 +26,7 @@ export default function CardStacking({ score, income, locked, results, onApply }
           const odds = approvalOdds(score, card)
           const est = estimatedLimit(score, income, card)
           return (
-            <div key={card.id} className={`flex items-center gap-3 rounded-xl border p-3 transition ${
+            <div key={card.id} className={`flex flex-wrap items-center gap-3 rounded-xl border p-3 transition ${
               r?.status === 'approved' ? 'border-neon/60 bg-neon/5' : r?.status === 'denied' ? 'border-hot/40 bg-hot/5 opacity-70' : 'border-edge bg-ink/60'}`}>
               <div className="grid h-10 w-14 shrink-0 place-items-center rounded-md bg-gradient-to-br from-slate-700 to-slate-900 font-mono text-[10px] font-black text-gold">
                 0%·{card.promo}m
@@ -42,7 +42,7 @@ export default function CardStacking({ score, income, locked, results, onApply }
                   </div>
                 )}
               </div>
-              <div className="w-28 shrink-0 text-right">
+              <div className="w-full shrink-0 text-right sm:w-28">
                 {r?.status === 'approved' && <div className="font-mono text-sm font-black text-neon">+{fmt(r.limit)}<div className="text-[10px] font-normal">APPROVED</div></div>}
                 {r?.status === 'denied' && <div className="font-mono text-xs font-black text-hot">DENIED</div>}
                 {!r && (
