@@ -84,6 +84,7 @@ export function LevelTrack({ level, compact }) {
 export function MedalShowcase({ collection }) {
   const pub = ACHIEVEMENTS.filter((a) => !a.secret)
   const secret = ACHIEVEMENTS.filter((a) => a.secret)
+  const earned = ACHIEVEMENTS.filter((a) => collection[a.id])
   return (
     <section className="mb-8 rounded-3xl border-2 border-gold/60 bg-panel p-5 shadow-[0_0_50px_rgba(251,191,36,.18)] sm:p-8">
       <div className="text-center">
@@ -91,10 +92,30 @@ export function MedalShowcase({ collection }) {
         <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">The Medal Board</h2>
         <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">Medals unlock the moment you earn them. Hunt the 8 secret medals by trying different strategies.</p>
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-6 rounded-2xl border border-neon/40 bg-neon/5 p-4 sm:p-6">
+        <div className="text-center text-xs font-black uppercase tracking-[0.3em] text-neon">Your Accomplishments</div>
+        <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+          {[['Medals collected', `${earned.length}/${ACHIEVEMENTS.length}`], ['Secret medals found', `${earned.filter((a) => a.secret).length}/8`], ['Legendary medals', earned.filter((a) => a.rarity === 'legendary').length]].map(([k, v]) => (
+            <div key={k} className="rounded-xl border border-edge bg-ink/60 p-3"><div className="font-mono text-2xl font-black text-white">{v}</div><div className="text-xs text-slate-400">{k}</div></div>
+          ))}
+        </div>
+        {earned.length ? (
+          <div className="mt-4 flex flex-wrap justify-center gap-4">
+            {earned.map((a) => (
+              <div key={a.id} className="flex w-24 flex-col items-center text-center">
+                <Medal a={a} size="lg" />
+                <span className="mt-1 text-xs font-bold text-white">{a.name}</span>
+                <span className="text-[11px] text-slate-500">{new Date(collection[a.id]).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        ) : <div className="mt-4 text-center text-sm text-slate-400">No medals yet. Launch your first startup below to start collecting.</div>}
+      </div>
+      <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-gold">All medals</div>
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {pub.map((a, i) => (
-          <div key={a.id} className="medal-pop flex items-center gap-3 rounded-2xl border border-edge bg-ink/60 p-3" style={{ animationDelay: `${i * 0.05}s` }}>
-            <Medal a={a} />
+          <div key={a.id} className="medal-pop flex items-center gap-4 rounded-2xl border border-edge bg-ink/60 p-4" style={{ animationDelay: `${i * 0.05}s` }}>
+            <Medal a={a} size="lg" />
             <div className="min-w-0">
               <div className="text-sm font-black text-white">{a.name}</div>
               <div className="text-xs leading-snug text-slate-400">{a.desc}</div>
@@ -107,7 +128,7 @@ export function MedalShowcase({ collection }) {
       <div className="mt-3 flex flex-wrap justify-center gap-3">
         {secret.map((a) => (
           <div key={a.id} title={collection[a.id] ? a.name : 'Secret medal'} className="flex flex-col items-center gap-1">
-            {collection[a.id] ? <Medal a={a} /> : <Medal locked />}
+            {collection[a.id] ? <Medal a={a} size="lg" /> : <Medal locked size="lg" />}
             <span className="text-[11px] text-slate-500">{collection[a.id] ? a.name : '???'}</span>
           </div>
         ))}

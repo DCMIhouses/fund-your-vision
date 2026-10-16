@@ -108,7 +108,7 @@ export default function App() {
         <h1 className="relative mx-auto w-full max-w-[min(520px,85vw)]">
           <img src="/fyv-logo.png" alt="FYV: Fund Your Vision, The Startup Survival Game" className="medal-pop mx-auto w-full drop-shadow-[0_0_40px_rgba(168,85,247,.35)]" />
         </h1>
-        <div className="relative -mt-1 text-xs font-black uppercase tracking-[0.45em] text-slate-200 sm:text-sm">The Startup Survival Game</div>
+        <div className="relative mt-3 bg-gradient-to-r from-sky-400 via-gold to-fuchsia-400 bg-clip-text text-xl font-black uppercase tracking-wide text-transparent sm:text-3xl">$10,000 to $1 Million to Fund Your Dream</div>
         <div className="relative mt-2 text-xs text-slate-400 sm:text-sm">Powered by <span className="font-semibold text-cyan">NationwideBusinessFunding.com</span> · Fractional Chief Capital Officer Platform</div>
       </header>
       <TopBar s={s} dispatch={dispatch} muted={muted} toggleMute={toggleMute} />
