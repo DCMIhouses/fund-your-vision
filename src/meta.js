@@ -1,7 +1,7 @@
 import { INDUSTRIES } from './data'
 
 export const AVATARS = [
-  { id: 'rocket', icon: '🚀', name: 'Rocket Rookie' },
+  { id: 'rocket', icon: '🌱', name: 'Fresh Founder' },
   { id: 'bolt', icon: '⚡', name: 'The Hustler' },
   { id: 'brain', icon: '🧠', name: 'The Strategist' },
   { id: 'owl', icon: '🦉', name: 'Wise Owl' },
@@ -10,11 +10,12 @@ export const AVATARS = [
 ]
 
 export const SKINS = [
-  { id: 'classic', name: 'Classic Blue', cost: 0, grad: 'from-sky-400 to-fuchsia-500' },
-  { id: 'neon', name: 'Neon Green', cost: 100, grad: 'from-neon to-cyan' },
-  { id: 'gold', name: 'Gold Rush', cost: 200, grad: 'from-gold to-orange-500' },
-  { id: 'flame', name: 'Flame Trail', cost: 300, grad: 'from-hot to-gold' },
-  { id: 'galaxy', name: 'Galaxy', cost: 500, grad: 'from-purple-500 via-fuchsia-400 to-cyan' },
+  { id: 'classic', name: 'Sapphire', cut: 'cushion', c1: '#7dd3fc', c2: '#2563eb', cost: 0, grad: 'from-sky-400 to-blue-600' },
+  { id: 'neon', name: 'Emerald', cut: 'emerald', c1: '#6ee7b7', c2: '#059669', cost: 100, grad: 'from-neon to-emerald-600' },
+  { id: 'gold', name: 'Topaz', cut: 'trillion', c1: '#fde68a', c2: '#f97316', cost: 200, grad: 'from-gold to-orange-500' },
+  { id: 'flame', name: 'Ruby', cut: 'heart', c1: '#fda4af', c2: '#be123c', cost: 300, grad: 'from-rose-400 to-rose-700' },
+  { id: 'galaxy', name: 'Amethyst', cut: 'crystal', c1: '#f0abfc', c2: '#7c3aed', cost: 500, grad: 'from-fuchsia-400 to-purple-600' },
+  { id: 'diamond', name: 'Diamond', cut: 'brilliant', c1: '#ffffff', c2: '#67e8f9', cost: 800, grad: 'from-white via-cyan-200 to-sky-400' },
 ]
 
 export const MEDAL_POINTS = { common: 25, rare: 50, epic: 100, legendary: 250 }

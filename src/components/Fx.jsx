@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { fmt, runwayDays } from '../game'
 import { MIN_EVENTS, monthlyBurn, totals } from '../engine'
 import { AVATARS, EVENT_ICON, SKINS, dailyConfig, dailyName } from '../meta'
+import Gem from './Gem'
 import { play } from '../sfx'
 
 const STARS = Array.from({ length: 46 }, (_, i) => ({
@@ -99,7 +100,8 @@ export function QuestMap({ tabs, tab, setTab, s, skin }) {
     { id: 'events', label: 'Events', hint: `${Math.min(s.resolvedEvents.length, MIN_EVENTS)}/${MIN_EVENTS} survived`, icon: '🎲', ok: s.resolvedEvents.length >= MIN_EVENTS },
     { id: 'boss', label: 'Boss', hint: t.available >= s.startup.target ? 'Unlocked!' : 'Locked', icon: '👾', ok: false, boss: true }]
   const active = stops.findIndex((x) => x.id === tab)
-  const grad = (SKINS.find((k) => k.id === skin) || SKINS[0]).grad
+  const gem = SKINS.find((k) => k.id === skin) || SKINS[0]
+  const grad = gem.grad
   return (
     <nav aria-label="Quest map" className="-mx-4 mb-6 overflow-x-auto px-4 pb-2 lg:mx-0 lg:px-0">
       <div className="text-xs font-black uppercase tracking-[0.3em] text-slate-500">Your quest map · tap a stop</div>
@@ -112,7 +114,7 @@ export function QuestMap({ tabs, tab, setTab, s, skin }) {
           return (
             <button key={x.id} disabled={!x.click} onClick={() => { if (x.click) { play('whoosh'); setTab(x.id) } }}
               className="relative flex w-20 flex-col items-center text-center disabled:cursor-default">
-              {cur && <span className="bob absolute -top-7 text-2xl drop-shadow-[0_0_10px_rgba(251,191,36,.9)]">🚀</span>}
+              {cur && <span className="bob absolute -top-8"><Gem gem={gem} className="h-7 w-7" /></span>}
               <span className={`relative grid h-14 w-14 place-items-center rounded-full border-2 text-2xl transition ${cur ? 'scale-110 border-neon bg-neon/20 shadow-[0_0_24px_rgba(57,255,136,.7)]' : x.ok ? 'border-neon/70 bg-ink' : x.boss ? 'border-hot/70 bg-hot/10' : 'border-edge bg-ink'} ${x.click && !cur ? 'hover:border-neon/70' : ''}`}>
                 {x.icon}
                 {x.ok && <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-neon text-[11px] font-black text-ink">✓</span>}
@@ -203,7 +205,7 @@ export function Hangar({ meta, update, s, dispatch, today }) {
         <div className="rounded-2xl border border-gold/50 bg-gold/5 p-4 text-center">
           <div className="text-xs font-black uppercase tracking-widest text-gold">Capital Points</div>
           <div className="mt-1 font-mono text-4xl font-black text-gold"><CountUp value={meta.points} format={(v) => Math.round(v).toLocaleString()} /></div>
-          <div className="text-xs text-slate-400">Earn points from medals and finished games. Spend them on rocket skins. Game points only, not real money.</div>
+          <div className="text-xs text-slate-400">Earn points from medals and finished games. Spend them on gems. Game points only, not real money.</div>
         </div>
         <div className="rounded-2xl border border-hot/50 bg-hot/5 p-4 text-center">
           <div className="text-xs font-black uppercase tracking-widest text-hot">Daily streak</div>
@@ -228,8 +230,8 @@ export function Hangar({ meta, update, s, dispatch, today }) {
           </button>
         ))}
       </div>
-      <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-slate-400">Rocket skins shop</div>
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-slate-400">Gem shop · your gem marks your spot on the quest map</div>
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {SKINS.map((k) => {
           const own = meta.owned.includes(k.id)
           const on = meta.skin === k.id
@@ -237,7 +239,7 @@ export function Hangar({ meta, update, s, dispatch, today }) {
           return (
             <button key={k.id} onClick={() => buy(k)} disabled={!own && !afford}
               className={`rounded-2xl border-2 p-3 text-center transition disabled:cursor-not-allowed ${on ? 'border-gold bg-gold/10' : 'border-edge bg-ink/60 hover:border-gold/60'} ${!own && !afford ? 'opacity-50' : ''}`}>
-              <span className={`mx-auto grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br ${k.grad} text-2xl shadow-lg`}>🚀</span>
+              <span className={`mx-auto grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br ${k.grad} p-[2px] shadow-lg`}><span className="grid h-full w-full place-items-center rounded-full bg-ink"><Gem gem={k} className="h-9 w-9" /></span></span>
               <div className="mt-1 text-xs font-black text-white">{k.name}</div>
               <div className={`text-[11px] font-bold ${on ? 'text-gold' : own ? 'text-neon' : 'text-slate-400'}`}>{on ? 'Equipped' : own ? 'Owned · tap to use' : `${k.cost} pts`}</div>
             </button>
