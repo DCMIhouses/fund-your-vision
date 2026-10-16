@@ -1,6 +1,6 @@
 import Chart from './Chart'
 import { fmt } from '../game'
-import { bossLimit, bossOptions, runForecast, scoreGame, totals } from '../engine'
+import { bossLimit, bossOptions, monthlyBurn, runForecast, scoreGame, totals } from '../engine'
 
 export default function Boss({ s, dispatch }) {
   const options = bossOptions(s)
@@ -14,13 +14,18 @@ export default function Boss({ s, dispatch }) {
     <section className="rounded-3xl border-2 border-hot bg-panel p-5 shadow-[0_0_60px_rgba(255,46,99,.25)] md:p-7">
       <div className="text-center">
         <div className="text-[13px] font-black uppercase tracking-[0.35em] text-hot">Final Boss · Month 12</div>
-        <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">{crunch ? 'The Cash Crunch' : 'The Promo Cliff'}</h2>
+        <h2 className="medal-pop mt-1 text-4xl font-black uppercase text-white md:text-6xl">{crunch ? 'The Cash Crunch' : 'The Promo Cliff'}</h2>
         <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-400">
           You raised {fmt(totals(s).available)}. Now the 0% promos expire and revenue lands 25% below projections.
           {crunch ? ' Untouched, your forecast ends ' + (baseline.insolventMonth ? `out of cash in month ${baseline.insolventMonth}.` : 'without a one-month reserve.') : ' Your untouched forecast survives, but can you make it stronger?'}
         </p>
       </div>
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[['Available', fmt(totals(s).available)], ['Promo balances', fmt(s.funding.filter((x) => (x.type === 'credit' || x.type === 'partner') && x.status === 'available').reduce((a, x) => a + x.amount, 0))], ['Monthly burn', fmt(monthlyBurn(s))], ['Untouched month-18 cash', fmt(baseline.endCash)]].map(([k, v]) => (
+          <div key={k} className="rounded-xl border border-edge bg-ink/60 p-3"><div className="text-[11px] uppercase tracking-widest text-slate-500">{k}</div><div className={`font-mono text-sm font-black ${k.startsWith('Untouched') && baseline.endCash < 0 ? 'text-hot' : 'text-white'}`}>{v}</div></div>
+        ))}
+      </div>
+      <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="rounded-2xl border border-edge bg-ink/70 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-slate-400">
             <span>Forecast cash position {s.bossMoves.length ? '(with your moves)' : '(no moves yet)'}</span>

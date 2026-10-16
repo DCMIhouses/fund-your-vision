@@ -1,4 +1,3 @@
-import Panel from './Panel'
 import { INDUSTRIES, DEMO_SCENARIOS, TOURNAMENT_SCENARIOS } from '../data'
 import { fmt } from '../game'
 import { ProfileFields, ScorePreview } from './Underwriting'
@@ -9,8 +8,18 @@ export default function Setup({ s, dispatch }) {
   const tour = s.mode === 'tournament'
   const scenarios = tour ? TOURNAMENT_SCENARIOS : DEMO_SCENARIOS
   return (
-    <Panel num="1" accent="neon" title="Create Your Startup"
-      subtitle="Name it, pick an industry, set the target and burn, then lock in an illustrative credit profile.">
+    <section className="rounded-3xl border-2 border-neon bg-panel p-5 shadow-[0_0_60px_rgba(57,255,136,.25)] sm:p-8">
+      <div className="text-center">
+        <div className="text-xs font-black uppercase tracking-[0.35em] text-slate-400">NationwideBusinessFunding.com presents</div>
+        <h2 className="medal-pop mt-1 text-4xl font-black uppercase text-neon md:text-6xl">Fund Your Vision</h2>
+        <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">Create your startup, raise the capital, then prove it can survive 18 months. (Educational simulation.)</p>
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {[['Mode', tour ? 'Tournament' : 'Arcade'], ['Target', fmt(st.target)], ['Monthly burn', fmt(st.monthlyBurn)], ['Founder pay', `${fmt(st.founderPay || 0)}/mo`], ['Savings', fmt(st.savings)], ['Industry', INDUSTRIES[st.industry].label]].map(([k, v]) => (
+          <div key={k} className="rounded-xl border border-edge bg-ink/60 p-3"><div className="text-[11px] uppercase tracking-widest text-slate-500">{k}</div><div className="truncate font-mono text-sm font-black text-white">{v}</div></div>
+        ))}
+      </div>
+      <div className="mt-8">
       <div className="mb-3 grid grid-cols-2 gap-1 rounded-xl bg-ink p-1">
         {[['arcade', 'Arcade Mode', 'Customize everything. Earn medals freely.'], ['tournament', 'Tournament Mode', 'Standardized seeded scenarios. Verified leaderboard.']].map(([m, label, sub]) => (
           <button key={m} onClick={() => dispatch({ type: 'SET_MODE', mode: m })}
@@ -84,6 +93,7 @@ export default function Setup({ s, dispatch }) {
         className="glow-pulse mt-5 w-full rounded-xl bg-neon py-3 text-sm font-black uppercase tracking-wider text-ink hover:brightness-110">
         Launch {st.name.trim() || 'my startup'} and start funding
       </button>
-    </Panel>
+      </div>
+    </section>
   )
 }
