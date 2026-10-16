@@ -127,21 +127,21 @@ export default function Results({ s, dispatch }) {
     <section className={`relative rounded-3xl border-2 bg-panel p-5 md:p-7 ${o.ring}`}>
       {r.outcome === 'victory' && confetti.map((c, i) => <span key={i} className="confetti" style={{ left: `${c.left}%`, background: c.color, animationDelay: `${c.delay}s`, animationDuration: `${c.dur}s` }} />)}
       <div className="text-center">
-        <div className="text-[11px] font-black uppercase tracking-[0.35em] text-slate-400">{s.startup.name} · {INDUSTRIES[s.startup.industry].label} · {s.mode === 'tournament' ? 'Tournament' : 'Arcade'}</div>
+        <div className="text-[13px] font-black uppercase tracking-[0.35em] text-slate-400">{s.startup.name} · {INDUSTRIES[s.startup.industry].label} · {s.mode === 'tournament' ? 'Tournament' : 'Arcade'}</div>
         <h2 className={`medal-pop mt-1 text-4xl font-black uppercase md:text-6xl ${o.color}`}>{o.title}</h2>
         <p className="text-sm text-slate-400">{o.sub}{r.forecast.insolventMonth ? ` Cash ran out in month ${r.forecast.insolventMonth}.` : ''} <span className="text-slate-600">(simulated outcome)</span></p>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
         <div className="rounded-2xl border border-edge bg-ink/70 p-4 text-center">
-          <div className="text-[10px] uppercase tracking-widest text-slate-500">Startup Capital IQ</div>
+          <div className="text-xs uppercase tracking-widest text-slate-500">Startup Capital IQ</div>
           <div className={`font-mono text-7xl font-black tabular-nums ${o.color}`}>{iq}</div>
           <div className="mt-1 inline-block rounded-full border border-gold/60 bg-gold/10 px-3 py-1 text-xs font-black uppercase text-gold">{r.badge}</div>
-          <div className="mt-2 text-[11px] text-slate-400">Founder Level <span className="font-black text-gold">L{Math.max(0, s.level) + 1}: {level.name}</span></div>
+          <div className="mt-2 text-[13px] text-slate-400">Founder Level <span className="font-black text-gold">L{Math.max(0, s.level) + 1}: {level.name}</span></div>
           <div className="mt-4 space-y-1.5 text-left">
             {r.breakdown.map((b) => (
               <div key={b.id}>
-                <div className="flex justify-between text-[11px]"><span className="text-slate-300">{b.label}</span><span className="font-mono text-white">{b.pts}/{b.max}</span></div>
+                <div className="flex justify-between text-[13px]"><span className="text-slate-300">{b.label}</span><span className="font-mono text-white">{b.pts}/{b.max}</span></div>
                 <div className="h-1.5 overflow-hidden rounded bg-edge"><div className="h-full bg-neon transition-all duration-1000" style={{ width: `${(b.pts / b.max) * 100}%` }} /></div>
               </div>
             ))}
@@ -150,12 +150,12 @@ export default function Results({ s, dispatch }) {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[['Ending cash', fmt(r.forecast.endCash)], ['Debt remaining', fmt(r.debtRemaining)], ['Ownership kept', `${(r.founderOwnership * 100).toFixed(1)}%`], ['Runway', runwayMonths >= 18 ? '18+ mo' : `${runwayMonths} mo`], ['Available funding', fmt(t.available)], ['% of target', `${Math.round((t.available / s.startup.target) * 100)}%`], ['Debt / Equity', `${fmt(t.debt)} / ${fmt(t.equity)}`], ['Boss moves', r.moves.length ? r.moves.join(', ') : 'none']].map(([k, v]) => (
-              <div key={k} className="rounded-lg border border-edge bg-ink/60 p-2"><div className="text-[9px] uppercase tracking-widest text-slate-500">{k}</div><div className="truncate font-mono text-sm font-black text-white">{v}</div></div>
+              <div key={k} className="rounded-lg border border-edge bg-ink/60 p-2"><div className="text-[11px] uppercase tracking-widest text-slate-500">{k}</div><div className="truncate font-mono text-sm font-black text-white">{v}</div></div>
             ))}
           </div>
           <div className="rounded-2xl border border-edge bg-ink/70 p-3"><Chart forecast={r.forecast} height={150} /></div>
           <div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-gold">Medals earned this run ({medals.length})</div>
+            <div className="text-xs font-black uppercase tracking-widest text-gold">Medals earned this run ({medals.length})</div>
             <div className="mt-2 flex flex-wrap gap-2">
               {medals.map((a, i) => (
                 <div key={a.id} className="medal-pop flex items-center gap-2 rounded-xl border border-gold/40 bg-gold/5 py-1 pl-1 pr-3" style={{ animationDelay: `${0.3 + i * 0.12}s` }}>
@@ -170,22 +170,22 @@ export default function Results({ s, dispatch }) {
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-edge bg-ink/60 p-4">
           <div className="text-xs font-black uppercase tracking-widest text-white">Buildathon Leaderboard</div>
-          <div className="text-[10px] text-hot">Local demo leaderboard: saved on this device only (no hosted backend).</div>
+          <div className="text-xs text-hot">Local demo leaderboard: saved on this device only (no hosted backend).</div>
           <div className="mt-2 grid grid-cols-3 gap-1">
-            {BOARDS.map(([id, label]) => <button key={id} onClick={() => setBoard(id)} className={`rounded-md py-1 text-[10px] font-black uppercase ${board === id ? 'bg-neon text-ink' : 'border border-edge text-slate-400'}`}>{label}</button>)}
+            {BOARDS.map(([id, label]) => <button key={id} onClick={() => setBoard(id)} className={`rounded-md py-1 text-xs font-black uppercase ${board === id ? 'bg-neon text-ink' : 'border border-edge text-slate-400'}`}>{label}</button>)}
           </div>
           {s.mode === 'tournament' ? (!status?.ok && (
             <form onSubmit={submit} className="mt-2 flex gap-2">
               <input value={nick} onChange={(e) => setNick(e.target.value)} maxLength={20} placeholder="Nickname only" className="min-w-0 flex-1 rounded-lg border border-edge bg-ink px-2 py-1.5 text-sm text-white focus:border-neon focus:outline-none" />
               <button className="rounded-lg bg-neon px-3 text-xs font-black uppercase text-ink">Submit</button>
             </form>
-          )) : <div className="mt-2 rounded-lg border border-dashed border-edge p-2 text-[11px] text-slate-400">Arcade scores are unofficial. Play <b className="text-gold">Tournament Mode</b> to post a verified score.</div>}
-          {status && <div className={`mt-1 text-[11px] ${status.ok ? 'text-neon' : 'text-hot'}`}>{status.text}</div>}
-          <div className="mt-1 text-[10px] text-slate-500">{scenario && s.mode === 'tournament' ? scenario.label : 'All tournament scenarios'}</div>
+          )) : <div className="mt-2 rounded-lg border border-dashed border-edge p-2 text-[13px] text-slate-400">Arcade scores are unofficial. Play <b className="text-gold">Tournament Mode</b> to post a verified score.</div>}
+          {status && <div className={`mt-1 text-[13px] ${status.ok ? 'text-neon' : 'text-hot'}`}>{status.text}</div>}
+          <div className="mt-1 text-xs text-slate-500">{scenario && s.mode === 'tournament' ? scenario.label : 'All tournament scenarios'}</div>
           <ol className="mt-2 space-y-1">
-            {rows.length === 0 && <li className="text-[11px] text-slate-500">No verified scores yet.</li>}
+            {rows.length === 0 && <li className="text-[13px] text-slate-500">No verified scores yet.</li>}
             {rows.map((e, i) => (
-              <li key={e.at} className="flex justify-between gap-2 rounded bg-ink/70 px-2 py-1 text-[11px]">
+              <li key={e.at} className="flex justify-between gap-2 rounded bg-ink/70 px-2 py-1 text-[13px]">
                 <span className="truncate text-slate-300">{i + 1}. {e.nick} <span className="text-slate-500">· {e.badge}</span></span>
                 <span className="shrink-0 font-mono text-neon">{show(e)}</span>
               </li>
@@ -195,33 +195,33 @@ export default function Results({ s, dispatch }) {
 
         <div className="rounded-2xl border border-cyan/50 bg-cyan/5 p-4">
           <div className="text-xs font-black uppercase tracking-widest text-white">The Capital Blueprint</div>
-          <div className="text-[10px] text-slate-400">Your personalized, educational summary: objectives, alternatives, risks, next steps.</div>
-          <pre className="mt-2 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg border border-edge bg-ink p-2 font-mono text-[9px] text-slate-400">{bp}</pre>
-          <button onClick={download} className="mt-2 w-full rounded-lg border border-cyan/60 py-1.5 text-[11px] font-black uppercase text-cyan hover:bg-cyan/10">Download Capital Blueprint</button>
+          <div className="text-xs text-slate-400">Your personalized, educational summary: objectives, alternatives, risks, next steps.</div>
+          <pre className="mt-2 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg border border-edge bg-ink p-2 font-mono text-[11px] text-slate-400">{bp}</pre>
+          <button onClick={download} className="mt-2 w-full rounded-lg border border-cyan/60 py-1.5 text-[13px] font-black uppercase text-cyan hover:bg-cyan/10">Download Capital Blueprint</button>
           <div className="mt-3 space-y-1.5">
             {[['assessment', 'Request a real funding eligibility assessment'], ['capital-partner', 'Explore a qualified capital partnership'], ['fractional-cco', 'Discuss Fractional CCO services']].map(([c, label]) => (
-              <a key={c} href={cta(c)} target="_blank" rel="noreferrer" className="block rounded-lg bg-cyan px-3 py-1.5 text-center text-[11px] font-black uppercase text-ink hover:brightness-110">{label}</a>
+              <a key={c} href={cta(c)} target="_blank" rel="noreferrer" className="block rounded-lg bg-cyan px-3 py-1.5 text-center text-[13px] font-black uppercase text-ink hover:brightness-110">{label}</a>
             ))}
           </div>
-          <label className="mt-2 flex items-start gap-2 text-[10px] text-slate-400">
+          <label className="mt-2 flex items-start gap-2 text-xs text-slate-400">
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 accent-cyan" />
             Include my game scenario (industry, target, score, outcome). No personal or credit data is sent.
           </label>
-          <div className="mt-1 text-[10px] text-slate-500">The game does not approve loans, make offers, or verify partners.</div>
+          <div className="mt-1 text-xs text-slate-500">The game does not approve loans, make offers, or verify partners.</div>
         </div>
 
         <div className="rounded-2xl border border-edge bg-ink/60 p-4">
           <div className="text-xs font-black uppercase tracking-widest text-white">Share Your Result</div>
           <div className="mt-2 rounded-xl border border-neon/40 bg-gradient-to-br from-neon/10 via-ink to-cyan/10 p-3">
-            <div className="text-[9px] font-black uppercase tracking-[0.25em] text-neon">Fund Your Vision</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.25em] text-neon">Fund Your Vision</div>
             <div className="text-sm font-black text-white">{s.startup.name}</div>
             <div className={`font-mono text-3xl font-black ${o.color}`}>{r.score}<span className="text-sm text-slate-400">/100</span></div>
-            <div className="text-[10px] text-slate-300">{o.title} · {r.badge} · {level.name} · {medals.length} medals</div>
+            <div className="text-xs text-slate-300">{o.title} · {r.badge} · {level.name} · {medals.length} medals</div>
           </div>
           <button onClick={share} className="mt-2 w-full rounded-lg border border-neon/60 py-1.5 text-xs font-black uppercase text-neon hover:bg-neon/10">{copied ? 'Copied ✓' : 'Share result'}</button>
-          {qr && <div className="mt-2 flex items-center gap-2"><img src={qr} alt="QR code to play" className="h-20 w-20 rounded bg-white p-1" /><span className="text-[10px] text-slate-400">Scan to play on your phone</span></div>}
+          {qr && <div className="mt-2 flex items-center gap-2"><img src={qr} alt="QR code to play" className="h-20 w-20 rounded bg-white p-1" /><span className="text-xs text-slate-400">Scan to play on your phone</span></div>}
           <button onClick={() => { setDispatchState('sending'); setTimeout(() => setDispatchState('sent'), 1600) }} disabled={dispatchState !== 'idle'}
-            className={`mt-2 w-full rounded-lg py-1.5 text-[10px] font-black uppercase ${r.outcome === 'victory' ? 'bg-neon text-ink' : 'bg-edge text-slate-200'} disabled:opacity-80`}>
+            className={`mt-2 w-full rounded-lg py-1.5 text-xs font-black uppercase ${r.outcome === 'victory' ? 'bg-neon text-ink' : 'bg-edge text-slate-200'} disabled:opacity-80`}>
             {dispatchState === 'sent' ? '✓ Sent to War Room (simulated)' : dispatchState === 'sending' ? 'Dispatching…' : `Send plan to ${WAR_ROOM}-person War Room (simulated)`}
           </button>
           <button onClick={() => dispatch({ type: 'RESTART' })} className="mt-3 w-full rounded-lg bg-gold py-2 text-xs font-black uppercase text-ink hover:brightness-110">Play again</button>

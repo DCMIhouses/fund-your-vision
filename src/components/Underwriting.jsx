@@ -6,7 +6,7 @@ import { liveProfile, liveScore } from '../engine'
 function Field({ label, value, display, min, max, step = 1, onChange, locked }) {
   return (
     <label className="block">
-      <div className="flex justify-between text-[11px] text-slate-400">
+      <div className="flex justify-between text-[13px] text-slate-400">
         <span>{label}</span>
         <span className="font-mono text-slate-200">{display ?? value}</span>
       </div>
@@ -27,7 +27,7 @@ export function ProfileFields({ s, dispatch, locked }) {
       <Field locked={locked} label="Oldest account age" value={p.oldestYears} display={`${p.oldestYears} yrs`} min={0} max={30} onChange={set('oldestYears')} />
       <Field locked={locked} label="Open accounts" value={p.openAccounts} min={0} max={20} onChange={set('openAccounts')} />
       <Field locked={locked} label="Annual personal income" value={p.income} display={fmt(p.income)} min={0} max={300000} step={5000} onChange={set('income')} />
-      <label className="flex items-center gap-2 text-[11px] text-slate-400">
+      <label className="flex items-center gap-2 text-[13px] text-slate-400">
         <input type="checkbox" disabled={locked} checked={p.derogatory} onChange={(e) => set('derogatory')(e.target.checked)} className="accent-hot" />
         Recent late payment / collection
       </label>
@@ -40,7 +40,7 @@ export function ScorePreview({ s }) {
   const t = tierFor(score)
   return (
     <div className="mt-3 flex items-center justify-between rounded-xl border border-edge bg-ink p-3">
-      <div className="text-[10px] uppercase tracking-widest text-slate-500">Mock fundability score</div>
+      <div className="text-xs uppercase tracking-widest text-slate-500">Mock fundability score</div>
       <div className="flex items-baseline gap-2"><span className={`font-mono text-2xl font-black ${t.color}`}>{score}</span><span className="text-xs font-bold text-slate-300">Tier {t.tier}</span></div>
     </div>
   )
@@ -68,12 +68,12 @@ export default function Underwriting({ s, dispatch, blocked }) {
         {scanning && <div className="scan-line absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-transparent via-cyan/30 to-transparent" />}
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-slate-500">Fundability score (live)</div>
+            <div className="text-xs uppercase tracking-widest text-slate-500">Fundability score (live)</div>
             <div className="flex items-baseline gap-2">
               <span className={`font-mono text-4xl font-black ${t.color}`}>{score}</span>
               <span className="text-sm font-bold text-slate-300">Tier {t.tier} · {t.label}</span>
             </div>
-            <div className="mt-1 text-[10px] text-slate-500">Each debt application adds a hard inquiry and lowers this score.</div>
+            <div className="mt-1 text-xs text-slate-500">Each debt application adds a hard inquiry and lowers this score.</div>
           </div>
           {!s.underwritten ? (
             <button onClick={run} disabled={scanning || blocked}
@@ -81,7 +81,7 @@ export default function Underwriting({ s, dispatch, blocked }) {
               {scanning ? 'Scanning…' : 'Run AI Underwriting'}
             </button>
           ) : (
-            <span className="shrink-0 rounded-lg border border-cyan/50 px-3 py-1.5 text-[11px] font-black uppercase text-cyan">Underwritten ✓</span>
+            <span className="shrink-0 rounded-lg border border-cyan/50 px-3 py-1.5 text-[13px] font-black uppercase text-cyan">Underwritten ✓</span>
           )}
         </div>
       </div>

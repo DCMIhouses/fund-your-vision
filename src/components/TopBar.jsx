@@ -84,7 +84,7 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
   const runway = runwayDays(t.cash, s.startDays, burn)
   const own = ownership(s)
   const secured = runway >= FULL_RUNWAY_DAYS
-  const mobileHide = compact ? 'max-md:hidden' : ''
+  const mobileHide = compact ? 'hidden' : ''
   const stepIdx = STEPS.findIndex(([id]) => id === s.phase)
   const runwayClass = secured ? 'text-neon drop-shadow-[0_0_10px_#39ff88]' : runway < 90 ? 'flash-red' : runway < 200 ? 'text-gold' : 'text-cyan'
   const barColor = funded ? 'from-neon to-emerald-300' : pct < 33 ? 'from-hot to-orange-400' : pct < 66 ? 'from-gold to-amber-300' : 'from-cyan to-neon'

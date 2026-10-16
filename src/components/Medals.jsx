@@ -3,7 +3,7 @@ import Panel from './Panel'
 import { ACHIEVEMENTS, LEVELS, RARITY, achievementById } from '../achievements'
 
 export function Medal({ a, locked, size = 'md' }) {
-  const dim = size === 'lg' ? 'h-16 w-16 text-lg' : size === 'sm' ? 'h-9 w-9 text-[10px]' : 'h-12 w-12 text-sm'
+  const dim = size === 'lg' ? 'h-16 w-16 text-lg' : size === 'sm' ? 'h-9 w-9 text-xs' : 'h-12 w-12 text-sm'
   if (locked) {
     return <div className={`${dim} grid shrink-0 place-items-center rounded-full border-2 border-dashed border-slate-600 bg-ink font-black text-slate-600`}>?</div>
   }
@@ -30,10 +30,10 @@ export function AchievementToasts({ queue, onDone }) {
       <div key={current} className="medal-pop flex max-w-md items-center gap-4 rounded-2xl border-2 border-gold bg-panel/95 px-5 py-4 shadow-[0_0_50px_rgba(251,191,36,.45)]">
         {a ? <Medal a={a} size="lg" /> : <div className="grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-neon to-cyan font-mono text-2xl font-black text-ink">L{Number(current.split(':')[1]) + 1}</div>}
         <div>
-          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-gold">{a ? `${a.secret ? 'Secret ' : ''}Achievement unlocked` : 'Level up'}</div>
+          <div className="text-xs font-black uppercase tracking-[0.3em] text-gold">{a ? `${a.secret ? 'Secret ' : ''}Achievement unlocked` : 'Level up'}</div>
           <div className="text-xl font-black text-white">{a ? a.name : lvl.name}</div>
           <div className="text-xs text-slate-300">{a ? a.desc : lvl.goal}</div>
-          {a && <div className={`mt-0.5 text-[10px] font-black uppercase ${RARITY[a.rarity].text}`}>{RARITY[a.rarity].label}</div>}
+          {a && <div className={`mt-0.5 text-xs font-black uppercase ${RARITY[a.rarity].text}`}>{RARITY[a.rarity].label}</div>}
         </div>
       </div>
     </div>
@@ -46,7 +46,7 @@ export function TrophyRoom({ s, collection }) {
   return (
     <Panel num="8" accent="gold" title="The Founder's Trophy Room"
       subtitle="Medals unlock the moment you earn them. Secret medals stay hidden until found. Your collection is saved on this device."
-      right={<div className="text-right"><div className="text-[10px] uppercase text-slate-500">Collected</div><div className="font-mono font-black text-gold">{total}/{ACHIEVEMENTS.length}</div></div>}>
+      right={<div className="text-right"><div className="text-xs uppercase text-slate-500">Collected</div><div className="font-mono font-black text-gold">{total}/{ACHIEVEMENTS.length}</div></div>}>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {ACHIEVEMENTS.map((a) => {
           const got = owned(a.id)
@@ -57,8 +57,8 @@ export function TrophyRoom({ s, collection }) {
               <Medal a={a} locked={!got} size="sm" />
               <div className="min-w-0">
                 <div className="truncate text-xs font-black text-white">{hidden ? 'Secret medal' : a.name}</div>
-                <div className="text-[10px] leading-tight text-slate-400">{hidden ? 'Keep experimenting to discover it.' : a.desc}</div>
-                {thisGame && <div className="text-[9px] font-black uppercase text-gold">Earned this run</div>}
+                <div className="text-xs leading-tight text-slate-400">{hidden ? 'Keep experimenting to discover it.' : a.desc}</div>
+                {thisGame && <div className="text-[11px] font-black uppercase text-gold">Earned this run</div>}
               </div>
             </div>
           )
