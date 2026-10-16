@@ -177,7 +177,7 @@ export default function App() {
               </div>
             </div>
             <Guide id="overview" />
-            <Hangar meta={meta} update={updateMeta} s={s} dispatch={dispatch} today={today} />
+            <Hangar meta={meta} update={updateMeta} s={s} dispatch={dispatch} today={today} collection={collection} />
             <MedalShowcase collection={collection} />
             <div className="mb-8"><PartnerBinder book={book} /></div>
             <Setup s={s} dispatch={dispatch} />
@@ -224,7 +224,7 @@ export default function App() {
       <EventModal s={s} dispatch={dispatch} />
       <AchievementToasts queue={medalQueue} onDone={dropMedal} />
       <CoinBurst burst={burst} />
-      <Mascot s={s} meta={meta} />
+      <Mascot s={s} meta={meta} collection={collection} />
 
       <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 max-md:[&>*:not(:last-child)]:hidden">
         {toasts.map((t) => (

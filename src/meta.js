@@ -1,13 +1,19 @@
 import { INDUSTRIES } from './data'
 
 export const AVATARS = [
-  { id: 'rocket', icon: '🌱', name: 'Fresh Founder' },
-  { id: 'bolt', icon: '⚡', name: 'The Hustler' },
-  { id: 'brain', icon: '🧠', name: 'The Strategist' },
-  { id: 'owl', icon: '🦉', name: 'Wise Owl' },
-  { id: 'lion', icon: '🦁', name: 'Brave Lion' },
-  { id: 'crown', icon: '👑', name: 'The Mogul' },
+  { id: 'rocket', level: 1, need: 0, icon: '🌱', name: 'Fresh Founder' },
+  { id: 'bolt', level: 2, need: 2, icon: '⚡', name: 'The Hustler' },
+  { id: 'brain', level: 3, need: 5, icon: '🧠', name: 'The Strategist' },
+  { id: 'deal', level: 4, need: 8, icon: '🤝', name: 'The Dealmaker' },
+  { id: 'tycoon', level: 5, need: 12, icon: '💼', name: 'The Tycoon' },
+  { id: 'crown', level: 6, need: 16, icon: '👑', name: 'The Mogul' },
 ]
+export const medalCount = (collection) => Object.keys(collection || {}).length
+export const topRank = (count) => [...AVATARS].reverse().find((r) => count >= r.need)
+export const activeRank = (meta, count) => {
+  const r = AVATARS.find((a) => a.id === meta.avatar)
+  return r && count >= r.need ? r : topRank(count)
+}
 
 export const SKINS = [
   { id: 'classic', name: 'Sapphire', cut: 'cushion', c1: '#7dd3fc', c2: '#2563eb', cost: 0, grad: 'from-sky-400 to-blue-600' },
