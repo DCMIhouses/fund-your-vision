@@ -105,3 +105,34 @@ input[type=range] { accent-color: #39ff88; }
 @keyframes agent-scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
 .agent-scan { animation: agent-scan 2.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .agent-scan { animation: none; } }
+
+/* 2026 visual layer */
+.aurora { position: fixed; inset: -20%; z-index: 0; pointer-events: none; filter: blur(70px); opacity: .55;
+  background:
+    radial-gradient(38% 32% at 18% 22%, rgba(37,99,235,.55), transparent 70%),
+    radial-gradient(34% 30% at 82% 18%, rgba(168,85,247,.45), transparent 70%),
+    radial-gradient(40% 34% at 62% 88%, rgba(251,191,36,.28), transparent 70%),
+    radial-gradient(30% 30% at 8% 92%, rgba(34,211,238,.30), transparent 70%);
+  animation: aurora 26s ease-in-out infinite alternate; }
+@keyframes aurora { 0% { transform: translate3d(0,0,0) rotate(0deg) scale(1); } 50% { transform: translate3d(3%,-2%,0) rotate(8deg) scale(1.08); } 100% { transform: translate3d(-3%,2%,0) rotate(-6deg) scale(1.03); } }
+.glass { background: linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.02)); backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.09); box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 24px 60px -28px rgba(0,0,0,.75); }
+.text-aurora { background: linear-gradient(90deg, #7dd3fc, #fde68a, #f0abfc, #7dd3fc); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: hue-pan 9s linear infinite; }
+@keyframes hue-pan { to { background-position: 300% 0; } }
+.tilt { position: relative; transition: transform .25s ease, box-shadow .25s ease; will-change: transform; }
+.tilt:hover { box-shadow: 0 26px 60px -26px rgba(34,211,238,.45); }
+.tilt-glare { pointer-events: none; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(420px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.13), transparent 42%); opacity: 0; transition: opacity .3s; }
+.tilt:hover .tilt-glare { opacity: 1; }
+.medal-shine { background: linear-gradient(100deg, transparent, rgba(125,211,252,.55), rgba(253,230,138,.65), rgba(240,171,252,.55), transparent) !important; }
+.gauge-glow { filter: drop-shadow(0 0 8px rgba(34,211,238,.45)); }
+.chart-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 1.8s cubic-bezier(.3,.7,.2,1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.pulse-dot { transform-box: fill-box; transform-origin: center; animation: pulse-dot 1.8s ease-out infinite; }
+@keyframes pulse-dot { from { transform: scale(1); opacity: .9; } to { transform: scale(3.2); opacity: 0; } }
+.radar-sweep { position: absolute; inset: 0; border-radius: 999px; background: conic-gradient(from 0deg, rgba(34,211,238,.5), rgba(34,211,238,0) 28%); animation: radar-spin 4s linear infinite; }
+@keyframes radar-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .aurora, .text-aurora, .radar-sweep, .pulse-dot { animation: none !important; }
+  .chart-draw { animation: none !important; stroke-dashoffset: 0; }
+  .tilt { transform: none !important; }
+}

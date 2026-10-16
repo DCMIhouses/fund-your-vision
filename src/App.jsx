@@ -152,6 +152,7 @@ export default function App() {
 
   return (
     <div className="grid-bg min-h-screen overflow-x-clip">
+      <div className="aurora" aria-hidden="true" />
       <Starfield />
       <header className="relative overflow-hidden border-b border-purple-500/30 bg-gradient-to-b from-sky-500/10 via-ink to-ink px-4 py-6 text-center sm:py-10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_40%,rgba(56,189,248,.18),transparent_55%),radial-gradient(ellipse_at_50%_50%,rgba(251,191,36,.12),transparent_55%),radial-gradient(ellipse_at_70%_40%,rgba(168,85,247,.2),transparent_55%)]" />

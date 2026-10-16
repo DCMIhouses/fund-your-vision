@@ -19,12 +19,14 @@ export default function Chart({ forecast, height = 180 }) {
           <stop offset="0%" stopColor={bad ? '#ff2e63' : '#39ff88'} stopOpacity="0.35" />
           <stop offset="100%" stopColor={bad ? '#ff2e63' : '#39ff88'} stopOpacity="0" />
         </linearGradient>
+        <filter id="cashglow" x="-10%" y="-30%" width="120%" height="160%"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
       </defs>
       <line x1={pad} x2={W - pad} y1={y(0)} y2={y(0)} stroke="#64748b" strokeDasharray="4 4" strokeWidth="1" />
       <line x1={x(BOSS_MONTH - 1)} x2={x(BOSS_MONTH - 1)} y1={8} y2={H - pad / 2} stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="3 3" />
       <text x={x(BOSS_MONTH - 1) + 4} y={16} fill="#fbbf24" fontSize="11" fontFamily="monospace">Promo cliff + revenue shortfall</text>
       <path d={area} fill="url(#cashfill)" />
-      <path d={line} fill="none" stroke={bad ? '#ff2e63' : '#39ff88'} strokeWidth="2.5" />
+      <path key={line} d={line} pathLength="1" className="chart-draw" fill="none" stroke={bad ? '#ff2e63' : '#39ff88'} strokeWidth="2.5" filter="url(#cashglow)" />
+      {(() => { const i = bad ? bad - 1 : BOSS_MONTH - 1; const c = bad ? '#ff2e63' : '#fbbf24'; return <><circle cx={x(i)} cy={y(pts[i].cash)} r="4" fill={c} className="pulse-dot" /><circle cx={x(i)} cy={y(pts[i].cash)} r="4" fill={c} /></> })()}
       {pts.map((p, i) => (
         <circle key={p.m} cx={x(i)} cy={y(p.cash)} r={p.m === bad ? 5 : 2.5} fill={p.cash < 0 ? '#ff2e63' : '#39ff88'} />
       ))}

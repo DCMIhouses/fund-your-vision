@@ -4,6 +4,8 @@ import { agentStates } from '../agents'
 import { QUESTIONS, answer } from '../consultant'
 import Chart from './Chart'
 import Guide from './Guide'
+import Gauge from './Gauge'
+import Tilt from './Tilt'
 
 const SNAP_KEY = 'fyv-report-snapshots'
 const loadSnaps = () => { try { return JSON.parse(localStorage.getItem(SNAP_KEY)) || [] } catch { return [] } }
@@ -21,37 +23,40 @@ function useReport(s, previous) {
 export function AgentBoard({ report }) {
   const agents = agentStates(report)
   const prev = useRef(Object.fromEntries(agents.map((a) => [a.id, a.finding])))
-  const [feed, setFeed] = useState(() => agents.map((a) => ({ k: `${a.id}-0`, at: clock(), icon: a.icon, name: a.name, status: a.status, text: a.finding })).slice(0, 8))
+  const [feed, setFeed] = useState(() => agents.map((a) => ({ k: `${a.id}-0`, id: a.id, at: clock(), icon: a.icon, name: a.name, status: a.status, text: a.finding })).slice(0, 8))
   const sig = agents.map((a) => a.finding).join('|')
   useEffect(() => {
     const changed = agents.filter((a) => prev.current[a.id] !== a.finding)
     if (!changed.length) return
     changed.forEach((a) => { prev.current[a.id] = a.finding })
     const at = clock()
-    setFeed((f) => [...changed.map((a) => ({ k: `${a.id}-${Date.now()}`, at, icon: a.icon, name: a.name, status: a.status, text: a.finding })), ...f].slice(0, 12))
+    setFeed((f) => [...changed.map((a) => ({ k: `${a.id}-${Date.now()}`, id: a.id, at, icon: a.icon, name: a.name, status: a.status, text: a.finding })), ...f].slice(0, 12))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig])
   const alerts = agents.filter((a) => a.status === 'alert').length
   const watching = agents.filter((a) => a.status === 'watch').length
   return (
-    <div className="rounded-3xl border border-cyan/40 bg-panel/80 p-4 sm:p-6">
+    <div className="glass rounded-3xl border border-cyan/40 p-4 sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-xs font-black uppercase tracking-[0.3em] text-cyan">Live agent display</div>
-          <h3 className="mt-1 text-2xl font-black uppercase text-white md:text-3xl">What your agents are doing</h3>
+          <h3 className="text-aurora mt-1 text-2xl font-black uppercase md:text-3xl">What your agents are doing</h3>
           <div className="mt-1 text-sm text-slate-400">Rule-based helpers. They read the game engine's numbers after every move. They are not live AI.</div>
         </div>
-        <div className="flex gap-2 text-xs font-black uppercase">
-          <span className="rounded-full border border-hot/50 px-3 py-1 text-hot">{alerts} alert</span>
-          <span className="rounded-full border border-gold/50 px-3 py-1 text-gold">{watching} watching</span>
-          <span className="rounded-full border border-neon/50 px-3 py-1 text-neon">{agents.length - alerts - watching} clear</span>
+        <div className="flex items-center gap-4">
+          <Radar agents={agents} active={feed[0]?.id} />
+          <div className="flex flex-col gap-2 text-xs font-black uppercase">
+            <span className="rounded-full border border-hot/50 px-3 py-1 text-hot">{alerts} alert</span>
+            <span className="rounded-full border border-gold/50 px-3 py-1 text-gold">{watching} watching</span>
+            <span className="rounded-full border border-neon/50 px-3 py-1 text-neon">{agents.length - alerts - watching} clear</span>
+          </div>
         </div>
       </div>
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
         {agents.map((a) => {
           const L = LIGHT[a.status]
           return (
-            <div key={a.id} className={`relative overflow-hidden rounded-2xl border ${L.ring} bg-ink/80 p-4`}>
+            <Tilt key={a.id} className={`overflow-hidden rounded-2xl border ${L.ring} bg-ink/70 p-4`}>
               <div className="flex items-center gap-3">
                 <div className="relative grid h-12 w-12 shrink-0 place-items-center">
                   <span className={`absolute inset-0 rounded-full border-2 border-dashed ${L.ring} ${a.status !== 'ok' ? 'animate-spin [animation-duration:6s]' : ''}`} />
@@ -63,14 +68,14 @@ export function AgentBoard({ report }) {
                     <span className={`h-2.5 w-2.5 rounded-full ${L.dot} ${a.status !== 'ok' ? 'animate-pulse' : ''}`} />{L.label}
                   </div>
                 </div>
-                <span className="ml-auto shrink-0 rounded-lg bg-edge/60 px-2 py-1 font-mono text-[11px] text-slate-200">{a.metric}</span>
               </div>
+              <div className="mt-2 w-fit max-w-full truncate rounded-lg bg-edge/60 px-2 py-1 font-mono text-[11px] text-slate-200">{a.metric}</div>
               <div className="mt-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">Checking</div>
               <div className="text-xs text-slate-300">{a.task}</div>
               <div className="mt-2 h-1 overflow-hidden rounded-full bg-edge/60"><div className={`h-full w-1/3 rounded-full ${L.dot} agent-scan`} /></div>
               <div className="mt-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">Latest finding</div>
               <div className="text-sm leading-snug text-slate-100">{a.finding}</div>
-            </div>
+            </Tilt>
           )
         })}
       </div>
@@ -86,6 +91,26 @@ export function AgentBoard({ report }) {
           ))}
         </ol>
       </div>
+    </div>
+  )
+}
+
+function Radar({ agents, active }) {
+  return (
+    <div className="relative h-32 w-32 shrink-0 rounded-full border border-cyan/30 bg-ink/60 shadow-[0_0_40px_-10px_rgba(34,211,238,.6)]">
+      <span className="absolute inset-[18%] rounded-full border border-cyan/15" />
+      <span className="absolute inset-[36%] rounded-full border border-cyan/15" />
+      <span className="radar-sweep" />
+      {agents.map((a, i) => {
+        const ang = (i / agents.length) * 2 * Math.PI - Math.PI / 2
+        return (
+          <span key={a.id} title={`${a.name}: ${LIGHT[a.status].label}`} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${50 + 40 * Math.cos(ang)}%`, top: `${50 + 40 * Math.sin(ang)}%` }}>
+            {a.id === active && <span className={`absolute inset-0 rounded-full ${LIGHT[a.status].dot} animate-ping`} />}
+            <span className={`relative block h-3 w-3 rounded-full ${LIGHT[a.status].dot}`} />
+          </span>
+        )
+      })}
+      <span className="absolute inset-0 grid place-items-center text-xl">📡</span>
     </div>
   )
 }
@@ -108,13 +133,13 @@ export function AgentStrip({ s, onOpen }) {
   )
 }
 
-function Tile({ label, value, sub, tone = 'text-white', delta }) {
+function Tile({ label, value, sub, tone = 'text-white', delta, small }) {
   return (
-    <div className="rounded-2xl border border-edge bg-ink/70 p-3">
+    <Tilt className="glass rounded-2xl p-3">
       <div className="text-[11px] font-black uppercase tracking-wider text-slate-400">{label}</div>
-      <div className={`mt-1 font-mono text-xl font-black md:text-2xl ${tone}`}>{value}</div>
+      <div className={`mt-1 truncate font-mono font-black ${small ? 'text-base' : 'text-xl md:text-2xl'} ${tone}`}>{value}</div>
       <div className="flex justify-between gap-2 text-[11px] text-slate-500"><span>{sub}</span>{delta}</div>
-    </div>
+    </Tilt>
   )
 }
 
@@ -122,7 +147,7 @@ function Consultant({ report, typeId, onClose }) {
   const [chat, setChat] = useState([])
   const ask = (q, label) => setChat((c) => [...c, { q: label, a: answer(report, q) }])
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-6" onClick={onClose}>
+    <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-6" onClick={onClose}>
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl border border-cyan/50 bg-panel p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -190,7 +215,7 @@ export default function CommandCenter({ s }) {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-xs font-black uppercase tracking-[0.3em] text-gold">Business intelligence</div>
-          <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">Command Center</h2>
+          <h2 className="text-aurora mt-1 text-3xl font-black uppercase md:text-5xl">Command Center</h2>
           <div className="mt-1 text-sm text-slate-400">{report.company.name} · {report.company.industry} · {report.meta.scenario}</div>
         </div>
         <div className={`rounded-full border px-4 py-2 text-xs font-black uppercase ${recOk === report.reconciliation.length ? 'border-neon/60 text-neon' : 'border-hot/60 text-hot'}`}>
@@ -200,9 +225,26 @@ export default function CommandCenter({ s }) {
       <Guide id="reports" />
       <AgentBoard report={report} />
 
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          ['Funded', Math.min(1, k.fundedPct), 1, pct(k.fundedPct, 0), `${money(k.available)} of ${money(k.target)}`, ['#39ff88', '#22d3ee']],
+          ['Runway', Math.min(k.runwayDays, 365), 365, `${k.runwayDays}d`, `Out ${k.runOutDate}`, k.runwayDays < 90 ? ['#ff2e63', '#fbbf24'] : ['#22d3ee', '#a855f7']],
+          ['Capital IQ', k.iq, 100, String(k.iq), report.iqFinal ? 'Final score' : 'Provisional', ['#a855f7', '#fbbf24']],
+          ['Fundability', k.fundability, 100, String(k.fundability), `Tier ${k.tier} (mock)`, ['#fbbf24', '#f97316']],
+        ].map(([label, v, max, disp, sub, colors]) => (
+          <Tilt key={label} className="glass rounded-3xl p-4">
+            <div className="flex flex-col items-center text-center">
+              <Gauge value={v} max={max} size={116} stroke={11} colors={colors} display={disp} />
+              <div className="mt-2 text-xs font-black uppercase tracking-widest text-slate-200">{label}</div>
+              <div className="text-[11px] text-slate-500">{sub}</div>
+            </div>
+          </Tilt>
+        ))}
+      </div>
+
       <div>
         <div className="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Key numbers {previous ? '(arrows = change since your last snapshot)' : ''}</div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
           <Tile label="Raised" value={money(k.committed)} sub="Promised + ready" tone="text-sky-300" delta={delta('committed')} />
           <Tile label="Available" value={money(k.available)} sub="Ready now" tone="text-neon" delta={delta('available')} />
           <Tile label="Target" value={money(k.target)} sub={`${pct(k.fundedPct, 0)} funded`} tone="text-gold" />
@@ -214,7 +256,7 @@ export default function CommandCenter({ s }) {
           <Tile label="Capital IQ" value={`${k.iq}`} sub={report.iqFinal ? 'Final' : 'Provisional'} tone="text-cyan" delta={delta('iq')} />
           <Tile label="Month-18 cash" value={money(k.endCash)} sub="Forecast" tone={k.endCash < 0 ? 'text-hot' : 'text-neon'} delta={delta('endCash')} />
           <Tile label="Debt at M18" value={money(k.debtRemaining)} sub="Forecast" delta={delta('debtRemaining', -1)} />
-          <Tile label="Capital deployed" value="Unavailable" sub="Not tracked by the game" tone="text-slate-500" />
+          <Tile label="Capital deployed" value="Unavailable" sub="Not tracked by the game" tone="text-slate-500" small />
         </div>
       </div>
 

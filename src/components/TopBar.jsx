@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { addDays, daysUntil, fmt, FULL_RUNWAY_DAYS, runwayClock, runwayDays, toDateInput } from '../game'
 import { totals, ownership, monthlyBurn, liveScore, MIN_EVENTS } from '../engine'
 import { LevelTrack } from './Medals'
+import Gauge from './Gauge'
 import RunwayInput from './RunwayInput'
 import { CountUp } from './Fx'
 
@@ -169,7 +170,10 @@ export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
               <button onClick={() => setShowRunway((v) => !v)} title="Set your runway"
                 className="w-full rounded-xl border-2 border-cyan/40 bg-panel px-3 py-2 text-center hover:border-neon/60">
                 <div className="flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-widest text-cyan md:text-xs">Cash Runway · time left <span className="text-neon">⚙</span></div>
-                <div className={`font-mono font-black leading-tight ${compact ? 'text-2xl' : 'text-3xl md:text-4xl'} ${runwayClass}`}>{runway.toLocaleString()} <span className="text-[0.5em]">DAYS</span></div>
+                <div className="flex items-center justify-center gap-3">
+                  <Gauge value={Math.min(runway, FULL_RUNWAY_DAYS)} max={FULL_RUNWAY_DAYS} size={compact ? 36 : 52} stroke={compact ? 4 : 6} colors={secured ? ['#39ff88', '#22d3ee'] : runway < 90 ? ['#ff2e63', '#fbbf24'] : ['#22d3ee', '#a855f7']} />
+                  <div className={`font-mono font-black leading-tight ${compact ? 'text-2xl' : 'text-3xl md:text-4xl'} ${runwayClass}`}>{runway.toLocaleString()} <span className="text-[0.5em]">DAYS</span></div>
+                </div>
                 <Clock days={runway} className="text-sm text-slate-200" />
                 <div className="mt-1 grid grid-cols-2 gap-2 text-[10px] md:text-xs">
                   <div className="rounded-lg bg-ink/70 px-2 py-1"><div className="uppercase text-slate-500">Today</div><div className="font-bold text-white">{fmtDate(runwayClock(0).date)}</div></div>
