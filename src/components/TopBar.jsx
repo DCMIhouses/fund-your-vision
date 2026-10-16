@@ -40,6 +40,8 @@ function RunwaySettings({ s, dispatch, onClose }) {
   )
 }
 
+const fmtDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+
 function Clock({ days, className }) {
   const c = runwayClock(days)
   const unit = (n, l) => (
@@ -132,27 +134,26 @@ export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
 
         <div className={`mt-1 ${mobileHide}`}><LevelTrack level={s.level} /></div>
 
-        <div className="mt-2 grid gap-2 md:gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-          <div>
-            <div className="flex items-end justify-between gap-x-4 gap-y-1">
-              <div className="min-w-0">
-                <div className="text-[10px] font-black uppercase tracking-widest text-neon md:text-xs">Available</div>
-                <div className={`font-mono font-black leading-none text-white drop-shadow-[0_0_14px_rgba(57,255,136,.35)] ${compact ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'}`}><CountUp value={t.available} /></div>
+        <div className="mt-2 grid gap-2 md:gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
+          <div className="min-w-0 rounded-xl border border-edge bg-panel/60 px-3 py-2 md:px-4">
+            {[
+              ['Raised', t.committed, 'text-sky-300', 'Promised + ready money'],
+              ['Available', t.available, 'text-neon drop-shadow-[0_0_14px_rgba(57,255,136,.35)]', 'Ready to use now'],
+              ['Target', target, 'text-gold', s.startup.name || 'Your startup'],
+            ].map(([label, value, color, hint]) => (
+              <div key={label} className="flex items-center justify-between gap-3 border-b border-edge/60 py-1 last:border-0 md:py-1.5">
+                <div className="min-w-0">
+                  <div className={`text-xs font-black uppercase tracking-widest md:text-sm ${color}`}>{label}</div>
+                  <div className={`truncate text-[10px] text-slate-500 md:text-xs ${mobileHide}`}>{hint}</div>
+                </div>
+                <div className={`font-mono font-black leading-none ${color} ${compact ? 'text-xl md:text-2xl' : 'text-2xl md:text-4xl'}`}><CountUp value={value} /></div>
               </div>
-              <div className={`hidden pb-1 text-center sm:block ${mobileHide}`}>
-                <div className="font-mono text-sm font-black text-slate-200 md:text-base">{pct.toFixed(1)}% funded</div>
-                <div className="max-w-[180px] truncate text-[10px] font-bold uppercase tracking-widest text-slate-500">{s.startup.name || 'Your startup'}</div>
-              </div>
-              <div className="min-w-0 text-right">
-                <div className="text-[10px] font-black uppercase tracking-widest text-gold md:text-xs">Target</div>
-                <div className={`font-mono font-black leading-none text-gold ${compact ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'}`}>{fmt(target)}</div>
-              </div>
-            </div>
-            <div className="relative mt-1 h-10 overflow-hidden rounded-xl border border-edge bg-ink md:h-9">
+            ))}
+            <div className="relative mt-2 h-9 overflow-hidden rounded-xl border border-edge bg-ink">
               <div className="absolute inset-y-0 left-0 border-r-2 border-dashed border-slate-500/70 bg-slate-500/10 transition-[width] duration-700" style={{ width: pctOf(t.requested) }} />
               <div className="absolute inset-y-0 left-0 bg-gold/30 bar-stripes transition-[width] duration-700" style={{ width: pctOf(t.committed) }} />
               <div className={`absolute inset-y-0 left-0 bg-gradient-to-r ${barColor} bar-stripes liquid overflow-visible transition-[width] duration-1000 ease-out ${funded ? 'glow-pulse' : ''}`} style={{ width: pctOf(t.available) }} />
-              <div className="absolute inset-0 flex items-center justify-center px-2 text-center font-mono text-[10px] font-bold leading-tight text-white drop-shadow-[0_1px_2px_#000] sm:text-sm">
+              <div className="absolute inset-0 flex items-center justify-center px-2 text-center font-mono text-[11px] font-bold leading-tight text-white drop-shadow-[0_1px_2px_#000] sm:text-sm">
                 <span>{pct.toFixed(1)}% funded · {fmt(Math.max(0, target - t.available))} to go</span>
               </div>
             </div>
@@ -163,29 +164,36 @@ export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 lg:w-[460px]">
+          <div className="flex flex-col gap-2">
             <div className="relative">
               <button onClick={() => setShowRunway((v) => !v)} title="Set your runway"
-                className="h-full w-full rounded-xl border border-edge bg-panel p-1.5 text-center hover:border-neon/60 md:p-2">
-                <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Cash Buffer Runway <span className="text-neon">⚙</span></div>
-                <div className={`font-mono text-base font-black leading-tight md:text-xl ${runwayClass}`}>{runway.toLocaleString()} <span className="text-[0.6em]">DAYS</span></div>
-                <Clock days={runway} className="text-[10px] text-slate-300 md:text-xs" />
-                {runway > s.startDays && <div className="text-[9px] leading-tight text-slate-400 md:text-[10px]">{s.startDays}d buffer + {(runway - s.startDays).toLocaleString()}d funding</div>}
-                <div className="text-[9px] leading-tight text-slate-500 md:text-[10px]">
-                  {secured && <span className="text-neon">1 YR+ SECURED · </span>}Out of cash {runwayClock(runway).date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                className="w-full rounded-xl border-2 border-cyan/40 bg-panel px-3 py-2 text-center hover:border-neon/60">
+                <div className="flex items-center justify-center gap-1 text-[10px] font-black uppercase tracking-widest text-cyan md:text-xs">Cash Runway · time left <span className="text-neon">⚙</span></div>
+                <div className={`font-mono font-black leading-tight ${compact ? 'text-2xl' : 'text-3xl md:text-4xl'} ${runwayClass}`}>{runway.toLocaleString()} <span className="text-[0.5em]">DAYS</span></div>
+                <Clock days={runway} className="text-sm text-slate-200" />
+                <div className="mt-1 grid grid-cols-2 gap-2 text-[10px] md:text-xs">
+                  <div className="rounded-lg bg-ink/70 px-2 py-1"><div className="uppercase text-slate-500">Today</div><div className="font-bold text-white">{fmtDate(runwayClock(0).date)}</div></div>
+                  <div className="rounded-lg bg-ink/70 px-2 py-1"><div className="uppercase text-slate-500">Cash runs out</div><div className={`font-bold ${secured ? 'text-neon' : runway < 90 ? 'text-hot' : 'text-white'}`}>{fmtDate(runwayClock(runway).date)}</div></div>
                 </div>
+                {!compact && (runway > s.startDays || secured) && (
+                  <div className="mt-1 text-[10px] leading-tight text-slate-400 md:text-[11px]">
+                    {secured && <span className="font-bold text-neon">1 YR+ SECURED · </span>}{runway > s.startDays ? `${s.startDays}d buffer + ${(runway - s.startDays).toLocaleString()}d from funding` : ''}
+                  </div>
+                )}
               </button>
               {showRunway && <RunwaySettings s={s} dispatch={dispatch} onClose={() => setShowRunway(false)} />}
             </div>
-            <div className="rounded-xl border border-edge bg-panel p-1.5 text-center md:p-2" title="Your choice, set in Setup. Paying yourself from loan proceeds must fit each lender's permitted uses, and borrowing to pay yourself does not create profit.">
-              <div className="text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Founder Pay</div>
-              <div className="font-mono text-base font-black text-gold md:text-xl">{fmt(s.startup.founderPay || 0)}<span className="text-[10px]">/mo</span></div>
-              <div className="text-[9px] text-slate-500 md:text-[10px]">Discretionary · in burn</div>
-            </div>
-            <div className="rounded-xl border border-edge bg-panel p-1.5 text-center md:p-2">
-              <div className="text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Equity Kept</div>
-              <div className={`font-mono text-base font-black md:text-xl ${own.founder >= 0.9 ? 'text-neon' : own.founder >= 0.51 ? 'text-gold' : 'text-hot'}`}>{(own.founder * 100).toFixed(own.founder === 1 ? 0 : 1)}%</div>
-              <div className="text-[9px] text-slate-500 md:text-[10px]">{own.seats} Board Seat{own.seats === 1 ? '' : 's'} Given</div>
+            <div className={`grid grid-cols-2 gap-2 ${compact ? 'max-md:hidden' : ''}`}>
+              <div className="rounded-xl border border-edge bg-panel p-1.5 text-center md:p-2" title="Your choice, set in Setup. Paying yourself from loan proceeds must fit each lender's permitted uses, and borrowing to pay yourself does not create profit.">
+                <div className="text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Founder Pay</div>
+                <div className="font-mono text-base font-black text-gold md:text-lg">{fmt(s.startup.founderPay || 0)}<span className="text-[10px]">/mo</span></div>
+                <div className="text-[9px] text-slate-500 md:text-[10px]">Discretionary · in burn</div>
+              </div>
+              <div className="rounded-xl border border-edge bg-panel p-1.5 text-center md:p-2">
+                <div className="text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Equity Kept</div>
+                <div className={`font-mono text-base font-black md:text-lg ${own.founder >= 0.9 ? 'text-neon' : own.founder >= 0.51 ? 'text-gold' : 'text-hot'}`}>{(own.founder * 100).toFixed(own.founder === 1 ? 0 : 1)}%</div>
+                <div className="text-[9px] text-slate-500 md:text-[10px]">{own.seats} Board Seat{own.seats === 1 ? '' : 's'} Given</div>
+              </div>
             </div>
           </div>
         </div>
