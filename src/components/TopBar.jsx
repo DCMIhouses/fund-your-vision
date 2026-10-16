@@ -115,9 +115,9 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
           <div className="flex min-w-0 items-center gap-2 md:gap-3">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-neon font-mono text-sm font-black text-ink md:h-10 md:w-10 md:rounded-xl md:text-lg">0%</span>
             <div className="min-w-0">
-              <h1 className="text-xs font-black uppercase leading-tight tracking-tight text-white sm:text-base md:text-xl">
+              <div className="text-xs font-black uppercase leading-tight tracking-tight text-white sm:text-base md:text-xl">
                 <span className="text-neon">FUND YOUR VISION</span> <span className="text-slate-400">(FYV)</span>
-              </h1>
+              </div>
               <p className="truncate text-[10px] text-slate-400 md:text-[11px]">
                 Powered by <span className="font-semibold text-cyan">NationwideBusinessFunding.com</span><span className="max-sm:hidden"> · Fractional Chief Capital Officer Platform</span>
               </p>

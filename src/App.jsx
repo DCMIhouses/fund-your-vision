@@ -103,6 +103,12 @@ export default function App() {
 
   return (
     <div className="grid-bg min-h-screen overflow-x-clip">
+      <header className="relative overflow-hidden border-b border-neon/30 bg-gradient-to-b from-neon/10 via-ink to-ink px-4 py-8 text-center sm:py-12">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(57,255,136,.18),transparent_60%)]" />
+        <h1 className="relative bg-gradient-to-r from-neon via-cyan to-neon bg-clip-text font-black leading-none tracking-tight text-transparent drop-shadow-[0_0_30px_rgba(57,255,136,.35)] text-7xl sm:text-8xl md:text-9xl">FYV</h1>
+        <div className="relative mt-2 text-lg font-black uppercase tracking-[0.4em] text-white sm:text-2xl">Fund Your Vision</div>
+        <div className="relative mt-2 text-xs text-slate-400 sm:text-sm">The Startup Funding Challenge · Powered by <span className="font-semibold text-cyan">NationwideBusinessFunding.com</span></div>
+      </header>
       <TopBar s={s} dispatch={dispatch} muted={muted} toggleMute={toggleMute} />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
