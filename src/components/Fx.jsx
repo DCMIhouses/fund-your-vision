@@ -203,13 +203,13 @@ export function Hangar({ meta, update, s, dispatch, today, collection }) {
     <section className="mb-8 rounded-3xl border-2 border-purple-500/60 bg-panel p-5 shadow-[0_0_50px_rgba(168,85,247,.2)] sm:p-8">
       <div className="text-center">
         <div className="text-xs font-black uppercase tracking-[0.35em] text-fuchsia-300">Your founder hangar</div>
-        <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">Rank Up &amp; Collect Gems</h2>
+        <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">Rank Up &amp; Collect Medals</h2>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-gold/50 bg-gold/5 p-4 text-center">
           <div className="text-xs font-black uppercase tracking-widest text-gold">Capital Points</div>
           <div className="mt-1 font-mono text-4xl font-black text-gold"><CountUp value={meta.points} format={(v) => Math.round(v).toLocaleString()} /></div>
-          <div className="text-xs text-slate-400">Earn points from medals and finished games. Spend them on gems. Game points only, not real money.</div>
+          <div className="text-xs text-slate-400">Earn points from medals and finished games. Spend them on medals. Game points only, not real money.</div>
         </div>
         <div className="rounded-2xl border border-hot/50 bg-hot/5 p-4 text-center">
           <div className="text-xs font-black uppercase tracking-widest text-hot">Daily streak</div>
@@ -256,7 +256,7 @@ export function Hangar({ meta, update, s, dispatch, today, collection }) {
         </div>
         <div className="mt-3 text-xs text-slate-500">Founder Rank counts medals from all your games. The Dreamer → Builder levels in the top bar are for the game you are playing right now.</div>
       </div>
-      <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-slate-400">Gem shop · your gem marks your spot on the quest map</div>
+      <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-slate-400">Medal shop · each medal is named for a Founder level · your medal marks your spot on the quest map</div>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {SKINS.map((k) => {
           const own = meta.owned.includes(k.id)

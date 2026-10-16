@@ -16,12 +16,12 @@ export const activeRank = (meta, count) => {
 }
 
 export const SKINS = [
-  { id: 'classic', name: 'Sapphire', cut: 'cushion', c1: '#7dd3fc', c2: '#2563eb', cost: 0, grad: 'from-sky-400 to-blue-600' },
-  { id: 'neon', name: 'Emerald', cut: 'emerald', c1: '#6ee7b7', c2: '#059669', cost: 100, grad: 'from-neon to-emerald-600' },
-  { id: 'gold', name: 'Topaz', cut: 'trillion', c1: '#fde68a', c2: '#f97316', cost: 200, grad: 'from-gold to-orange-500' },
-  { id: 'flame', name: 'Ruby', cut: 'heart', c1: '#fda4af', c2: '#be123c', cost: 300, grad: 'from-rose-400 to-rose-700' },
-  { id: 'galaxy', name: 'Amethyst', cut: 'crystal', c1: '#f0abfc', c2: '#7c3aed', cost: 500, grad: 'from-fuchsia-400 to-purple-600' },
-  { id: 'diamond', name: 'Diamond', cut: 'brilliant', c1: '#ffffff', c2: '#67e8f9', cost: 800, grad: 'from-white via-cyan-200 to-sky-400' },
+  { id: 'classic', lvl: 1, name: 'Fresh Founder', c1: '#f5c08a', c2: '#a0522d', cost: 0, grad: 'from-orange-300 to-amber-800' },
+  { id: 'neon', lvl: 2, name: 'The Hustler', c1: '#f1f5f9', c2: '#64748b', cost: 100, grad: 'from-slate-100 to-slate-500' },
+  { id: 'gold', lvl: 3, name: 'The Strategist', c1: '#fde68a', c2: '#d97706', cost: 200, grad: 'from-gold to-orange-500' },
+  { id: 'flame', lvl: 4, name: 'The Dealmaker', c1: '#6ee7b7', c2: '#059669', cost: 300, grad: 'from-neon to-emerald-600' },
+  { id: 'galaxy', lvl: 5, name: 'The Tycoon', c1: '#93c5fd', c2: '#1d4ed8', cost: 500, grad: 'from-sky-300 to-blue-700' },
+  { id: 'diamond', lvl: 6, name: 'The Mogul', c1: '#f5d0fe', c2: '#7c3aed', cost: 800, grad: 'from-fuchsia-200 via-purple-400 to-violet-700' },
 ]
 
 export const MEDAL_POINTS = { common: 25, rare: 50, epic: 100, legendary: 250 }

@@ -227,10 +227,10 @@ export default function CommandCenter({ s, goTo }) {
     setBusy(false)
   }
   const openDesk = (id) => {
-    const nav = { architect: 'fund', ops: 'team', coach: 'trophies' }
+    const nav = { architect: 'fund', vc: 'fund', growth: 'team' }
     if (id === 'guide') return setTalk(true)
     if (nav[id] && goTo) return goTo(nav[id])
-    setView({ cfo: 'model', underwriting: 'apps', reporting: 'builder', risk: 'risks', architect: 'capital', ops: 'team', coach: 'medals' }[id] || id)
+    setView({ cfo: 'model', underwriting: 'apps', reporting: 'builder', risk: 'risks', architect: 'capital', vc: 'capital', growth: 'team' }[id] || id)
   }
   const a = snaps.find((x) => x.id === cmp[0]), b = snaps.find((x) => x.id === cmp[1])
   const diff = a && b ? compareSnapshots(a, b) : null
@@ -415,7 +415,7 @@ export default function CommandCenter({ s, goTo }) {
 
       {talk && <Consultant report={report} typeId={typeId} onClose={() => setTalk(false)} />}
       {view === 'model' && (
-        <Modal kicker="💵 CFO" title="Financial model" onClose={() => setView(null)}>
+        <Modal kicker="💵 AI CFO" title="Financial model" onClose={() => setView(null)}>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <Tile label="Monthly burn" value={money(k.monthlyBurn)} sub="Model" />
             <Tile label="Runway" value={`${k.runwayDays}d`} sub={`Out ${k.runOutDate}`} tone="text-cyan" />
@@ -433,7 +433,7 @@ export default function CommandCenter({ s, goTo }) {
         </Modal>
       )}
       {view === 'apps' && (
-        <Modal kicker="🔍 Underwriting Analyst" title="Application analysis" onClose={() => setView(null)}>
+        <Modal kicker="🔍 AI Underwriter" title="Application analysis" onClose={() => setView(null)}>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <Tile label="Mock score" value={report.underwriting.fundability} sub={`Tier ${report.underwriting.tier.tier} · ${report.underwriting.tier.label}`} tone="text-cyan" />
             <Tile label="FICO" value={report.underwriting.profile.fico} sub="Illustrative" />
@@ -483,7 +483,7 @@ export default function CommandCenter({ s, goTo }) {
         </Modal>
       )}
       {view === 'team' && (
-        <Modal kicker="⚙️ Operations Lead" title="Team and costs" onClose={() => setView(null)}>
+        <Modal kicker="📈 Growth Strategist" title="Team and costs" onClose={() => setView(null)}>
           {report.team.length === 0 ? <div className="text-sm text-slate-400">No team hired yet.</div> : <ul className="space-y-2">{report.team.map((t) => <li key={t.name} className="rounded-xl border border-edge bg-ink/60 p-3 text-[13px]"><div className="flex justify-between font-bold text-white"><span>{t.name}</span><span className="font-mono">{money(t.cost)}/mo</span></div><div className="text-slate-400">{t.effect}</div></li>)}</ul>}
         </Modal>
       )}

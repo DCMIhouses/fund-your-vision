@@ -79,13 +79,32 @@ export default function PartnerBinder({ book }) {
   const toggle = (id) => setOpen((o) => (o.includes(id) ? o.filter((x) => x !== id) : [...o, id]))
   const allOpen = met.length > 0 && met.every((p) => open.includes(p.id))
   return (
-    <Panel guide="binder" num="★" accent="gold" title="Credit Partner Binder"
-      subtitle="See your credit partners at a glance. Tap a partner to open the full details and qualification checks. Simulated profiles, saved on this device."
+    <Panel guide="binder" num="★" accent="gold" title="JV Credit Partners"
+      subtitle="Every circle is a JV credit partner. Tap a circle to open the full details and qualification checks. Simulated profiles, saved on this device."
       right={<div className="text-right"><div className="text-xs uppercase text-slate-500">Collected</div><div className="font-mono font-black text-gold">{met.length}/{PARTNERS.length}</div></div>}>
       <div className="mb-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
         {[['Collected', `${met.length}/${PARTNERS.length}`, 'text-white'], ['Qualify ✓', good, 'text-neon'], ["Don't qualify ✗", met.length - good, 'text-hot'], ['Matched 🤝', signed, 'text-gold']].map(([k, v, c]) => (
           <div key={k} className="rounded-xl border border-edge bg-ink/60 p-3"><div className={`font-mono text-2xl font-black ${c}`}>{v}</div><div className="text-xs text-slate-400">{k}</div></div>
         ))}
+      </div>
+      <div className="mb-5 rounded-2xl border border-gold/40 bg-ink/50 p-4">
+        <div className="mb-3 text-xs font-black uppercase tracking-widest text-gold">JV credit partners · tap a circle</div>
+        <div className="flex flex-wrap justify-center gap-4">
+          {PARTNERS.map((p) => {
+            const e = book[p.id]
+            const ok = e && qualifies(p)
+            const on = open.includes(p.id)
+            return (
+              <button key={p.id} disabled={!e} onClick={() => toggle(p.id)} aria-pressed={on} aria-label={e ? `${p.name}, ${ok ? 'qualifies' : 'does not qualify'}` : 'Partner not collected yet'} className="group flex w-20 flex-col items-center gap-1 disabled:cursor-not-allowed">
+                <span className={`relative grid h-16 w-16 place-items-center rounded-full text-3xl transition ${!e ? 'border-2 border-dashed border-edge bg-edge/30 opacity-60' : ok ? 'bg-neon/15 ring-4 ring-neon/60' : 'bg-hot/15 ring-4 ring-hot/50'} ${on ? 'scale-110 !ring-gold shadow-[0_0_24px_rgba(251,191,36,.6)]' : 'group-hover:scale-105'}`}>
+                  {e ? p.face : '❔'}
+                  {e && <span className={`absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full text-[11px] font-black ${ok ? 'bg-neon text-ink' : 'bg-hot text-white'}`}>{ok ? '✓' : '✗'}</span>}
+                </span>
+                <span className="w-full truncate text-center text-[11px] font-bold text-slate-300">{e ? p.name.split(' ')[0] : 'Locked'}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-1.5">
@@ -98,8 +117,8 @@ export default function PartnerBinder({ book }) {
           className="min-h-[36px] rounded-full border border-cyan/60 px-3 text-xs font-black uppercase text-cyan hover:bg-cyan/10 disabled:opacity-40">{allOpen ? 'Collapse all ▴' : 'Expand all ▾'}</button>
       </div>
       <div className="grid grid-cols-1 items-start gap-2 lg:grid-cols-2">
-        {shown.map((p) => <Row key={p.id} p={p} entry={book[p.id]} open={open.includes(p.id)} toggle={() => toggle(p.id)} />)}
-        {!shown.length && <div className="rounded-xl border border-dashed border-edge p-4 text-center text-xs text-slate-500 lg:col-span-2">No partners here yet.</div>}
+        {shown.filter((p) => open.includes(p.id)).map((p) => <Row key={p.id} p={p} entry={book[p.id]} open toggle={() => toggle(p.id)} />)}
+        {!shown.some((p) => open.includes(p.id)) && <div className="rounded-xl border border-dashed border-edge p-4 text-center text-sm text-slate-400 lg:col-span-2">{met.length ? 'Tap a circle above to open that partner’s full details here.' : 'No partners collected yet. Meet them in the Partners step.'}</div>}
       </div>
     </Panel>
   )

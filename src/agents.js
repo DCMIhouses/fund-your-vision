@@ -8,7 +8,7 @@ export const AGENTS = [
     return bad.length ? S('alert', `${bad.length} number check(s) don't match: ${bad[0].label}.`, `${r.reconciliation.length - bad.length}/${r.reconciliation.length} checks`)
       : S('ok', `All ${r.reconciliation.length} number checks match. ${r.sources.length} funding source(s) in the ledger.`, `${r.reconciliation.length}/${r.reconciliation.length} checks`)
   } },
-  { id: 'cfo', icon: '💵', name: 'CFO', task: 'Watches cash, monthly costs and the 18-month forecast', run: (r) => {
+  { id: 'cfo', icon: '💵', name: 'AI CFO', task: 'Watches cash, monthly costs and the 18-month forecast', run: (r) => {
     const k = r.kpis
     if (r.forecast.insolventMonth) return S('alert', `Cash runs out in month ${r.forecast.insolventMonth} of the forecast.`, `${k.runwayDays} days runway`)
     if (r.forecast.minCash < k.monthlyBurn) return S('watch', `Lowest forecast cash is ${money(r.forecast.minCash)}, less than one month of costs.`, `${k.runwayDays} days runway`)
@@ -25,18 +25,24 @@ export const AGENTS = [
     if (k.available < k.target) return S('watch', `${money(k.target - k.available)} still needed. ${r.mix.length} source type(s) so far.`, pct(k.fundedPct, 0) + ' funded')
     return S('ok', `Target reached with ${r.mix.length} source type(s). Best boss plan in the model: ${best.label}.`, pct(k.fundedPct, 0) + ' funded')
   } },
-  { id: 'underwriting', icon: '🔍', name: 'Underwriting Analyst', task: 'Scores your (pretend) credit profile', run: (r) => {
+  { id: 'underwriting', icon: '🔍', name: 'AI Underwriter', task: 'Scores your (pretend) credit profile', run: (r) => {
     const u = r.underwriting
     if (!u.done) return S('watch', `Underwriting not run yet. Current mock score ${u.fundability} (Tier ${u.tier.tier}).`, `Score ${u.fundability}`)
     const declined = u.applications.filter((a) => a.status === 'declined').length
     return S(u.fundability >= 60 ? 'ok' : 'watch', `Mock score ${u.fundability} (Tier ${u.tier.tier}). ${u.applications.length} application(s), ${declined} declined.`, `Score ${u.fundability}`)
   } },
-  { id: 'ops', icon: '⚙️', name: 'Operations Lead', task: 'Tracks your team and what it costs each month', run: (r) => {
+  { id: 'growth', icon: '📈', name: 'Growth Strategist', task: 'Tracks revenue growth and the sales team', run: (r) => {
     const k = r.kpis
-    if (!r.team.length) return S('watch', `No team hired. Priority roles for your industry: ${r.company.priorities.join(', ')}.`, `${money(k.monthlyBurn)}/mo`)
-    return S('ok', `${r.team.length} on the team costing ${money(k.squadCost)}/mo. ${r.team.filter((t) => t.priority).length} are priority roles.`, `${money(k.monthlyBurn)}/mo`)
+    const sellers = r.team.filter((t) => /Marketing|Sales/.test(t.name)).length
+    return S(sellers ? 'ok' : 'watch', `Revenue forecast ${money(k.month1Revenue)} in month 1 to ${money(k.month18Revenue)} in month 18. ${sellers ? `${sellers} growth hire(s).` : 'No marketing or sales hire yet.'}`, `${money(k.month18Revenue)}/mo`)
   } },
-  { id: 'coach', icon: '🏅', name: 'Achievements Coach', task: 'Tracks medals and your founder level', run: (r) => S('ok', r.nextLevel ? `Level: ${r.level}. Next: ${r.nextLevel.name} (${r.nextLevel.goal})` : `Top level reached: ${r.level}.`, `${r.achievements.length} medals`) },
+  { id: 'vc', icon: '🤝', name: 'VC Negotiator', task: 'Compares equity offers and term sheets', run: (r) => {
+    const e = r.equity
+    const open = e.investors.filter((x) => x.status === 'conditional')
+    if (open.length) return S('watch', `Term sheet waiting: ${pct(open[0].equityPct)} equity for ${money(open[0].amount)}.`, `${pct(e.founder, 0)} owned`)
+    if (e.founder < 0.75) return S('watch', `Founder owns ${pct(e.founder)} after ${e.investors.length} round(s). Protect what is left.`, `${pct(e.founder, 0)} owned`)
+    return S('ok', e.investors.length ? `Founder keeps ${pct(e.founder)} with ${e.seats} board seat(s).` : 'No equity offers yet. Founder owns 100%.', `${pct(e.founder, 0)} owned`)
+  } },
   { id: 'guide', icon: '🧭', name: 'Guidance Consultant', task: 'Turns the findings into your next move', run: (r) => {
     const a = r.actions[0]
     return S(a && a.priority === 1 ? 'watch' : 'ok', a ? `Next move: ${a.action}.` : 'Hold the plan.', `${r.actions.length} action${r.actions.length === 1 ? '' : 's'}`)
