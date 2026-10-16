@@ -27,7 +27,7 @@ export default function AgentOffice({ agents, onOpen }) {
       onScreen: (id) => onOpenRef.current(id),
       onEvent: (e) => {
         setLog((l) => [{ k: `${Date.now()}-${Math.random()}`, text: e.text }, ...l].slice(0, 8))
-        if (e.type === 'done') setOutputs((o) => [{ k: e.job.id, title: e.job.title, by: e.by }, ...o].slice(0, 6))
+        if (e.type === 'done') setOutputs((o) => (o.some((x) => x.k === e.job.id) ? o : [{ k: e.job.id, title: e.job.title, by: e.by }, ...o].slice(0, 6)))
       },
     }
     g.init(host.current, cb).then(() => { if (!g.dead) { game.current = g; g.setAgents(latest.current) } })

@@ -89,7 +89,7 @@ class Worker {
       if (p) {
         if (p.wait > 0) { p.wait -= dt } else {
           const dx = p.x - this.x, dy = p.y - this.y, d = Math.hypot(dx, dy)
-          const blocked = this.game.workers.some((o) => o !== this && !o.sitting() && Math.hypot(o.x - (this.x + Math.sign(dx) * 22), o.y - this.y) < 16 && o.path.length)
+          const blocked = this.game.workers.some((o) => o !== this && o.path.length && o.walkFacing === Math.sign(dx) && Math.sign(o.x - this.x) === Math.sign(dx) && Math.hypot(o.x - this.x, o.y - this.y) < 24)
           const step = blocked ? 0 : WALK * dt
           if (d <= step) { this.x = p.x; this.y = p.y; this.path.shift() } else { this.x += (dx / d) * step; this.y += (dy / d) * step }
           if (Math.abs(dx) > 1) this.walkFacing = Math.sign(dx)
@@ -145,6 +145,7 @@ class Worker {
   }
   setState(s) { this.state = s; this.stateT = 0 }
   taskText() {
+    if (this.state === 'returning') return 'Walking back to desk'
     if (this.state === 'walking') return this.carryTo ? `Carrying ${this.job?.title || 'work'} → ${this.game.name(this.carryTo)}` : 'Walking back to desk'
     if (this.state === 'standing') return 'Standing up'
     if (this.state === 'delivering') return `Handing over → ${this.game.name(this.carryTo)}`
@@ -235,7 +236,7 @@ export default class OfficeGame {
       case 'cfo': { const pts = [[10, 60], [34, 50], [58, 54], [82, 34], [106, 26], [128, 14]]; const n = Math.max(2, Math.ceil(k * pts.length)); g.moveTo(x + 10, y + 64).lineTo(x + 128, y + 64).stroke({ width: 1, color: 0x334155 }); for (let i = 0; i < 4; i++) g.rect(x + 14 + i * 18, y + 64 - (14 + 10 * Math.abs(Math.sin(t * sp + i))), 10, 14 + 10 * Math.abs(Math.sin(t * sp + i))).fill({ color: 0x16a34a, alpha: 0.5 }); g.moveTo(x + pts[0][0], y + pts[0][1]); for (let i = 1; i < n; i++) g.lineTo(x + pts[i][0], y + pts[i][1]); g.stroke({ width: 3, color: col }); break }
       case 'reporting': { g.roundRect(cx - 34, y + 7, 68, sh - 14, 3).fill(0xe2e8f0); g.rect(cx - 28, y + 12, 36, 6).fill(0x2563eb); for (let i = 0; i < 4; i++) g.rect(cx - 28, y + 24 + i * 9, 56 * Math.min(1, Math.max(0, k * 5 - i)), 4).fill(0x64748b); g.circle(cx + 22, y + 15, 5).fill(0xfbbf24); break }
       case 'risk': { const a2 = 0.4 + 0.6 * Math.abs(Math.sin(t * 3 * sp)); g.poly([cx - 22, y + 52, cx, y + 12, cx + 22, y + 52]).stroke({ width: 4, color: col, alpha: a2 }); g.rect(cx - 2, y + 24, 4, 14).fill(col); g.rect(cx - 2, y + 42, 4, 4).fill(col); for (let i = 0; i < 2; i++) g.rect(x + 12 + i * (sw - 34), y + 60 - 34 * Math.abs(Math.sin(t * sp + i)), 10, 34 * Math.abs(Math.sin(t * sp + i))).fill({ color: 0xff2e63, alpha: 0.45 }); break }
-      case 'architect': { for (let i = 0; i < 3; i++) { const v = Math.min(1, Math.max(0, k * 4 - i)); g.roundRect(x + 14, y + 14 + i * 18, (sw - 60) * v, 12, 3).fill([0x7c3aed, 0x22d3ee, 0xfbbf24][i]) } g.circle(x + sw - 24, y + sh / 2, 15).stroke({ width: 5, color: 0x334155 }); g.arc(x + sw - 24, y + sh / 2, 15, -Math.PI / 2, -Math.PI / 2 + k * Math.PI * 2).stroke({ width: 5, color: col }); break }
+      case 'architect': { for (let i = 0; i < 3; i++) { const v = Math.min(1, Math.max(0, k * 4 - i)); g.roundRect(x + 14, y + 14 + i * 18, (sw - 60) * v, 12, 3).fill([0x7c3aed, 0x22d3ee, 0xfbbf24][i]) } g.circle(x + sw - 24, y + sh / 2, 15).stroke({ width: 5, color: 0x334155 }); g.moveTo(x + sw - 24, y + sh / 2 - 15).arc(x + sw - 24, y + sh / 2, 15, -Math.PI / 2, -Math.PI / 2 + k * Math.PI * 2).stroke({ width: 5, color: col }); break }
       case 'underwriting': { g.roundRect(cx - 34, y + 7, 68, sh - 14, 3).fill(0xcffafe); for (let i = 0; i < 4; i++) { g.rect(cx - 28, y + 13 + i * 12, 12, 7).fill({ color: 0x0891b2, alpha: 0.6 }); g.rect(cx - 12, y + 14 + i * 12, 38, 5).fill(0x94a3b8) } g.rect(cx - 38, y + 9 + Math.abs(Math.sin(t * 1.4 * sp)) * 52, 76, 4).fill({ color: col, alpha: 0.9 }); break }
       case 'vc': { const hi = Math.floor(t * sp) % 2; for (let i = 0; i < 2; i++) { const ox = x + 12 + i * 62; g.roundRect(ox, y + 10, 52, sh - 20, 4).fill(i === hi ? 0xfce7f3 : 0x334155).stroke({ width: 2, color: i === hi ? col : 0x475569 }); g.rect(ox + 6, y + 18, 40, 4).fill(0x64748b); g.rect(ox + 6, y + 48 - 18 * (i ? 0.6 : 1), 14, 18 * (i ? 0.6 : 1) + 0).fill(0xdb2777); g.rect(ox + 24, y + 48 - 12, 14, 12).fill(0x94a3b8) } break }
       case 'growth': { for (let i = 0; i < 5; i++) { const hgt = 10 + i * 9 * (0.7 + 0.3 * Math.sin(t * sp + i)); g.rect(x + 14 + i * 18, y + 66 - hgt, 12, hgt).fill(0xea580c) } g.poly([x + sw - 26, y + 16, x + sw - 14, y + 30, x + sw - 38, y + 30]).fill(col); break }
@@ -274,7 +275,7 @@ export default class OfficeGame {
     w.setState('standing')
     w.away = true
     w.onStood = () => {
-      const lane = this.seatSide(w.id) === this.seatSide(next) ? 0 : (this.seatSide(w.id) === 'L' ? -12 : 12)
+      const lane = -14
       w.go([this.visitPoint(w.id), this.aislePoint(w.id, lane), this.aislePoint(next, lane), this.visitPoint(next)], () => this.handoff(w, next, job))
     }
     this.cb.onEvent?.({ type: 'walk', text: `${this.name(w.id)} picks up the ${job.title} folder and walks it to ${this.name(next)}` })
@@ -292,7 +293,7 @@ export default class OfficeGame {
       this.cb.onEvent?.({ type: 'handoff', text: `${this.name(w.id)} handed the ${job.title} to ${this.name(toId)}` })
       if (rSeated) { r.hasDoc = true; this.work(r, nextJob, toId === 'reporting' ? 4 : 3) } else r.inbox.push(nextJob)
       w.carryTo = null
-      w.go([this.aislePoint(toId, 0), this.aislePoint(w.id, 0), this.visitPoint(w.id), { x: w.seat.x, y: w.seat.y }], () => {
+      w.go([this.aislePoint(toId, 14), this.aislePoint(w.id, 14), this.visitPoint(w.id), { x: w.seat.x, y: w.seat.y }], () => {
         w.away = false; w.walkFacing = 0
         w.setState('typing')
         this.nextFromInbox(w)
@@ -316,7 +317,7 @@ export default class OfficeGame {
   }
   tick(rawDt) {
     if (this.dead) return
-    const dt = this.paused ? 0 : Math.min(0.05, rawDt) * this.speed
+    const dt = this.paused ? 0 : Math.min(0.25, rawDt) * this.speed
     this.timers = (this.timers || []).filter((tm) => { tm.left -= dt; if (tm.left <= 0) { tm.fn(); return false } return true })
     for (const w of this.workers) {
       if (w.job && !w.away && (w.state === 'typing' || w.state === 'reading')) {
@@ -328,8 +329,9 @@ export default class OfficeGame {
       w.update(dt)
       this.drawScreen(w)
       const d = this.desks[w.id]
-      if (d && (!this.lastTxt || this.lastTxt < w.t)) d.tk.text = w.taskText()
-      d.tk.style.fill = STATUS[this.agents[w.id]?.status || 'ok']
+      const tt = w.taskText(), fill = STATUS[this.agents[w.id]?.status || 'ok']
+      if (d.tk.text !== tt) d.tk.text = tt
+      if (d.lastFill !== fill) { d.tk.style.fill = fill; d.lastFill = fill }
       w.ring.visible = this.selected === w.id
     }
     this.applyCamera()
