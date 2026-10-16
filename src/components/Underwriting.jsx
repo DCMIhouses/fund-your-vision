@@ -23,9 +23,9 @@ export function ProfileFields({ s, dispatch, locked }) {
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <Field locked={locked} label="FICO score" value={p.fico} min={500} max={850} onChange={set('fico')} />
       <Field locked={locked} label="Revolving utilization" value={p.utilization} display={`${p.utilization}%`} min={0} max={100} onChange={set('utilization')} />
-      <Field locked={locked} label="Hard inquiries (6 mo)" value={p.inquiries} min={0} max={12} onChange={set('inquiries')} />
-      <Field locked={locked} label="Oldest account age" value={p.oldestYears} display={`${p.oldestYears} yrs`} min={0} max={30} onChange={set('oldestYears')} />
-      <Field locked={locked} label="Open accounts" value={p.openAccounts} min={0} max={20} onChange={set('openAccounts')} />
+      <Field locked={locked} label="Hard inquiries (6 mo)" value={Math.min(p.inquiries, 6)} display={p.inquiries >= 6 ? '6+ (max penalty)' : p.inquiries} min={0} max={6} onChange={set('inquiries')} />
+      <Field locked={locked} label="Oldest account age" value={Math.min(p.oldestYears, 7)} display={p.oldestYears >= 7 ? '7+ yrs (max credit)' : `${p.oldestYears} yrs`} min={0} max={7} onChange={set('oldestYears')} />
+      <Field locked={locked} label="Open accounts" value={Math.min(p.openAccounts, 5)} display={p.openAccounts >= 5 ? '5+ (max credit)' : p.openAccounts} min={0} max={5} onChange={set('openAccounts')} />
       <Field locked={locked} label="Annual personal income" value={p.income} display={fmt(p.income)} min={0} max={300000} step={5000} onChange={set('income')} />
       <label className="flex items-center gap-2 text-[13px] text-slate-400">
         <input type="checkbox" disabled={locked} checked={p.derogatory} onChange={(e) => set('derogatory')(e.target.checked)} className="accent-hot" />

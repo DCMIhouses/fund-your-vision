@@ -11,6 +11,7 @@ import Ledger from './components/Ledger'
 import EventModal from './components/EventModal'
 import Boss from './components/Boss'
 import Results from './components/Results'
+import CommandCenter, { AgentStrip } from './components/CommandCenter'
 import { initialState } from './engine'
 import { gameReducer } from './store'
 import Guide from './components/Guide'
@@ -43,6 +44,7 @@ const TABS = [
   ['stack', '0% Card Stack', 'Apply issuer by issuer'],
   ['partners', 'Partners', 'Match a capital partner'],
   ['trophies', 'Trophies', 'Your medals'],
+  ['reports', 'Command Center', 'Agents & reports'],
 ]
 
 const TONE_SFX = { neon: 'approve', hot: 'decline', gold: 'warn', cyan: 'click' }
@@ -186,6 +188,7 @@ export default function App() {
               {tab === 'stack' && <CardStacking s={s} dispatch={dispatch} blocked={blocked} />}
               {tab === 'partners' && <><JVMatch s={s} dispatch={dispatch} blocked={blocked} onMeet={meetPartner} /><div className="mt-8"><PartnerBinder book={book} /></div></>}
               {tab === 'trophies' && <TrophyRoom s={s} collection={collection} />}
+              {tab === 'reports' && <CommandCenter s={s} />}
               </div>
               {tabIdx < TABS.length - 1 && (
                 <button onClick={() => { setTab(TABS[tabIdx + 1][0]); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
@@ -195,13 +198,14 @@ export default function App() {
               )}
             </div>
             <aside className="lg:sticky lg:top-56 lg:max-h-[calc(100vh-15rem)] lg:self-start lg:overflow-y-auto">
+              <AgentStrip s={s} onOpen={() => { setTab('reports'); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
               <Ledger s={s} dispatch={dispatch} blocked={blocked} />
             </aside>
           </div>
         )}
 
-        {s.phase === 'boss' && <div className="fade-up"><Boss s={s} dispatch={dispatch} /></div>}
-        {s.phase === 'results' && s.result && <Results s={s} dispatch={dispatch} />}
+        {s.phase === 'boss' && <div className="fade-up"><Boss s={s} dispatch={dispatch} /><div className="mt-10"><CommandCenter s={s} /></div></div>}
+        {s.phase === 'results' && s.result && <><Results s={s} dispatch={dispatch} /><div className="mt-10"><CommandCenter s={s} /></div></>}
         {s.phase !== 'fund' && s.phase !== 'setup' && <div className="mt-10"><TrophyRoom s={s} collection={collection} /></div>}
 
         <footer className="mt-10 border-t border-edge pt-4 text-center text-[10px] leading-relaxed text-slate-500">

@@ -61,7 +61,7 @@ export function compatibility(partner, needs) {
 
 export function fundabilityScore(p) {
   const fico = clamp(((p.fico - 500) / 350) * 45, 0, 45)
-  const util = p.utilization <= 10 ? 20 : p.utilization <= 30 ? 14 : p.utilization <= 50 ? 7 : 0
+  const util = p.utilization <= 10 ? 20 : p.utilization <= 30 ? 14 : p.utilization <= 50 ? 7 : p.utilization <= 75 ? 3 : 0
   const inq = Math.max(0, 15 - p.inquiries * 2.5)
   const age = Math.min(10, p.oldestYears * 1.5)
   const accts = Math.min(5, p.openAccounts)

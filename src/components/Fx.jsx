@@ -93,9 +93,9 @@ export function QuestMap({ tabs, tab, setTab, s, skin }) {
   const t = totals(s)
   const has = (type) => s.funding.some((f) => f.type === type && f.status !== 'declined')
   const done = {
-    team: s.squad.length > 0, underwrite: s.underwritten, fund: s.funding.length > 0, stack: has('credit'), partners: has('partner'), trophies: s.achievements.length > 1,
+    team: s.squad.length > 0, underwrite: s.underwritten, fund: s.funding.length > 0, stack: has('credit'), partners: has('partner'), trophies: s.achievements.length > 1, reports: false,
   }
-  const icons = { team: '👥', underwrite: '🔍', fund: '🃏', stack: '💳', partners: '🤝', trophies: '🏅' }
+  const icons = { team: '👥', underwrite: '🔍', fund: '🃏', stack: '💳', partners: '🤝', trophies: '🏅', reports: '📊' }
   const stops = [...tabs.map(([id, label, hint]) => ({ id, label, hint, icon: icons[id], ok: done[id], click: true })),
     { id: 'events', label: 'Events', hint: `${Math.min(s.resolvedEvents.length, MIN_EVENTS)}/${MIN_EVENTS} survived`, icon: '🎲', ok: s.resolvedEvents.length >= MIN_EVENTS },
     { id: 'boss', label: 'Boss', hint: t.available >= s.startup.target ? 'Unlocked!' : 'Locked', icon: '👾', ok: false, boss: true }]
@@ -254,7 +254,7 @@ export function Hangar({ meta, update, s, dispatch, today, collection }) {
             )
           })}
         </div>
-        <div className="mt-3 text-xs text-slate-500">Founder Rank counts medals from all your games. The Dreamer → Empire Builder levels in the top bar are for the game you are playing right now.</div>
+        <div className="mt-3 text-xs text-slate-500">Founder Rank counts medals from all your games. The Dreamer → Builder levels in the top bar are for the game you are playing right now.</div>
       </div>
       <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-slate-400">Gem shop · your gem marks your spot on the quest map</div>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

@@ -140,7 +140,7 @@ export function projectedRevenue(s, m) {
 }
 
 function log(s, text, tone = 'neon') {
-  return { ...s, seq: s.seq + 1, log: [{ id: `l${s.seq}`, text, tone }, ...s.log].slice(0, 40) }
+  return { ...s, seq: s.seq + 1, log: [{ id: `l${s.seq}`, text, tone }, ...s.log].slice(0, 200) }
 }
 
 function creditCap(s) {

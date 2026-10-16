@@ -101,3 +101,7 @@ input[type=range] { accent-color: #39ff88; }
 
 @keyframes bubble-life { 0% { transform: translateY(10px); opacity: 0; } 6% { transform: translateY(0); opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 .bubble-life { animation: bubble-life 6s ease-out forwards; }
+
+@keyframes agent-scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+.agent-scan { animation: agent-scan 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .agent-scan { animation: none; } }

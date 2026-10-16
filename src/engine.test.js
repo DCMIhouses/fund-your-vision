@@ -165,7 +165,7 @@ describe('demo scenarios', () => {
 })
 
 describe('levels', () => {
-  it('progresses from Dreamer to Empire Builder on real milestones', () => {
+  it('progresses from Dreamer to Builder on real milestones', () => {
     expect(computeLevel(initialState())).toBe(-1)
     expect(run(initialState(), { type: 'START' }).level).toBe(0)
     expect(playDemoA().level).toBe(3)

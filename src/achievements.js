@@ -62,10 +62,10 @@ export function evaluateAchievements(s) {
 
 export const LEVELS = [
   { name: 'The Dreamer', goal: 'Create your startup and size its capital need.' },
-  { name: 'The Builder', goal: 'Reach 25% of target with at least one funding source.' },
+  { name: 'The Starter', goal: 'Reach 25% of target with at least one funding source.' },
   { name: 'The Deal Maker', goal: 'Reach 50% and complete underwriting or a documented partnership.' },
-  { name: 'The Capital Architect', goal: 'Reach 100% with 2+ funding types and choose a repayment strategy at the boss.' },
-  { name: 'The Empire Builder', goal: 'Win the 18-month forecast.' },
+  { name: 'The Architect', goal: 'Reach 100% with 2+ funding types and choose a repayment strategy at the boss.' },
+  { name: 'The Builder', goal: 'Win the 18-month forecast.' },
 ]
 
 export function computeLevel(s) {
