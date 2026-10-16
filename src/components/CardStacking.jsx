@@ -5,7 +5,7 @@ import { cardDecision, creditUsed } from '../engine'
 export default function CardStacking({ s, dispatch, blocked }) {
   return (
     <section id="card-stack" className="scroll-mt-48">
-      <Panel num="4" accent="hot" title="0% Card Stack"
+      <Panel guide="stack" num="4" accent="hot" title="0% Card Stack"
         subtitle="Thresholds are shown up front. Every application is a hard inquiry, so the next card gets harder."
         right={<div className="text-right"><div className="text-xs uppercase text-slate-500">Approved</div><div className="font-mono font-black text-neon">{fmt(creditUsed(s))}</div></div>}>
         {!s.underwritten && (

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import Panel from './Panel'
+import Guide from './Guide'
 import { ACHIEVEMENTS, LEVELS, RARITY, achievementById } from '../achievements'
 
 export function Medal({ a, locked, size = 'md' }) {
@@ -44,7 +45,7 @@ export function TrophyRoom({ s, collection }) {
   const owned = (id) => s.achievements.includes(id) || collection[id]
   const total = ACHIEVEMENTS.filter((a) => owned(a.id)).length
   return (
-    <Panel num="8" accent="gold" title="The Founder's Trophy Room"
+    <Panel guide="trophies" num="8" accent="gold" title="The Founder's Trophy Room"
       subtitle="Medals unlock the moment you earn them. Secret medals stay hidden until found. Your collection is saved on this device."
       right={<div className="text-right"><div className="text-xs uppercase text-slate-500">Collected</div><div className="font-mono font-black text-gold">{total}/{ACHIEVEMENTS.length}</div></div>}>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -92,7 +93,8 @@ export function MedalShowcase({ collection }) {
         <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">The Medal Board</h2>
         <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">Medals unlock the moment you earn them. Hunt the 8 secret medals by trying different strategies.</p>
       </div>
-      <div className="mt-6 rounded-2xl border border-neon/40 bg-neon/5 p-4 sm:p-6">
+      <div className="mt-6"><Guide id="medals" /></div>
+      <div className="rounded-2xl border border-neon/40 bg-neon/5 p-4 sm:p-6">
         <div className="text-center text-xs font-black uppercase tracking-[0.3em] text-neon">Your Accomplishments</div>
         <div className="mt-3 grid grid-cols-3 gap-3 text-center">
           {[['Medals collected', `${earned.length}/${ACHIEVEMENTS.length}`], ['Secret medals found', `${earned.filter((a) => a.secret).length}/8`], ['Legendary medals', earned.filter((a) => a.rarity === 'legendary').length]].map(([k, v]) => (

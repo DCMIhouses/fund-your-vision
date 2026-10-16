@@ -13,7 +13,7 @@ export default function JVMatch({ s, dispatch, blocked }) {
 
   return (
     <section id="partners" className="scroll-mt-48">
-      <Panel num="5" accent="cyan" title="Capital Partner Matchmaking"
+      <Panel guide="partners" num="5" accent="cyan" title="Capital Partner Matchmaking"
         subtitle="Simulated profiles. Partners guarantee credit for a profit share; get the guarantee and agreement in writing."
         right={<div className="text-right"><div className="text-xs uppercase text-slate-500">Partners</div><div className="font-mono font-black text-cyan">{active}/2</div></div>}>
         <div className="text-[13px] uppercase tracking-widest text-slate-500">What do you need in a partner?</div>

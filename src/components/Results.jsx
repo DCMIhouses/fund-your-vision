@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import QRCode from 'qrcode'
 import Chart from './Chart'
+import Guide from './Guide'
 import { Medal } from './Medals'
 import { fmt } from '../game'
 import { FINANCE_CARDS, INDUSTRIES } from '../data'
@@ -132,7 +133,8 @@ export default function Results({ s, dispatch }) {
         <p className="text-sm text-slate-400">{o.sub}{r.forecast.insolventMonth ? ` Cash ran out in month ${r.forecast.insolventMonth}.` : ''} <span className="text-slate-600">(simulated outcome)</span></p>
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="mt-6"><Guide id="results" /></div>
+      <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
         <div className="rounded-2xl border border-edge bg-ink/70 p-4 text-center">
           <div className="text-xs uppercase tracking-widest text-slate-500">Startup Capital IQ</div>
           <div className={`font-mono text-7xl font-black tabular-nums ${o.color}`}>{iq}</div>

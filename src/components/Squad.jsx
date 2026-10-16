@@ -11,7 +11,7 @@ export default function Squad({ s, dispatch, locked }) {
   const cost = s.squad.reduce((a, id) => a + SQUAD.find((r) => r.id === id).cost, 0)
   const slots = Array.from({ length: SQUAD_SLOTS }, (_, i) => SQUAD.find((r) => r.id === s.squad[i]))
   return (
-    <Panel num="6" accent="neon" title="Startup Squad Builder"
+    <Panel guide="squad" num="6" accent="neon" title="Startup Squad Builder"
       subtitle={`${SQUAD_SLOTS} slots. Each specialist costs money monthly and changes risks, costs, or outcomes.`}
       right={<div className="text-right"><div className="text-xs uppercase text-slate-500">Squad cost</div><div className="font-mono font-black text-gold">{fmt(cost)}/mo</div></div>}>
       <div className="relative mx-auto h-48 max-w-lg">

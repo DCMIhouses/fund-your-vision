@@ -91,7 +91,7 @@ export default function FinanceCards({ s, dispatch, blocked, goTo }) {
   }
 
   return (
-    <Panel num="3" accent="gold" title="Financing Power-Up Cards"
+    <Panel guide="fund" num="3" accent="gold" title="Financing Power-Up Cards"
       subtitle="Combine cards to hit the target. Every card changes the forecast; applying isn't approval, and approval isn't cash in hand.">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {FINANCE_CARDS.map((card) => {

@@ -30,7 +30,7 @@ export default function Ledger({ s, dispatch, blocked }) {
   }
 
   return (
-    <Panel num="7" accent="gold" title="Funding Ledger & Timeline"
+    <Panel guide="ledger" num="7" accent="gold" title="Funding Ledger & Timeline"
       subtitle="Requested ≠ committed ≠ available. Committed funds land as time passes (each event = a month).">
       <div className="grid grid-cols-3 gap-2 text-center">
         {[['Requested', t.requested, 'text-slate-300'], ['Committed', t.committed, 'text-gold'], ['Available', t.available, 'text-neon']].map(([k, v, c]) => (

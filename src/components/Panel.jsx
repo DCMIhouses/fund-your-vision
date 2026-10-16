@@ -1,4 +1,5 @@
-export default function Panel({ num, title, subtitle, accent = 'neon', right, children, className = '' }) {
+import Guide from './Guide'
+export default function Panel({ guide,  num, title, subtitle, accent = 'neon', right, children, className = '' }) {
   const ring = {
     neon: 'from-neon/60 via-neon/10',
     cyan: 'from-cyan/60 via-cyan/10',
@@ -26,6 +27,7 @@ export default function Panel({ num, title, subtitle, accent = 'neon', right, ch
           </div>
           {right}
         </header>
+        {guide && <Guide id={guide} />}
         {children}
       </div>
     </section>

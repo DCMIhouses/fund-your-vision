@@ -1,4 +1,5 @@
 import Chart from './Chart'
+import Guide from './Guide'
 import { fmt } from '../game'
 import { bossLimit, bossOptions, monthlyBurn, runForecast, scoreGame, totals } from '../engine'
 
@@ -20,7 +21,8 @@ export default function Boss({ s, dispatch }) {
           {crunch ? ' Untouched, your forecast ends ' + (baseline.insolventMonth ? `out of cash in month ${baseline.insolventMonth}.` : 'without a one-month reserve.') : ' Your untouched forecast survives, but can you make it stronger?'}
         </p>
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-6"><Guide id="boss" /></div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[['Available', fmt(totals(s).available)], ['Promo balances', fmt(s.funding.filter((x) => (x.type === 'credit' || x.type === 'partner') && x.status === 'available').reduce((a, x) => a + x.amount, 0))], ['Monthly burn', fmt(monthlyBurn(s))], ['Untouched month-18 cash', fmt(baseline.endCash)]].map(([k, v]) => (
           <div key={k} className="rounded-xl border border-edge bg-ink/60 p-3"><div className="text-[11px] uppercase tracking-widest text-slate-500">{k}</div><div className={`font-mono text-sm font-black ${k.startsWith('Untouched') && baseline.endCash < 0 ? 'text-hot' : 'text-white'}`}>{v}</div></div>
         ))}

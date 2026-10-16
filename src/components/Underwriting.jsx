@@ -56,7 +56,7 @@ export default function Underwriting({ s, dispatch, blocked }) {
     setTimeout(() => { setScanning(false); dispatch({ type: 'UNDERWRITE' }) }, 1100)
   }
   return (
-    <Panel num="2" accent="cyan" title="Mock AI Underwriting"
+    <Panel guide="underwrite" num="2" accent="cyan" title="Mock AI Underwriting"
       subtitle="Transparent, simulated rules. Not an Experian product or a credit decision.">
       <ProfileFields s={s} dispatch={dispatch} locked />
       <div className="mt-4 grid grid-cols-3 gap-2">

@@ -12,6 +12,7 @@ import Boss from './components/Boss'
 import Results from './components/Results'
 import { initialState } from './engine'
 import { gameReducer } from './store'
+import Guide from './components/Guide'
 import { AchievementToasts, MedalShowcase, TrophyRoom } from './components/Medals'
 import { isMuted, play, setMuted } from './sfx'
 
@@ -128,6 +129,7 @@ export default function App() {
                 <span className="not-italic text-slate-500"> Borrowing is only half the game: you still have to pay it back.</span>
               </div>
             </div>
+            <Guide id="overview" />
             <MedalShowcase collection={collection} />
             <Setup s={s} dispatch={dispatch} />
           </>

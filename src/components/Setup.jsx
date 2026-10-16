@@ -1,3 +1,4 @@
+import Guide from './Guide'
 import { INDUSTRIES, DEMO_SCENARIOS, TOURNAMENT_SCENARIOS } from '../data'
 import { fmt } from '../game'
 import { ProfileFields, ScorePreview } from './Underwriting'
@@ -20,6 +21,7 @@ export default function Setup({ s, dispatch }) {
         ))}
       </div>
       <div className="mt-8">
+        <Guide id="setup" />
       <div className="mb-3 grid grid-cols-2 gap-1 rounded-xl bg-ink p-1">
         {[['arcade', 'Arcade Mode', 'Customize everything. Earn medals freely.'], ['tournament', 'Tournament Mode', 'Standardized seeded scenarios. Verified leaderboard.']].map(([m, label, sub]) => (
           <button key={m} onClick={() => dispatch({ type: 'SET_MODE', mode: m })}
