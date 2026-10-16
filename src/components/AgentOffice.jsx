@@ -18,6 +18,7 @@ export default function AgentOffice({ agents, onOpen }) {
   const [log, setLog] = useState([])
   const [outputs, setOutputs] = useState([])
   const [states, setStates] = useState({})
+  const [deliveries, setDeliveries] = useState(0)
   const sig = agents.map((a) => `${a.status}|${a.finding}`).join('~')
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function AgentOffice({ agents, onOpen }) {
       onScreen: (id) => onOpenRef.current(id),
       onEvent: (e) => {
         setLog((l) => [{ k: `${Date.now()}-${Math.random()}`, text: e.text }, ...l].slice(0, 8))
+        if (e.type === 'handoff') setDeliveries((n) => n + 1)
         if (e.type === 'done') setOutputs((o) => (o.some((x) => x.k === e.job.id) ? o : [{ k: e.job.id, title: e.job.title, by: e.by }, ...o].slice(0, 6)))
       },
     }
@@ -50,6 +52,7 @@ export default function AgentOffice({ agents, onOpen }) {
           <div className="text-xs text-slate-400">Click a worker to inspect or assign a task. Click a screen to open its work. Drag to pan, scroll to zoom. Rule-based agents, not live AI.</div>
         </div>
         <div className="flex flex-wrap gap-1.5">
+          <button className="min-h-[40px] rounded-xl bg-gold px-3 text-xs font-black uppercase text-ink disabled:opacity-50" disabled={states.architect?.busy} onClick={() => { pick('architect'); game.current?.assign('architect') }}>▶ Run full handoff</button>
           <button className={btn} onClick={() => setPaused((p) => !p)}>{paused ? '▶ Play' : '⏸ Pause'}</button>
           {[1, 2, 4].map((v) => <button key={v} className={`${btn} ${speed === v ? '!border-gold text-gold' : ''}`} onClick={() => setSpeed(v)}>{v}x</button>)}
           <button className={btn} aria-label="Zoom out" onClick={() => game.current?.zoomBy(0.8)}>−</button>
@@ -65,7 +68,12 @@ export default function AgentOffice({ agents, onOpen }) {
           </button>
         ))}
       </div>
-      <div ref={host} data-testid="office-canvas" className="relative mt-2 h-[540px] w-full overflow-hidden rounded-2xl border border-edge sm:h-[640px] lg:h-[720px]" />
+      <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        {[['Active agents', agents.length], ['Open desks', 2], ['Working on tasks', Object.values(states).filter((x) => x?.busy).length], ['Deliveries', deliveries], ['Outputs', outputs.length]].map(([k, v]) => (
+          <span key={k} className="rounded-full border border-gold/30 bg-ink/60 px-3 py-1">{k}: <b className="text-gold">{v}</b></span>
+        ))}
+      </div>
+      <div ref={host} data-testid="office-canvas" className="relative mt-2 h-[380px] w-full overflow-hidden rounded-2xl border border-edge sm:h-[640px] lg:h-[720px]" />
       <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
         <div className="rounded-2xl border border-edge bg-ink/70 p-3 lg:col-span-1">
           <div className="text-xs font-black uppercase tracking-widest text-slate-400">Inspect worker</div>

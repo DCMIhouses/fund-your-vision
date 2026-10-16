@@ -22,3 +22,13 @@ export const SKIN = { architect: 0xffdbac, underwriting: 0xe0ac69, vc: 0x8d5524,
 export const HAIR = { architect: 0x111827, underwriting: 0x3f2a14, vc: 0x0b0b0b, cfo: 0x6b4423, growth: 0x111827, risk: 0x1c1917, reporting: 0x111827, guide: 0xb45309 }
 export const where = (id) => { const l = LEFT.indexOf(id); return l >= 0 ? ['L', l] : ['R', RIGHT.indexOf(id)] }
 export const seatOf = (id) => { const [s, i] = where(id); return { x: s === 'L' ? 286 : 714, y: rowY(i) + 44, side: s } }
+export const STYLE = {
+  architect: { hair: 'side', acc: 'blazer' },
+  underwriting: { hair: 'bun', acc: 'glasses' },
+  vc: { hair: 'short', acc: 'tie' },
+  cfo: { hair: 'pony', acc: 'glasses' },
+  growth: { hair: 'curly', acc: 'none' },
+  risk: { hair: 'buzz', acc: 'beard' },
+  reporting: { hair: 'afro', acc: 'tie' },
+  guide: { hair: 'long', acc: 'headset' },
+}

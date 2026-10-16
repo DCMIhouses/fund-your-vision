@@ -182,7 +182,7 @@ function Consultant({ report, typeId, onClose }) {
 function Modal({ title, kicker, onClose, children }) {
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-6" onClick={onClose}>
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl border border-cyan/50 bg-panel p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label={title} className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl border border-cyan/50 bg-panel p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
           <div><div className="text-xs font-black uppercase tracking-widest text-cyan">{kicker}</div><div className="text-xl font-black text-white">{title}</div></div>
           <button onClick={onClose} className="rounded-lg border border-edge px-3 py-1.5 text-sm font-bold text-slate-300 hover:border-hot hover:text-hot">Close</button>
