@@ -165,9 +165,6 @@ export default function App() {
         {s.phase === 'setup' && (
           <>
             <Guide id="overview" />
-            <div className="mb-8 rounded-2xl border border-gold/40 bg-gold/5 p-4 text-sm leading-relaxed text-slate-300">
-              <span className="font-black text-gold">Your cash runway: {s.startDays.toLocaleString()} days.</span> This matches the Cash Buffer Runway counter at the top. Change it in Setup below. For comparison, the median small business held about 27 days of cash reserves (JPMorgan Chase Institute, 2016).
-            </div>
             <Hangar meta={meta} update={updateMeta} s={s} dispatch={dispatch} today={today} collection={collection} />
             <MedalShowcase collection={collection} />
             <div className="mb-8"><PartnerBinder book={book} /></div>
