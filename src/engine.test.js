@@ -240,3 +240,13 @@ describe('tournament mode', () => {
     expect(validateRun(playDemoB()).ok).toBe(false)
   })
 })
+
+describe('credit partner qualification', () => {
+  it('blocks partners that fail a check and allows qualified ones', () => {
+    const bad = run(initialState(), { type: 'START' }, { type: 'PLAY', card: 'partner', partnerId: 'p9' })
+    expect(bad.funding.some((f) => f.type === 'partner')).toBe(false)
+    expect(bad.log[0].text).toMatch(/doesn't qualify/)
+    const good = run(initialState(), { type: 'START' }, { type: 'PLAY', card: 'partner', partnerId: 'p1' })
+    expect(good.funding.some((f) => f.partnerId === 'p1')).toBe(true)
+  })
+})

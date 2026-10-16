@@ -6,6 +6,8 @@ const POS = [
   'left-[6%] top-[8%]', 'right-[6%] top-[8%]', 'left-[6%] bottom-[8%]', 'right-[6%] bottom-[8%]',
 ]
 
+const ROLE_ICON = { cco: '🏗️', attorney: '⚖️', cpa: '🧮', marketing: '📣', sales: '🤑', operator: '⚙️' }
+
 export default function Squad({ s, dispatch, locked }) {
   const pri = INDUSTRIES[s.startup.industry].priorities
   const cost = s.squad.reduce((a, id) => a + SQUAD.find((r) => r.id === id).cost, 0)
@@ -26,7 +28,7 @@ export default function Squad({ s, dispatch, locked }) {
         {slots.map((r, i) => (
           <div key={i} className={`absolute ${POS[i]} grid h-16 w-28 place-items-center rounded-xl border px-1 text-center ${r ? 'toast-in border-neon/70 bg-neon/10' : 'border-dashed border-edge bg-ink/60'}`}>
             {r ? (
-              <div><div className="font-mono text-xs font-black text-neon">{r.short}</div><div className="text-[10px] leading-tight text-slate-300">{r.name}</div></div>
+              <div><div className="text-xl leading-none">{ROLE_ICON[r.id]}</div><div className="font-mono text-xs font-black text-neon">{r.short}</div><div className="text-[10px] leading-tight text-slate-300">{r.name}</div></div>
             ) : <div className="text-xs text-slate-600">Open slot</div>}
           </div>
         ))}
@@ -38,7 +40,7 @@ export default function Squad({ s, dispatch, locked }) {
           return (
             <div key={r.id} className={`rounded-xl border p-2.5 ${hired ? 'border-neon/60 bg-neon/5' : 'border-edge bg-ink/60'}`}>
               <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-bold text-white">{r.name}</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-white"><span className="grid h-9 w-9 place-items-center rounded-lg bg-neon/10 text-xl">{ROLE_ICON[r.id]}</span>{r.name}</div>
                 {pri.includes(r.id) && <span className="rounded bg-gold/20 px-1.5 py-0.5 text-[11px] font-black uppercase text-gold">Priority</span>}
               </div>
               <div className="text-xs text-slate-500">{r.area} · {fmt(r.cost)}/mo</div>

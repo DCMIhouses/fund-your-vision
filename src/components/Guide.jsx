@@ -10,7 +10,7 @@ export default function Guide({ id }) {
   return (
     <div className="mb-6 rounded-2xl border border-cyan/40 bg-cyan/5 p-4 text-left sm:p-5">
       <button onClick={toggle} className="flex w-full items-center justify-between gap-2 text-left">
-        <span className="text-sm font-black uppercase tracking-wider text-cyan">ⓘ How this works: {g.title}</span>
+        <span className="text-sm font-black uppercase tracking-wider text-cyan">💡 How this works: {g.title}</span>
         <span className="text-xs font-bold text-cyan">{open ? 'Hide ▲' : 'Show ▼'}</span>
       </button>
       {open && (

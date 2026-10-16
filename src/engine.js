@@ -1,4 +1,4 @@
-import { CARDS, PARTNERS, DEFAULT_PROFILE, clamp, estimatedLimit, fmt, fmtK, fundabilityScore } from './game'
+import { CARDS, PARTNERS, DEFAULT_PROFILE, partnerChecks, partnerQualifies, clamp, estimatedLimit, fmt, fmtK, fundabilityScore } from './game'
 import { INDUSTRIES, SQUAD, SQUAD_SLOTS, EVENT_IDS, DEMO_SCENARIOS, TOURNAMENT_SCENARIOS } from './data'
 
 export const findScenario = (id) => DEMO_SCENARIOS.find((d) => d.id === id) || TOURNAMENT_SCENARIOS.find((d) => d.id === id)
@@ -336,6 +336,7 @@ function playCard(s, a) {
       const p = PARTNERS.find((x) => x.id === a.partnerId)
       const count = s.funding.filter((f) => f.type === 'partner' && f.status !== 'declined').length
       if (!p || count >= 2 || s.funding.some((f) => f.partnerId === p.id)) return s
+      if (!partnerQualifies(p)) return log(s, `${p.name} doesn't qualify as a credit partner: ${partnerChecks(p).filter((c) => !c.ok).map((c) => c.label).join(', ')}`, 'hot')
       return log(addFunding(s, {
         type: 'partner', partnerId: p.id, label: `Capital Partner: ${p.name}`, requested: p.capacity, amount: p.capacity, split: p.split / 100,
         status: has(s, 'attorney') ? 'committed' : 'conditional', turns: 1, agreement: has(s, 'attorney'), promo: 12,

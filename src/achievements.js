@@ -15,7 +15,7 @@ export const RARITY = {
   legendary: { label: 'Legendary', ring: 'from-gold to-orange-500', text: 'text-gold' },
 }
 
-export const ACHIEVEMENTS = [
+const RAW = [
   { id: 'visionary', name: 'Visionary', icon: 'VI', rarity: 'common', desc: 'Create a startup.', test: (s) => s.phase !== 'setup' },
   { id: 'first_capital', name: 'First Capital', icon: '$1', rarity: 'common', desc: 'Secure your first available financing.', test: (s) => s.funding.some((f) => f.status === 'available' && f.type !== 'cut') },
   { id: 'halfway', name: 'Halfway Funded', icon: '50', rarity: 'common', desc: 'Reach 50% of your target in available capital.', test: (s) => reached(s, 0.5) },
@@ -36,6 +36,23 @@ export const ACHIEVEMENTS = [
   { id: 'partnership_pro', secret: true, name: 'Partnership Pro', icon: 'PP', rarity: 'epic', desc: 'Win with a properly documented capital partner.', test: (s) => win(s) && s.funding.some((f) => f.type === 'partner' && f.status === 'available' && f.agreement) },
   { id: 'cashflow_whisperer', secret: true, name: 'Cash-Flow Whisperer', icon: 'CW', rarity: 'epic', desc: 'Finish all 18 months with positive cash and no missed payments.', test: (s) => !!s.result && s.result.forecast.minCash > 0 },
 ]
+
+const ART = {
+  visionary: '🔭', first_capital: '💵', halfway: '🌓', credit_strategist: '📈', deal_maker: '🤝', dream_team: '🦸', equity_guardian: '🛡️',
+  capital_architect: '🏛️', comeback: '🔥', runway_warrior: '🛫', capital_master: '👑', no_vc: '🚫', negotiator: '⚖️', debt_slayer: '🐉',
+  against_all_odds: '🎲', bootstrap_hero: '🥾', turnaround_king: '🔄', partnership_pro: '📜', cashflow_whisperer: '🌊',
+}
+const HINT = {
+  no_vc: 'Win the game and keep 100% of your company.',
+  negotiator: 'Bring a lawyer when an investor makes you an offer.',
+  debt_slayer: 'Owe $0 by the last month of the forecast.',
+  against_all_odds: 'Get hit by 3 or more bad events and still win.',
+  bootstrap_hero: 'Win without loans, cards, investors or partners.',
+  turnaround_king: 'Start the boss fight losing, then flip it into a win.',
+  partnership_pro: 'Win with a partner deal that is written down.',
+  cashflow_whisperer: 'Never let your cash hit $0 in all 18 months.',
+}
+export const ACHIEVEMENTS = RAW.map((a) => ({ ...a, art: ART[a.id], hint: HINT[a.id] }))
 
 export const achievementById = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]))
 

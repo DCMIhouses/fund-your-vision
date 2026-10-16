@@ -30,13 +30,27 @@ export const CARDS = [
 ]
 
 export const PARTNERS = [
-  { id: 'p1', name: 'Marcus Reed', title: 'Ex-Logistics Ops Director', fico: 792, capacity: 45000, split: 12, skills: ['Ops', 'Finance', 'Capital'], bio: 'Three seasoned business files, no late payments. Wants a profit share in exchange for guaranteeing credit.' },
-  { id: 'p2', name: 'Priya Natarajan', title: 'Full-Stack Engineer, 2x Founder', fico: 765, capacity: 30000, split: 10, skills: ['Tech', 'Capital'], bio: 'Builds MVPs fast. Open to co-guaranteeing a credit line for a profit share.' },
-  { id: 'p3', name: 'Dana Whitfield', title: 'B2B Sales Closer', fico: 731, capacity: 20000, split: 8, skills: ['Sales', 'Marketing'], bio: 'Brings pipeline plus a clean personal credit file.' },
-  { id: 'p4', name: 'Luis Ortega', title: 'Retired CFO, Fortune 500', fico: 815, capacity: 60000, split: 15, skills: ['Finance', 'Capital', 'Ops'], bio: 'Ran corporate treasury for 25 years. Expects a written guarantee and partnership agreement.' },
-  { id: 'p5', name: 'Aisha Bello', title: 'Growth Marketer', fico: 748, capacity: 25000, split: 8, skills: ['Marketing', 'Sales'], bio: 'Paid social and funnels. Credit partner with a clean file.' },
-  { id: 'p6', name: 'Tom Becker', title: 'Real-Estate Investor', fico: 801, capacity: 50000, split: 14, skills: ['Capital', 'Finance'], bio: 'Owns 11 rental units. Wants his credit capacity working in a structured JV.' },
+  { id: 'p1', face: '🧔🏾', util: 9, lates: 0, inq: 1, written: true, name: 'Marcus Reed', title: 'Ex-Logistics Ops Director', fico: 792, capacity: 45000, split: 12, skills: ['Ops', 'Finance', 'Capital'], bio: 'Three seasoned business files, no late payments. Wants a profit share in exchange for guaranteeing credit.' },
+  { id: 'p2', face: '👩🏽‍💻', util: 14, lates: 0, inq: 2, written: true, name: 'Priya Natarajan', title: 'Full-Stack Engineer, 2x Founder', fico: 765, capacity: 30000, split: 10, skills: ['Tech', 'Capital'], bio: 'Builds MVPs fast. Open to co-guaranteeing a credit line for a profit share.' },
+  { id: 'p3', face: '👩🏼‍💼', util: 22, lates: 0, inq: 2, written: true, name: 'Dana Whitfield', title: 'B2B Sales Closer', fico: 731, capacity: 20000, split: 8, skills: ['Sales', 'Marketing'], bio: 'Brings pipeline plus a clean personal credit file.' },
+  { id: 'p4', face: '👨🏽‍🦳', util: 6, lates: 0, inq: 0, written: true, name: 'Luis Ortega', title: 'Retired CFO, Fortune 500', fico: 815, capacity: 60000, split: 15, skills: ['Finance', 'Capital', 'Ops'], bio: 'Ran corporate treasury for 25 years. Expects a written guarantee and partnership agreement.' },
+  { id: 'p5', face: '👩🏿‍🎤', util: 18, lates: 0, inq: 1, written: true, name: 'Aisha Bello', title: 'Growth Marketer', fico: 748, capacity: 25000, split: 8, skills: ['Marketing', 'Sales'], bio: 'Paid social and funnels. Credit partner with a clean file.' },
+  { id: 'p6', face: '🤠', util: 11, lates: 0, inq: 1, written: true, name: 'Tom Becker', title: 'Real-Estate Investor', fico: 801, capacity: 50000, split: 14, skills: ['Capital', 'Finance'], bio: 'Owns 11 rental units. Wants his credit capacity working in a structured JV.' },
+  { id: 'p7', face: '🧑🏼', util: 64, lates: 1, inq: 6, written: true, name: 'Kevin Marsh', title: 'Weekend Day Trader', fico: 668, capacity: 40000, split: 20, skills: ['Capital'], bio: 'Big limits, but his cards are nearly maxed out and he applied for 6 new ones this year.' },
+  { id: 'p8', face: '👩🏾‍🍳', util: 41, lates: 0, inq: 2, written: true, name: 'Rhonda Fields', title: 'Franchise Owner', fico: 712, capacity: 35000, split: 13, skills: ['Ops', 'Sales'], bio: 'Strong operator, but her credit use is high and her score is just under the bar.' },
+  { id: 'p9', face: '😎', util: 78, lates: 3, inq: 8, written: false, name: 'Jay Patel', title: 'Crypto Influencer', fico: 640, capacity: 80000, split: 25, skills: ['Marketing', 'Capital'], bio: 'Promises huge limits on a handshake only and wants 25% of your profits.' },
 ]
+
+export const PARTNER_RULES = [
+  ['fico', 'Credit score 720+', (p) => p.fico >= 720, (p) => `${p.fico}`],
+  ['util', 'Uses under 30% of their credit', (p) => p.util < 30, (p) => `${p.util}%`],
+  ['lates', 'No late payments', (p) => p.lates === 0, (p) => `${p.lates} late`],
+  ['inq', '3 or fewer new credit checks', (p) => p.inq <= 3, (p) => `${p.inq}`],
+  ['split', 'Profit share 15% or less', (p) => p.split <= 15, (p) => `${p.split}%`],
+  ['written', 'Will sign a written agreement', (p) => p.written, (p) => (p.written ? 'yes' : 'no')],
+]
+export const partnerChecks = (p) => PARTNER_RULES.map(([id, label, test, value]) => ({ id, label, ok: test(p), value: value(p) }))
+export const partnerQualifies = (p) => partnerChecks(p).every((c) => c.ok)
 
 export const NEEDS = ['Sales', 'Tech', 'Ops', 'Marketing', 'Finance', 'Capital']
 

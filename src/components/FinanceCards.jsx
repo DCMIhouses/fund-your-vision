@@ -6,6 +6,7 @@ import { FINANCE_CARDS, INDUSTRIES } from '../data'
 import { fmt } from '../game'
 import { creditUsed, prepayMax, termDecision, vcTerms } from '../engine'
 
+const CARD_ICON = { credit: '💳', term: '🏦', savings: '🐷', vc: '🦄', partner: '🤝', prepay: '🧾', cut: '✂️' }
 const KIND = {
   Debt: 'bg-hot/20 text-hot', Self: 'bg-gold/20 text-gold', Equity: 'bg-cyan/20 text-cyan',
   Partnership: 'bg-cyan/20 text-cyan', Revenue: 'bg-neon/20 text-neon', Efficiency: 'bg-neon/20 text-neon',
@@ -102,7 +103,7 @@ export default function FinanceCards({ s, dispatch, blocked, goTo }) {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <span className={`rounded px-1.5 py-0.5 text-[11px] font-black uppercase ${KIND[card.kind]}`}>{card.kind}</span>
-                  <div className="mt-1 text-sm font-black text-white">{card.name}</div>
+                  <div className="mt-1 flex items-center gap-2 text-sm font-black text-white"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 text-2xl">{CARD_ICON[card.id]}</span>{card.name}</div>
                   <div className="text-[13px] text-slate-500">{card.tagline}</div>
                 </div>
                 {last && <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[11px] font-black uppercase ${STATUS[last.status]}`}>{last.status}</span>}

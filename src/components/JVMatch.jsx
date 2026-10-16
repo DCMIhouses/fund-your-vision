@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Panel from './Panel'
-import { NEEDS, PARTNERS, compatibility, fmt } from '../game'
+import { NEEDS, PARTNERS, compatibility, fmt, partnerChecks } from '../game'
 
-export default function JVMatch({ s, dispatch, blocked }) {
+export default function JVMatch({ s, dispatch, blocked, onMeet }) {
   const [needs, setNeeds] = useState(['Capital'])
   const [passed, setPassed] = useState([])
   const matchedIds = s.funding.filter((f) => f.type === 'partner').map((f) => f.partnerId)
   const active = s.funding.filter((f) => f.type === 'partner' && f.status !== 'declined' && f.status !== 'withdrawn').length
   const queue = PARTNERS.filter((p) => !passed.includes(p.id) && !matchedIds.includes(p.id))
   const current = queue[0]
+  const cid = current?.id
+  useEffect(() => { if (cid) onMeet?.(cid) }, [cid, onMeet])
   const toggle = (n) => setNeeds(needs.includes(n) ? needs.filter((x) => x !== n) : [...needs, n])
 
   return (
@@ -26,12 +28,12 @@ export default function JVMatch({ s, dispatch, blocked }) {
         <div className="mt-3">
           {current ? (() => {
             const c = compatibility(current, needs)
+            const checks = partnerChecks(current)
+            const q = checks.every((x) => x.ok)
             return (
               <div key={current.id} className="toast-in rounded-2xl border border-cyan/40 bg-gradient-to-br from-cyan/10 to-ink p-4">
                 <div className="flex items-start gap-3">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-cyan to-neon text-base font-black text-ink">
-                    {current.name.split(' ').map((w) => w[0]).join('')}
-                  </div>
+                  <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-full text-3xl ${q ? 'bg-neon/15 ring-2 ring-neon/60' : 'bg-hot/15 ring-2 ring-hot/50'}`}>{current.face}</div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-base font-black text-white">{current.name}</div>
@@ -49,10 +51,18 @@ export default function JVMatch({ s, dispatch, blocked }) {
                   <div className="rounded bg-ink/70 p-1.5 text-center"><div className="text-[11px] uppercase text-slate-500">Credit capacity</div><span className="text-neon">{fmt(current.capacity)}</span></div>
                   <div className="rounded bg-ink/70 p-1.5 text-center"><div className="text-[11px] uppercase text-slate-500">Profit share</div><span className="text-gold">{current.split}%</span></div>
                 </div>
+                <div className={`mt-3 rounded-xl border p-3 ${q ? 'border-neon/50 bg-neon/5' : 'border-hot/50 bg-hot/5'}`}>
+                  <div className={`text-xs font-black uppercase tracking-wider ${q ? 'text-neon' : 'text-hot'}`}>{q ? '✓ Qualifies as a good credit partner' : "✗ Doesn't qualify as a credit partner"}</div>
+                  <div className="mt-1.5 grid grid-cols-1 gap-x-4 gap-y-0.5 sm:grid-cols-2">
+                    {checks.map((x) => (
+                      <div key={x.id} className={`flex justify-between gap-2 text-xs ${x.ok ? 'text-slate-300' : 'font-bold text-hot'}`}><span>{x.ok ? '✓' : '✗'} {x.label}</span><span className="font-mono text-slate-500">{x.value}</span></div>
+                    ))}
+                  </div>
+                </div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <button onClick={() => setPassed([...passed, current.id])} className="rounded-lg border border-hot/60 py-2 text-xs font-black uppercase text-hot hover:bg-hot/10">✕ Pass</button>
-                  <button disabled={blocked || active >= 2} onClick={() => dispatch({ type: 'PLAY', card: 'partner', partnerId: current.id })}
-                    className="rounded-lg bg-cyan py-2 text-xs font-black uppercase text-ink hover:brightness-110 disabled:opacity-40">{active >= 2 ? 'Max 2 partners' : '♥ Propose JV'}</button>
+                  <button disabled={blocked || active >= 2 || !q} onClick={() => dispatch({ type: 'PLAY', card: 'partner', partnerId: current.id })}
+                    className="rounded-lg bg-cyan py-2 text-xs font-black uppercase text-ink hover:brightness-110 disabled:opacity-40">{!q ? "✕ Doesn't qualify" : active >= 2 ? 'Max 2 partners' : '♥ Propose JV'}</button>
                 </div>
               </div>
             )

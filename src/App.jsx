@@ -5,6 +5,7 @@ import Underwriting from './components/Underwriting'
 import FinanceCards from './components/FinanceCards'
 import CardStacking from './components/CardStacking'
 import JVMatch from './components/JVMatch'
+import PartnerBinder from './components/PartnerBinder'
 import Squad from './components/Squad'
 import Ledger from './components/Ledger'
 import EventModal from './components/EventModal'
@@ -22,6 +23,8 @@ import { achievementById } from './achievements'
 
 const STORAGE_KEY = 'fyv-game-v3'
 const TROPHY_KEY = 'fyv-trophies'
+const PARTNER_KEY = 'fyv-partners'
+const loadBook = () => { try { return JSON.parse(localStorage.getItem(PARTNER_KEY)) || {} } catch { return {} } }
 const loadTrophies = () => { try { return JSON.parse(localStorage.getItem(TROPHY_KEY)) || {} } catch { return {} } }
 
 function load() {
@@ -61,7 +64,16 @@ export default function App() {
   const [meta, setMetaState] = useState(loadMeta)
   const [today] = useState(() => dayKey())
   const updateMeta = useCallback((m) => { setMetaState(m); saveMeta(m) }, [])
+  const [book, setBook] = useState(loadBook)
+  const updateBook = useCallback((id, patch) => setBook((b) => {
+    if (b[id] && Object.keys(patch).every((k) => b[id][k])) return b
+    const next = { ...b, [id]: { ...patch, ...b[id] } }
+    localStorage.setItem(PARTNER_KEY, JSON.stringify(next))
+    return next
+  }), [])
+  const meetPartner = useCallback((id) => updateBook(id, { met: Date.now() }), [updateBook])
   const dispatch = useCallback((a) => {
+    if (a.type === 'PLAY' && a.card === 'partner' && gameReducer(s, a).funding.some((f) => f.partnerId === a.partnerId)) updateBook(a.partnerId, { met: Date.now(), signed: Date.now() })
     if (a.type === 'START' && s.phase === 'setup') updateMeta(bumpStreak(meta, today))
     if (a.type === 'BOSS' && s.phase === 'boss') {
       const next = gameReducer(s, a)
@@ -71,7 +83,7 @@ export default function App() {
       }
     }
     rawDispatch(a)
-  }, [s, meta, today, updateMeta])
+  }, [s, meta, today, updateMeta, updateBook])
   const available = totals(s).available
   const lastAvail = useRef(available)
   const [burst, setBurst] = useState(null)
@@ -167,6 +179,7 @@ export default function App() {
             <Guide id="overview" />
             <Hangar meta={meta} update={updateMeta} s={s} dispatch={dispatch} today={today} />
             <MedalShowcase collection={collection} />
+            <div className="mb-8"><PartnerBinder book={book} /></div>
             <Setup s={s} dispatch={dispatch} />
           </>
         )}
@@ -180,7 +193,7 @@ export default function App() {
               {tab === 'underwrite' && <Underwriting s={s} dispatch={dispatch} blocked={blocked} />}
               {tab === 'fund' && <FinanceCards s={s} dispatch={dispatch} blocked={blocked} goTo={setTab} />}
               {tab === 'stack' && <CardStacking s={s} dispatch={dispatch} blocked={blocked} />}
-              {tab === 'partners' && <JVMatch s={s} dispatch={dispatch} blocked={blocked} />}
+              {tab === 'partners' && <><JVMatch s={s} dispatch={dispatch} blocked={blocked} onMeet={meetPartner} /><div className="mt-8"><PartnerBinder book={book} /></div></>}
               {tab === 'trophies' && <TrophyRoom s={s} collection={collection} />}
               </div>
               {tabIdx < TABS.length - 1 && (

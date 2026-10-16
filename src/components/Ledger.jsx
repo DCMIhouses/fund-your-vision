@@ -9,6 +9,8 @@ const CHIP = {
   declined: 'bg-hot/15 text-hot', withdrawn: 'bg-hot/15 text-hot',
 }
 
+const LEDGER_ICON = { credit: '💳', term: '🏦', savings: '🐷', vc: '🦄', partner: '🤝', prepay: '🧾', cut: '✂️' }
+
 export default function Ledger({ s, dispatch, blocked }) {
   const t = totals(s)
   const creditLines = s.funding.filter((f) => (f.type === 'credit' || f.type === 'partner') && f.status === 'available').reduce((a, f) => a + f.amount, 0)
@@ -72,7 +74,7 @@ export default function Ledger({ s, dispatch, blocked }) {
         {s.funding.length === 0 && <div className="rounded-lg border border-dashed border-edge p-3 text-center text-xs text-slate-500">No funding yet. Play a power-up card.</div>}
         {s.funding.map((f) => (
           <div key={f.id} className="flex items-center justify-between gap-2 rounded-lg bg-ink/60 px-2.5 py-1.5 text-xs">
-            <span className="min-w-0 truncate text-slate-300">{f.label}</span>
+            <span className="min-w-0 truncate text-slate-300"><span className="mr-1.5">{LEDGER_ICON[f.type]}</span>{f.label}</span>
             <span className="flex shrink-0 items-center gap-2">
               <span className="font-mono text-slate-200">{fmt(f.amount)}</span>
               <span className={`rounded px-1.5 py-0.5 text-[11px] font-black uppercase ${CHIP[f.status]}`}>{f.status}{f.status === 'committed' ? ` · ${f.turns}t` : ''}</span>

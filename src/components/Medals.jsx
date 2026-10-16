@@ -11,13 +11,18 @@ const GLOW = {
 }
 
 export function Medal({ a, locked, size = 'md' }) {
-  const dim = size === 'lg' ? 'h-16 w-16 text-lg' : size === 'sm' ? 'h-9 w-9 text-xs' : 'h-12 w-12 text-sm'
+  const dim = size === 'lg' ? 'h-16 w-16 text-3xl' : size === 'sm' ? 'h-10 w-10 text-lg' : 'h-12 w-12 text-2xl'
   if (locked) {
-    return <div className={`${dim} grid shrink-0 place-items-center rounded-full border-2 border-dashed border-slate-600 bg-ink font-black text-slate-600`}>?</div>
+    return (
+      <div className={`${dim} relative grid shrink-0 place-items-center rounded-full border-2 border-dashed border-slate-600 bg-ink font-black text-slate-600`}>
+        {a?.art ? <span className="opacity-40 grayscale">{a.art}</span> : '?'}
+        {a && <span className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-edge text-[10px]">🔒</span>}
+      </div>
+    )
   }
   return (
     <div className={`${dim} relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br ${RARITY[a.rarity].ring} p-[3px] ${GLOW[a.rarity]}`}>
-      <div className="grid h-full w-full place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#2a3558,#05070d_70%)] font-mono font-black text-white [text-shadow:0_0_8px_rgba(255,255,255,.5)]">{a.icon}</div>
+      <div className="grid h-full w-full place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#2a3558,#05070d_70%)] font-black drop-shadow-[0_0_8px_rgba(255,255,255,.45)]">{a.art || a.icon}</div>
       <span className="medal-shine" />
     </div>
   )
@@ -68,7 +73,7 @@ export function TrophyRoom({ s, collection }) {
   const total = ACHIEVEMENTS.filter((a) => owned(a.id)).length
   return (
     <Panel guide="trophies" num="8" accent="gold" title="The Founder's Trophy Room"
-      subtitle="Medals unlock the moment you earn them. Secret medals stay hidden until found. Your collection is saved on this device."
+      subtitle="Medals unlock the moment you earn them. Secret medals show a hint until you find them. Your collection is saved on this device."
       right={<div className="text-right"><div className="text-xs uppercase text-slate-500">Collected</div><div className="font-mono font-black text-gold">{total}/{ACHIEVEMENTS.length}</div></div>}>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {ACHIEVEMENTS.map((a) => {
@@ -79,8 +84,8 @@ export function TrophyRoom({ s, collection }) {
             <div key={a.id} className={`flex items-center gap-2 rounded-xl border p-2 ${thisGame ? 'border-gold/70 bg-gold/10' : got ? 'border-edge bg-ink/60' : 'border-edge/60 bg-ink/40 opacity-70'}`}>
               <Medal a={a} locked={!got} size="sm" />
               <div className="min-w-0">
-                <div className="truncate text-xs font-black text-white">{hidden ? 'Secret medal' : a.name}</div>
-                <div className="text-xs leading-tight text-slate-400">{hidden ? 'Keep experimenting to discover it.' : a.desc}</div>
+                <div className="truncate text-xs font-black text-white">{a.name}{a.secret && <span className="ml-1 text-[10px] uppercase text-fuchsia-300">Secret</span>}</div>
+                <div className="text-xs leading-tight text-slate-400">{hidden ? `Hint: ${a.hint}` : a.desc}</div>
                 {thisGame && <div className="text-[11px] font-black uppercase text-gold">Earned this run</div>}
               </div>
             </div>
@@ -149,13 +154,20 @@ export function MedalShowcase({ collection }) {
         ))}
       </div>
       <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-fuchsia-300">Secret medals</div>
-      <div className="mt-3 flex flex-wrap justify-center gap-3">
-        {secret.map((a) => (
-          <div key={a.id} title={collection[a.id] ? a.name : 'Secret medal'} className="flex flex-col items-center gap-1">
-            {collection[a.id] ? <Medal a={a} size="lg" /> : <Medal locked size="lg" />}
-            <span className="text-[11px] text-slate-500">{collection[a.id] ? a.name : '???'}</span>
-          </div>
-        ))}
+      <p className="mx-auto mt-1 max-w-xl text-center text-xs text-slate-400">Faded with a 🔒 = not found yet. Read the hint, then try that strategy.</p>
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {secret.map((a, i) => {
+          const got = !!collection[a.id]
+          return (
+            <div key={a.id} className={`medal-pop relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl border p-4 text-center ${got ? 'border-fuchsia-400/70 bg-fuchsia-500/10 shadow-[0_0_24px_rgba(217,70,239,.3)]' : 'border-fuchsia-400/25 bg-[radial-gradient(circle_at_50%_0%,rgba(217,70,239,.15),transparent_60%)]'}`} style={{ animationDelay: `${i * 0.05}s` }}>
+              <span className="absolute left-2 top-2 rounded bg-fuchsia-500/20 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-fuchsia-300">Secret</span>
+              <Medal a={a} locked={!got} size="lg" />
+              <div className="text-sm font-black text-white">{a.name}</div>
+              <div className="text-xs leading-snug text-slate-400">{got ? a.desc : <><span className="font-bold text-fuchsia-300">Hint:</span> {a.hint}</>}</div>
+              <div className={`text-[11px] font-black uppercase ${RARITY[a.rarity].text}`}>{RARITY[a.rarity].label}{got ? ' · Found ✓' : ' · Locked'}</div>
+            </div>
+          )
+        })}
       </div>
       <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-neon">Founder levels</div>
       <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-5">

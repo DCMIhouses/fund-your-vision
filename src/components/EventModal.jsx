@@ -30,7 +30,7 @@ export default function EventModal({ s, dispatch }) {
           </div>
           <p className="mt-3 text-sm text-slate-300">{ev.body(s)}</p>
           <div className="mt-3 rounded-xl border border-cyan/40 bg-cyan/5 p-3 text-xs leading-relaxed text-slate-300">
-            <span className="font-black text-cyan">ⓘ What to do:</span> Read each choice. Pick the one that keeps your cash safest. Every choice changes your money plan.
+            <span className="font-black text-cyan">💡 What to do:</span> Read each choice. Pick the one that keeps your cash safest. Every choice changes your money plan.
             <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1"><span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-neon" />Green card = good luck</span><span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-hot" />Red card = trouble</span><span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-full bg-slate-600" />Faded = you can't pick it</span></div>
           </div>
           <div className="mt-4 space-y-2">
