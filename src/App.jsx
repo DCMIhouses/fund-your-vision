@@ -12,7 +12,7 @@ import Boss from './components/Boss'
 import Results from './components/Results'
 import { initialState } from './engine'
 import { gameReducer } from './store'
-import { AchievementToasts, TrophyRoom } from './components/Medals'
+import { AchievementToasts, MedalShowcase, TrophyRoom } from './components/Medals'
 import { isMuted, play, setMuted } from './sfx'
 
 const STORAGE_KEY = 'fyv-game-v3'
@@ -128,6 +128,7 @@ export default function App() {
                 <span className="not-italic text-slate-500"> Borrowing is only half the game: you still have to pay it back.</span>
               </div>
             </div>
+            <MedalShowcase collection={collection} />
             <Setup s={s} dispatch={dispatch} />
           </>
         )}
@@ -165,7 +166,7 @@ export default function App() {
 
         {s.phase === 'boss' && <Boss s={s} dispatch={dispatch} />}
         {s.phase === 'results' && s.result && <Results s={s} dispatch={dispatch} />}
-        {s.phase !== 'fund' && <div className="mt-10"><TrophyRoom s={s} collection={collection} /></div>}
+        {s.phase !== 'fund' && s.phase !== 'setup' && <div className="mt-10"><TrophyRoom s={s} collection={collection} /></div>}
 
         <footer className="mt-10 border-t border-edge pt-4 text-center text-[10px] leading-relaxed text-slate-500">
           Educational simulation. The game does not approve loans, create binding offers, or match you with verified capital partners. Scores, approvals, limits, and forecasts are illustrative mock rules, not Experian or lender decisions.
