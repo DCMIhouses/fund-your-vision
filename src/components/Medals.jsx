@@ -18,9 +18,9 @@ export function AchievementToasts({ queue, onDone }) {
   const current = queue[0] || null
   useEffect(() => {
     if (!current) return
-    const t = setTimeout(() => onDone(current), 2600)
+    const t = setTimeout(() => onDone(current), queue.length > 3 ? 1100 : 1900)
     return () => clearTimeout(t)
-  }, [current, onDone])
+  }, [current, onDone, queue.length])
   if (!current) return null
   const isLevel = current.startsWith('level:')
   const a = isLevel ? null : achievementById[current]
