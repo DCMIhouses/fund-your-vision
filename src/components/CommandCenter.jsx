@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { REPORT_TYPES, SECTION_TITLE, buildReport, compareSnapshots, formatMetric, money, pct, reportType, snapshotOf } from '../report'
 import { agentStates } from '../agents'
 import { QUESTIONS, answer } from '../consultant'
@@ -6,6 +7,7 @@ import Chart from './Chart'
 import Guide from './Guide'
 import Gauge from './Gauge'
 import Tilt from './Tilt'
+import AgentOffice from './AgentOffice'
 
 const SNAP_KEY = 'fyv-report-snapshots'
 const loadSnaps = () => { try { return JSON.parse(localStorage.getItem(SNAP_KEY)) || [] } catch { return [] } }
@@ -146,7 +148,7 @@ function Tile({ label, value, sub, tone = 'text-white', delta, small }) {
 function Consultant({ report, typeId, onClose }) {
   const [chat, setChat] = useState([])
   const ask = (q, label) => setChat((c) => [...c, { q: label, a: answer(report, q) }])
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-6" onClick={onClose}>
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl border border-cyan/50 bg-panel p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
@@ -172,11 +174,29 @@ function Consultant({ report, typeId, onClose }) {
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
-export default function CommandCenter({ s }) {
+function Modal({ title, kicker, onClose, children }) {
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-6" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl border border-cyan/50 bg-panel p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between gap-3">
+          <div><div className="text-xs font-black uppercase tracking-widest text-cyan">{kicker}</div><div className="text-xl font-black text-white">{title}</div></div>
+          <button onClick={onClose} className="rounded-lg border border-edge px-3 py-1.5 text-sm font-bold text-slate-300 hover:border-hot hover:text-hot">Close</button>
+        </div>
+        <div className="mt-4">{children}</div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+const TD = 'py-1.5 text-right font-mono'
+
+export default function CommandCenter({ s, goTo }) {
   const [snaps, setSnaps] = useState(loadSnaps)
   const company = s.startup.name || 'Your startup'
   const mine = snaps.filter((x) => x.company === company)
@@ -189,6 +209,7 @@ export default function CommandCenter({ s }) {
   const [talk, setTalk] = useState(false)
   const [cmp, setCmp] = useState(['', ''])
   const [showAll, setShowAll] = useState(false)
+  const [view, setView] = useState(null)
   useEffect(() => { localStorage.setItem(SNAP_KEY, JSON.stringify(snaps.slice(-30))) }, [snaps])
 
   const recOk = report.reconciliation.filter((c) => c.ok).length
@@ -204,6 +225,12 @@ export default function CommandCenter({ s }) {
     setBusy(true); setErr('')
     try { const { downloadReportPdf } = await import('../pdf/generate.jsx'); await downloadReportPdf(report, typeId) } catch (e) { setErr(`PDF failed: ${e.message}`) }
     setBusy(false)
+  }
+  const openDesk = (id) => {
+    const nav = { architect: 'fund', ops: 'team', coach: 'trophies' }
+    if (id === 'guide') return setTalk(true)
+    if (nav[id] && goTo) return goTo(nav[id])
+    setView({ cfo: 'model', underwriting: 'apps', reporting: 'builder', risk: 'risks', architect: 'capital', ops: 'team', coach: 'medals' }[id] || id)
   }
   const a = snaps.find((x) => x.id === cmp[0]), b = snaps.find((x) => x.id === cmp[1])
   const diff = a && b ? compareSnapshots(a, b) : null
@@ -223,6 +250,7 @@ export default function CommandCenter({ s }) {
         </div>
       </div>
       <Guide id="reports" />
+      <AgentOffice agents={agentStates(report)} onOpen={openDesk} />
       <AgentBoard report={report} />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -386,6 +414,89 @@ export default function CommandCenter({ s }) {
       </div>
 
       {talk && <Consultant report={report} typeId={typeId} onClose={() => setTalk(false)} />}
+      {view === 'model' && (
+        <Modal kicker="💵 CFO" title="Financial model" onClose={() => setView(null)}>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Tile label="Monthly burn" value={money(k.monthlyBurn)} sub="Model" />
+            <Tile label="Runway" value={`${k.runwayDays}d`} sub={`Out ${k.runOutDate}`} tone="text-cyan" />
+            <Tile label="Lowest cash" value={money(k.minCash)} sub="Forecast" tone={k.minCash < 0 ? 'text-hot' : 'text-neon'} />
+            <Tile label="Month-18 cash" value={money(k.endCash)} sub="Forecast" tone={k.endCash < 0 ? 'text-hot' : 'text-neon'} />
+          </div>
+          <div className="mt-4 rounded-2xl border border-edge bg-ink/60 p-3"><Chart forecast={report.forecast} /></div>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[560px] text-[13px]">
+              <thead className="text-[11px] uppercase tracking-wider text-slate-500"><tr><th className="text-left">Month</th><th className="text-right">Revenue</th><th className="text-right">Expenses</th><th className="text-right">Debt service</th><th className="text-right">End cash</th></tr></thead>
+              <tbody>{report.forecast.months.map((m) => <tr key={m.m} className="border-t border-edge/60"><td className="py-1.5 text-slate-300">M{m.m}</td><td className={TD}>{money(m.revenue)}</td><td className={TD}>{money(m.expenses)}</td><td className={TD}>{money(m.debt)}</td><td className={`${TD} ${m.cash < 0 ? 'text-hot' : 'text-white'}`}>{money(m.cash)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <div className="mt-2 text-xs text-slate-500">{report.forecast.basis} All months are forecasts from the game engine.</div>
+        </Modal>
+      )}
+      {view === 'apps' && (
+        <Modal kicker="🔍 Underwriting Analyst" title="Application analysis" onClose={() => setView(null)}>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Tile label="Mock score" value={report.underwriting.fundability} sub={`Tier ${report.underwriting.tier.tier} · ${report.underwriting.tier.label}`} tone="text-cyan" />
+            <Tile label="FICO" value={report.underwriting.profile.fico} sub="Illustrative" />
+            <Tile label="Utilization" value={`${report.underwriting.profile.utilization}%`} sub="Revolving" />
+            <Tile label="Inquiries" value={report.underwriting.profile.inquiries} sub="Incl. applications" />
+          </div>
+          <div className="mt-4 text-xs font-black uppercase tracking-widest text-slate-400">Applications</div>
+          {report.underwriting.applications.length === 0 ? <div className="mt-2 text-sm text-slate-500">{report.underwriting.done ? 'No applications yet.' : 'Underwriting not run yet.'}</div> : (
+            <ul className="mt-2 space-y-2">{report.underwriting.applications.map((x, i) => (
+              <li key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-edge bg-ink/60 p-3 text-[13px]">
+                <span className="font-bold text-white">{x.label}</span>
+                <span className={`font-black uppercase ${x.status === 'declined' ? 'text-hot' : x.status === 'available' ? 'text-neon' : 'text-gold'}`}>{x.status} · {money(x.amount)}</span>
+                <span className="w-full text-slate-400">{x.reason}</span>
+              </li>
+            ))}</ul>
+          )}
+          <div className="mt-2 text-xs text-slate-500">Simulated underwriting. Not an Experian or lender decision.</div>
+          {goTo && <button onClick={() => { setView(null); goTo('underwrite') }} className="mt-4 min-h-[48px] w-full rounded-2xl bg-cyan text-sm font-black uppercase text-ink">Go to Underwriting step</button>}
+        </Modal>
+      )}
+      {view === 'builder' && (
+        <Modal kicker="📊 Reporting Agent" title="Live report builder" onClose={() => setView(null)}>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {REPORT_TYPES.map((t) => (
+              <button key={t.id} onClick={() => setTypeId(t.id)} className={`min-h-[48px] rounded-xl border px-3 py-2 text-left text-[13px] font-bold ${typeId === t.id ? 'border-gold bg-gold text-ink' : 'border-edge text-slate-300 hover:border-gold/60'}`}>{t.name}</button>
+            ))}
+          </div>
+          <div className="mt-4 text-xs font-black uppercase tracking-widest text-slate-400">Sections being assembled</div>
+          <ol className="mt-2 grid grid-cols-1 gap-1 sm:grid-cols-2">{reportType(typeId).sections.map((id, i) => <li key={id} className="flex items-center gap-2 text-[13px] text-slate-300"><span className="grid h-5 w-5 place-items-center rounded-full bg-neon/20 text-[10px] font-black text-neon">✓</span>{i + 1}. {SECTION_TITLE[id]}</li>)}</ol>
+          <div className="mt-4 rounded-xl border border-gold/40 bg-gold/5 p-3 text-[13px] text-slate-300">{report.commentary.map((l) => <p key={l} className="mb-1">{l}</p>)}</div>
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <button onClick={download} disabled={busy} className="min-h-[48px] rounded-2xl bg-gold text-sm font-black uppercase text-ink disabled:opacity-60">{busy ? 'Building PDF…' : 'Download PDF'}</button>
+            <button onClick={() => { setView(null); setTalk(true) }} className="min-h-[48px] rounded-2xl border border-cyan/60 text-sm font-black uppercase text-cyan">🧭 Discuss this report</button>
+          </div>
+          {err && <div className="mt-2 text-sm text-hot">{err}</div>}
+        </Modal>
+      )}
+      {view === 'risks' && (
+        <Modal kicker="🛡️ Risk Officer" title="Risk review" onClose={() => setView(null)}>
+          {report.risks.length === 0 && <div className="text-sm text-neon">No material risks found.</div>}
+          <ul className="space-y-2">{report.risks.map((r) => <li key={r.id} className={`rounded-xl border bg-ink/60 p-3 ${sev[r.severity]}`}><div className="flex justify-between gap-2 text-sm font-black"><span>{r.title}</span><span className="text-[11px] uppercase">{r.severity}</span></div><div className="text-[13px] text-slate-300">{r.evidence}</div></li>)}</ul>
+        </Modal>
+      )}
+      {view === 'capital' && (
+        <Modal kicker="🏛️ Capital Architect" title="Capital plan" onClose={() => setView(null)}>
+          <ul className="space-y-2">{report.alternatives.map((x) => <li key={x.id} className="flex flex-wrap justify-between gap-2 rounded-xl border border-edge bg-ink/60 p-3 text-[13px]"><span className="font-bold text-white">{x.label}</span><span className="font-mono text-slate-300">IQ {x.score} · M18 {money(x.endCash)}</span></li>)}</ul>
+        </Modal>
+      )}
+      {view === 'team' && (
+        <Modal kicker="⚙️ Operations Lead" title="Team and costs" onClose={() => setView(null)}>
+          {report.team.length === 0 ? <div className="text-sm text-slate-400">No team hired yet.</div> : <ul className="space-y-2">{report.team.map((t) => <li key={t.name} className="rounded-xl border border-edge bg-ink/60 p-3 text-[13px]"><div className="flex justify-between font-bold text-white"><span>{t.name}</span><span className="font-mono">{money(t.cost)}/mo</span></div><div className="text-slate-400">{t.effect}</div></li>)}</ul>}
+        </Modal>
+      )}
+      {view === 'medals' && (
+        <Modal kicker="🏅 Achievements Coach" title="Medals this run" onClose={() => setView(null)}>
+          {report.achievements.length === 0 ? <div className="text-sm text-slate-400">No medals yet.</div> : <ul className="space-y-2">{report.achievements.map((m) => <li key={m.name} className="rounded-xl border border-edge bg-ink/60 p-3 text-[13px]"><b className="text-gold">{m.name}</b> <span className="text-slate-400">· {m.desc}</span></li>)}</ul>}
+        </Modal>
+      )}
+      {(view === 'empty9' || view === 'empty10') && (
+        <Modal kicker="Open desk" title={`Future Agent ${view === 'empty9' ? 9 : 10}`} onClose={() => setView(null)}>
+          <p className="text-sm text-slate-300">Desk open for a future agent. New helpers can move in here later.</p>
+        </Modal>
+      )}
     </section>
   )
 }

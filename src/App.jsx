@@ -189,7 +189,7 @@ export default function App() {
               {tab === 'stack' && <CardStacking s={s} dispatch={dispatch} blocked={blocked} />}
               {tab === 'partners' && <><JVMatch s={s} dispatch={dispatch} blocked={blocked} onMeet={meetPartner} /><div className="mt-8"><PartnerBinder book={book} /></div></>}
               {tab === 'trophies' && <TrophyRoom s={s} collection={collection} />}
-              {tab === 'reports' && <CommandCenter s={s} />}
+              {tab === 'reports' && <CommandCenter s={s} goTo={(t) => { setTab(t); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />}
               </div>
               {tabIdx < TABS.length - 1 && (
                 <button onClick={() => { setTab(TABS[tabIdx + 1][0]); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
