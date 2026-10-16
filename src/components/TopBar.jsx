@@ -134,16 +134,26 @@ export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
 
         <div className="mt-2 grid gap-2 md:gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div>
-            <div className={`flex items-end justify-between gap-2 ${mobileHide}`}>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300 md:text-xs">{s.startup.name || 'Your startup'} · Funding target</span>
-              <span className="font-mono text-base font-black text-neon md:text-lg">{fmt(target)}</span>
+            <div className="flex items-end justify-between gap-x-4 gap-y-1">
+              <div className="min-w-0">
+                <div className="text-[10px] font-black uppercase tracking-widest text-neon md:text-xs">Available</div>
+                <div className={`font-mono font-black leading-none text-white drop-shadow-[0_0_14px_rgba(57,255,136,.35)] ${compact ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'}`}><CountUp value={t.available} /></div>
+              </div>
+              <div className={`hidden pb-1 text-center sm:block ${mobileHide}`}>
+                <div className="font-mono text-sm font-black text-slate-200 md:text-base">{pct.toFixed(1)}% funded</div>
+                <div className="max-w-[180px] truncate text-[10px] font-bold uppercase tracking-widest text-slate-500">{s.startup.name || 'Your startup'}</div>
+              </div>
+              <div className="min-w-0 text-right">
+                <div className="text-[10px] font-black uppercase tracking-widest text-gold md:text-xs">Target</div>
+                <div className={`font-mono font-black leading-none text-gold ${compact ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl'}`}>{fmt(target)}</div>
+              </div>
             </div>
             <div className="relative mt-1 h-10 overflow-hidden rounded-xl border border-edge bg-ink md:h-9">
               <div className="absolute inset-y-0 left-0 border-r-2 border-dashed border-slate-500/70 bg-slate-500/10 transition-[width] duration-700" style={{ width: pctOf(t.requested) }} />
               <div className="absolute inset-y-0 left-0 bg-gold/30 bar-stripes transition-[width] duration-700" style={{ width: pctOf(t.committed) }} />
               <div className={`absolute inset-y-0 left-0 bg-gradient-to-r ${barColor} bar-stripes liquid overflow-visible transition-[width] duration-1000 ease-out ${funded ? 'glow-pulse' : ''}`} style={{ width: pctOf(t.available) }} />
               <div className="absolute inset-0 flex items-center justify-center px-2 text-center font-mono text-[10px] font-bold leading-tight text-white drop-shadow-[0_1px_2px_#000] sm:text-sm">
-                <span>Available: <CountUp value={t.available} /> / Target: {fmt(target)} ({pct.toFixed(1)}% Funded)</span>
+                <span>{pct.toFixed(1)}% funded · {fmt(Math.max(0, target - t.available))} to go</span>
               </div>
             </div>
             <div className={`mt-1 flex flex-wrap justify-end gap-x-3 font-mono text-[10px] ${mobileHide}`}>
@@ -158,7 +168,9 @@ export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
               <button onClick={() => setShowRunway((v) => !v)} title="Set your runway"
                 className="h-full w-full rounded-xl border border-edge bg-panel p-1.5 text-center hover:border-neon/60 md:p-2">
                 <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase leading-tight tracking-wider text-slate-400 md:text-[10px]">Cash Buffer Runway <span className="text-neon">⚙</span></div>
-                <Clock days={runway} className={`text-base md:text-xl ${runwayClass}`} />
+                <div className={`font-mono text-base font-black leading-tight md:text-xl ${runwayClass}`}>{runway.toLocaleString()} <span className="text-[0.6em]">DAYS</span></div>
+                <Clock days={runway} className="text-[10px] text-slate-300 md:text-xs" />
+                {runway > s.startDays && <div className="text-[9px] leading-tight text-slate-400 md:text-[10px]">{s.startDays}d buffer + {(runway - s.startDays).toLocaleString()}d funding</div>}
                 <div className="text-[9px] leading-tight text-slate-500 md:text-[10px]">
                   {secured && <span className="text-neon">1 YR+ SECURED · </span>}Out of cash {runwayClock(runway).date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </div>
