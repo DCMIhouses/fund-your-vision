@@ -3,14 +3,22 @@ import Panel from './Panel'
 import Guide from './Guide'
 import { ACHIEVEMENTS, LEVELS, RARITY, achievementById } from '../achievements'
 
+const GLOW = {
+  common: 'shadow-[0_0_10px_rgba(203,213,225,.35)]',
+  rare: 'shadow-[0_0_18px_rgba(34,211,238,.55)]',
+  epic: 'shadow-[0_0_22px_rgba(217,70,239,.6)]',
+  legendary: 'shadow-[0_0_30px_rgba(251,191,36,.8)]',
+}
+
 export function Medal({ a, locked, size = 'md' }) {
   const dim = size === 'lg' ? 'h-16 w-16 text-lg' : size === 'sm' ? 'h-9 w-9 text-xs' : 'h-12 w-12 text-sm'
   if (locked) {
     return <div className={`${dim} grid shrink-0 place-items-center rounded-full border-2 border-dashed border-slate-600 bg-ink font-black text-slate-600`}>?</div>
   }
   return (
-    <div className={`${dim} grid shrink-0 place-items-center rounded-full bg-gradient-to-br ${RARITY[a.rarity].ring} p-[3px] shadow-[0_0_16px_rgba(251,191,36,.35)]`}>
-      <div className="grid h-full w-full place-items-center rounded-full bg-ink font-mono font-black text-white">{a.icon}</div>
+    <div className={`${dim} relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br ${RARITY[a.rarity].ring} p-[3px] ${GLOW[a.rarity]}`}>
+      <div className="grid h-full w-full place-items-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#2a3558,#05070d_70%)] font-mono font-black text-white [text-shadow:0_0_8px_rgba(255,255,255,.5)]">{a.icon}</div>
+      <span className="medal-shine" />
     </div>
   )
 }
@@ -19,13 +27,27 @@ export function AchievementToasts({ queue, onDone }) {
   const current = queue[0] || null
   useEffect(() => {
     if (!current) return
-    const t = setTimeout(() => onDone(current), queue.length > 3 ? 1100 : 1900)
+    const legend = achievementById[current]?.rarity === 'legendary'
+    const t = setTimeout(() => onDone(current), legend ? 3000 : queue.length > 3 ? 1100 : 1900)
     return () => clearTimeout(t)
   }, [current, onDone, queue.length])
   if (!current) return null
   const isLevel = current.startsWith('level:')
   const a = isLevel ? null : achievementById[current]
   const lvl = isLevel ? LEVELS[Number(current.split(':')[1])] : null
+  if (a?.rarity === 'legendary') {
+    return (
+      <div className="pointer-events-none fixed inset-0 z-[75] grid place-items-center overflow-hidden bg-black/70">
+        <div className="rays absolute h-[200vmax] w-[200vmax] rounded-full" />
+        <div key={current} className="medal-pop relative flex flex-col items-center text-center">
+          <div className="text-sm font-black uppercase tracking-[0.4em] text-gold">Legendary medal!</div>
+          <div className="mt-4 scale-[2.2] py-10"><Medal a={a} size="lg" /></div>
+          <div className="text-4xl font-black text-white md:text-5xl">{a.name}</div>
+          <div className="mt-1 max-w-sm px-4 text-sm text-slate-300">{a.desc}</div>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="pointer-events-none fixed inset-x-0 top-24 z-[70] flex justify-center px-4 md:top-40">
       <div key={current} className="medal-pop flex max-w-md items-center gap-4 rounded-2xl border-2 border-gold bg-panel/95 px-5 py-4 shadow-[0_0_50px_rgba(251,191,36,.45)]">

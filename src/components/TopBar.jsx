@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { addDays, daysUntil, fmt, FULL_RUNWAY_DAYS, runwayClock, runwayDays, toDateInput } from '../game'
 import { totals, ownership, monthlyBurn, liveScore, MIN_EVENTS } from '../engine'
 import { LevelTrack } from './Medals'
+import RunwayInput from './RunwayInput'
+import { CountUp } from './Fx'
 
 const STEPS = [['setup', 'Setup'], ['fund', 'Fund & Survive'], ['boss', 'Final Boss'], ['results', 'Results']]
 
@@ -9,29 +11,18 @@ function RunwaySettings({ s, dispatch, onClose }) {
   const [today] = useState(() => new Date())
   const setDays = (v) => dispatch({ type: 'START_DAYS', value: Math.max(0, Math.min(3650, Math.round(v) || 0)) })
   return (
-    <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-edge bg-panel p-3 text-left shadow-2xl shadow-black/60 lg:left-auto lg:right-0">
+    <div className="absolute left-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-1.5rem))] rounded-xl border border-edge bg-panel p-3 text-left shadow-2xl shadow-black/60 lg:left-auto lg:right-0">
       <div className="flex items-center justify-between">
         <div className="text-[11px] font-black uppercase tracking-widest text-white">Set Your Cash Runway</div>
         <button onClick={onClose} className="text-slate-500 hover:text-white">×</button>
       </div>
       <div className="mt-3 text-[11px] text-slate-400">How long your current cash lasts without new funding</div>
-      <div className="mt-1 grid grid-cols-4 gap-1">
-        {[[27, '27d'], [90, '90d'], [180, '180d'], [365, '1 yr']].map(([d, label]) => (
-          <button key={d} onClick={() => setDays(d)}
-            className={`rounded-md py-1 text-[11px] font-bold ${s.startDays === d ? 'bg-neon text-ink' : 'border border-edge text-slate-300 hover:border-neon'}`}>{label}</button>
-        ))}
-      </div>
-      <div className="mt-2 grid grid-cols-2 gap-2">
-        <label className="block text-[10px] text-slate-500">Days
-          <input type="number" min={0} max={3650} value={s.startDays} onChange={(e) => setDays(Number(e.target.value))}
-            className="mt-0.5 w-full rounded-lg border border-edge bg-ink px-2 py-1.5 font-mono text-sm text-white focus:border-neon focus:outline-none" />
-        </label>
-        <label className="block text-[10px] text-slate-500">or cash runs out on
-          <input type="date" min={toDateInput(today)} value={toDateInput(addDays(today, s.startDays))}
-            onChange={(e) => e.target.value && setDays(daysUntil(e.target.value, today))}
-            className="mt-0.5 w-full rounded-lg border border-edge bg-ink px-1.5 py-1.5 font-mono text-xs text-white [color-scheme:dark] focus:border-neon focus:outline-none" />
-        </label>
-      </div>
+      <div className="mt-2"><RunwayInput days={s.startDays} onChange={setDays} /></div>
+      <label className="mt-2 block text-[10px] text-slate-500">or pick the day your cash runs out
+        <input type="date" min={toDateInput(today)} value={toDateInput(addDays(today, s.startDays))}
+          onChange={(e) => e.target.value && setDays(daysUntil(e.target.value, today))}
+          className="mt-0.5 w-full rounded-lg border border-edge bg-ink px-2 py-1.5 font-mono text-xs text-white [color-scheme:dark] focus:border-neon focus:outline-none" />
+      </label>
       <label className="mt-3 block text-[11px] text-slate-400">
         Monthly burn {s.phase !== 'setup' && <span className="text-slate-600">(locked after launch)</span>}
         <div className="mt-1 flex items-center rounded-lg border border-edge bg-ink px-2 focus-within:border-neon">
@@ -65,7 +56,7 @@ function Clock({ days, className }) {
   )
 }
 
-export default function TopBar({ s, dispatch, muted, toggleMute }) {
+export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
   const [showRunway, setShowRunway] = useState(false)
   const [compact, setCompact] = useState(false)
   useEffect(() => {
@@ -124,6 +115,8 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
+            {meta && <span title="Capital Points (game points)" className="rounded-lg border border-gold/50 px-2 py-1 font-mono text-[11px] font-black text-gold">★ <CountUp value={meta.points} format={(v) => Math.round(v).toLocaleString()} /></span>}
+            {meta?.streak > 0 && <span title="Daily streak" className="hidden rounded-lg border border-hot/50 px-2 py-1 font-mono text-[11px] font-black text-hot sm:inline">🔥 {meta.streak}</span>}
             <span className={`rounded-lg px-2 py-1 text-[10px] font-black uppercase ${s.mode === 'tournament' ? 'bg-gold text-ink' : 'border border-edge text-slate-400'}`}>{s.mode === 'tournament' ? 'Tournament' : 'Arcade'}</span>
             {s.phase !== 'setup' && <span className="hidden rounded-lg border border-cyan/50 px-2 py-1 font-mono text-[11px] text-cyan sm:inline">Fundability {liveScore(s)}</span>}
             <button onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'} className="rounded-lg border border-edge px-2 py-1 text-[11px] text-slate-400 hover:text-white">{muted ? 'SFX OFF' : 'SFX ON'}</button>
@@ -148,9 +141,9 @@ export default function TopBar({ s, dispatch, muted, toggleMute }) {
             <div className="relative mt-1 h-10 overflow-hidden rounded-xl border border-edge bg-ink md:h-9">
               <div className="absolute inset-y-0 left-0 border-r-2 border-dashed border-slate-500/70 bg-slate-500/10 transition-[width] duration-700" style={{ width: pctOf(t.requested) }} />
               <div className="absolute inset-y-0 left-0 bg-gold/30 bar-stripes transition-[width] duration-700" style={{ width: pctOf(t.committed) }} />
-              <div className={`absolute inset-y-0 left-0 bg-gradient-to-r ${barColor} bar-stripes transition-[width] duration-1000 ease-out ${funded ? 'glow-pulse' : ''}`} style={{ width: pctOf(t.available) }} />
+              <div className={`absolute inset-y-0 left-0 bg-gradient-to-r ${barColor} bar-stripes liquid overflow-visible transition-[width] duration-1000 ease-out ${funded ? 'glow-pulse' : ''}`} style={{ width: pctOf(t.available) }} />
               <div className="absolute inset-0 flex items-center justify-center px-2 text-center font-mono text-[10px] font-bold leading-tight text-white drop-shadow-[0_1px_2px_#000] sm:text-sm">
-                Available: {fmt(t.available)} / Target: {fmt(target)} ({pct.toFixed(1)}% Funded)
+                <span>Available: <CountUp value={t.available} /> / Target: {fmt(target)} ({pct.toFixed(1)}% Funded)</span>
               </div>
             </div>
             <div className={`mt-1 flex flex-wrap justify-end gap-x-3 font-mono text-[10px] ${mobileHide}`}>

@@ -1,4 +1,5 @@
 import Guide from './Guide'
+import RunwayInput from './RunwayInput'
 import { INDUSTRIES, DEMO_SCENARIOS, TOURNAMENT_SCENARIOS } from '../data'
 import { fmt } from '../game'
 import { ProfileFields, ScorePreview } from './Underwriting'
@@ -9,7 +10,7 @@ export default function Setup({ s, dispatch }) {
   const tour = s.mode === 'tournament'
   const scenarios = tour ? TOURNAMENT_SCENARIOS : DEMO_SCENARIOS
   return (
-    <section className="rounded-3xl border-2 border-neon bg-panel p-5 shadow-[0_0_60px_rgba(57,255,136,.25)] sm:p-8">
+    <section id="setup-panel" className="scroll-mt-48 rounded-3xl border-2 border-neon bg-panel p-5 shadow-[0_0_60px_rgba(57,255,136,.25)] sm:p-8">
       <div className="text-center">
         <div className="text-xs font-black uppercase tracking-[0.35em] text-slate-400">NationwideBusinessFunding.com presents</div>
         <h2 className="medal-pop mt-1 text-4xl font-black uppercase text-neon md:text-6xl">Fund Your Vision</h2>
@@ -79,6 +80,11 @@ export default function Setup({ s, dispatch }) {
             <input type="range" disabled={tour} min={0} max={15000} step={500} value={st.founderPay || 0} onChange={(e) => set({ founderPay: Number(e.target.value) })} className="range-neon w-full disabled:opacity-40" />
             <div className="text-xs text-slate-500">Discretionary. Paid from cash flow; loan proceeds must fit each lender's permitted uses, and borrowing to pay yourself doesn't create profit.</div>
           </label>
+          <div className="rounded-xl border border-cyan/40 bg-cyan/5 p-3">
+            <div className="text-[13px] font-bold text-cyan">Cash buffer runway: how long your cash lasts right now</div>
+            <div className="mb-2 text-xs text-slate-400">Type a number, then tap Days, Weeks, Months or Years.</div>
+            <RunwayInput big days={s.startDays} onChange={(v) => dispatch({ type: 'START_DAYS', value: v })} />
+          </div>
           <label className="block">
             <div className="flex justify-between text-[13px] text-slate-400"><span>Existing personal savings</span><span className="font-mono text-slate-200">{fmt(st.savings)}</span></div>
             <input type="range" disabled={tour} min={0} max={200000} step={5000} value={st.savings} onChange={(e) => set({ savings: Number(e.target.value) })} className="range-neon w-full disabled:opacity-40" />

@@ -15,6 +15,10 @@ import { gameReducer } from './store'
 import Guide from './components/Guide'
 import { AchievementToasts, MedalShowcase, TrophyRoom } from './components/Medals'
 import { isMuted, play, setMuted } from './sfx'
+import { CoinBurst, Hangar, Mascot, QuestMap, Starfield } from './components/Fx'
+import { MEDAL_POINTS, bumpStreak, dailyName, dayKey, loadMeta, runAward, saveMeta } from './meta'
+import { totals } from './engine'
+import { achievementById } from './achievements'
 
 const STORAGE_KEY = 'fyv-game-v3'
 const TROPHY_KEY = 'fyv-trophies'
@@ -42,7 +46,7 @@ const TONE_SFX = { neon: 'approve', hot: 'decline', gold: 'warn', cyan: 'click' 
 const TOAST = { neon: 'border-neon text-neon', cyan: 'border-cyan text-cyan', hot: 'border-hot text-hot', gold: 'border-gold text-gold' }
 
 export default function App() {
-  const [s, dispatch] = useReducer(gameReducer, undefined, load)
+  const [s, rawDispatch] = useReducer(gameReducer, undefined, load)
   const [collection, setCollection] = useState(loadTrophies)
   const [tab, setTab] = useState('team')
   const tabIdx = TABS.findIndex(([id]) => id === tab)
@@ -54,6 +58,34 @@ export default function App() {
   const lastLog = useRef(s.log[0]?.id)
   const lastEvent = useRef(s.activeEvent)
   const lastPhase = useRef(s.phase)
+  const [meta, setMetaState] = useState(loadMeta)
+  const [today] = useState(() => dayKey())
+  const updateMeta = useCallback((m) => { setMetaState(m); saveMeta(m) }, [])
+  const dispatch = useCallback((a) => {
+    if (a.type === 'START' && s.phase === 'setup') updateMeta(bumpStreak(meta, today))
+    if (a.type === 'BOSS' && s.phase === 'boss') {
+      const next = gameReducer(s, a)
+      if (next.result) {
+        const isDaily = s.startup.name === dailyName(today)
+        updateMeta({ ...meta, points: meta.points + runAward(next.result.score, isDaily && meta.dailyDone !== today, meta.streak), dailyDone: isDaily ? today : meta.dailyDone })
+      }
+    }
+    rawDispatch(a)
+  }, [s, meta, today, updateMeta])
+  const available = totals(s).available
+  const lastAvail = useRef(available)
+  const [burst, setBurst] = useState(null)
+
+  useEffect(() => {
+    const gain = available - lastAvail.current
+    lastAvail.current = available
+    if (gain <= 0 || s.phase !== 'fund') return
+    play('coin')
+    const id = Date.now()
+    setBurst({ id, amount: gain })
+    const t = setTimeout(() => setBurst((b) => (b?.id === id ? null : b)), 1700)
+    return () => clearTimeout(t)
+  }, [available, s.phase])
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)) }, [s])
 
@@ -63,7 +95,9 @@ export default function App() {
     seenMedals.current = s.achievements
     seenLevel.current = s.level
     if (!fresh.length && !levelUp.length) return
-    play('victory')
+    play(fresh.some((id) => achievementById[id]?.rarity === 'legendary') ? 'legendary' : 'victory')
+    const pts = fresh.reduce((n, id) => n + (MEDAL_POINTS[achievementById[id]?.rarity] || 0), 0)
+    if (pts) setMetaState((m) => { const next = { ...m, points: m.points + pts }; saveMeta(next); return next })
     setMedalQueue((q) => [...q, ...levelUp, ...fresh])
     setCollection((c) => {
       const next = { ...c }
@@ -104,6 +138,7 @@ export default function App() {
 
   return (
     <div className="grid-bg min-h-screen overflow-x-clip">
+      <Starfield />
       <header className="relative overflow-hidden border-b border-purple-500/30 bg-gradient-to-b from-sky-500/10 via-ink to-ink px-4 py-6 text-center sm:py-10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_40%,rgba(56,189,248,.18),transparent_55%),radial-gradient(ellipse_at_50%_50%,rgba(251,191,36,.12),transparent_55%),radial-gradient(ellipse_at_70%_40%,rgba(168,85,247,.2),transparent_55%)]" />
         <h1 className="relative mx-auto w-full max-w-[min(520px,85vw)]">
@@ -112,9 +147,9 @@ export default function App() {
         <div className="relative mt-3 bg-gradient-to-r from-sky-400 via-gold to-fuchsia-400 bg-clip-text text-xl font-black uppercase tracking-wide text-transparent sm:text-3xl">$10,000 to $1 Million to Fund Your Dream</div>
         <div className="relative mt-2 text-xs text-slate-400 sm:text-sm">Powered by <span className="font-semibold text-cyan">NationwideBusinessFunding.com</span> · Fractional Chief Capital Officer Platform</div>
       </header>
-      <TopBar s={s} dispatch={dispatch} muted={muted} toggleMute={toggleMute} />
+      <TopBar s={s} dispatch={dispatch} muted={muted} toggleMute={toggleMute} meta={meta} />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
+      <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
         {s.phase === 'setup' && (
           <>
             <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -130,6 +165,7 @@ export default function App() {
               </div>
             </div>
             <Guide id="overview" />
+            <Hangar meta={meta} update={updateMeta} s={s} dispatch={dispatch} today={today} />
             <MedalShowcase collection={collection} />
             <Setup s={s} dispatch={dispatch} />
           </>
@@ -138,21 +174,15 @@ export default function App() {
         {s.phase === 'fund' && (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
             <div className="min-w-0">
-              <nav className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-2 lg:mx-0 lg:px-0" aria-label="Workspace">
-                {TABS.map(([id, label, hint], i) => (
-                  <button key={id} onClick={() => setTab(id)}
-                    className={`flex min-h-[52px] shrink-0 items-center gap-3 rounded-2xl border px-4 py-2 text-left transition ${tab === id ? 'border-neon bg-neon/10 text-white' : 'border-edge bg-panel/70 text-slate-400 hover:border-slate-500 hover:text-white'}`}>
-                    <span className={`grid h-7 w-7 place-items-center rounded-lg font-mono text-xs font-black ${tab === id ? 'bg-neon text-ink' : 'bg-edge text-slate-300'}`}>{i + 1}</span>
-                    <span><span className="block text-sm font-black">{label}</span><span className="block text-xs text-slate-500">{hint}</span></span>
-                  </button>
-                ))}
-              </nav>
+              <QuestMap tabs={TABS} tab={tab} setTab={setTab} s={s} skin={meta.skin} />
+              <div key={tab} className="fade-up">
               {tab === 'team' && <Squad s={s} dispatch={dispatch} locked={blocked} />}
               {tab === 'underwrite' && <Underwriting s={s} dispatch={dispatch} blocked={blocked} />}
               {tab === 'fund' && <FinanceCards s={s} dispatch={dispatch} blocked={blocked} goTo={setTab} />}
               {tab === 'stack' && <CardStacking s={s} dispatch={dispatch} blocked={blocked} />}
               {tab === 'partners' && <JVMatch s={s} dispatch={dispatch} blocked={blocked} />}
               {tab === 'trophies' && <TrophyRoom s={s} collection={collection} />}
+              </div>
               {tabIdx < TABS.length - 1 && (
                 <button onClick={() => { setTab(TABS[tabIdx + 1][0]); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                   className="mt-6 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-neon/50 text-sm font-black uppercase tracking-wider text-neon hover:bg-neon/10">
@@ -166,7 +196,7 @@ export default function App() {
           </div>
         )}
 
-        {s.phase === 'boss' && <Boss s={s} dispatch={dispatch} />}
+        {s.phase === 'boss' && <div className="fade-up"><Boss s={s} dispatch={dispatch} /></div>}
         {s.phase === 'results' && s.result && <Results s={s} dispatch={dispatch} />}
         {s.phase !== 'fund' && s.phase !== 'setup' && <div className="mt-10"><TrophyRoom s={s} collection={collection} /></div>}
 
@@ -180,6 +210,8 @@ export default function App() {
 
       <EventModal s={s} dispatch={dispatch} />
       <AchievementToasts queue={medalQueue} onDone={dropMedal} />
+      <CoinBurst burst={burst} />
+      <Mascot s={s} meta={meta} />
 
       <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 max-md:[&>*:not(:last-child)]:hidden">
         {toasts.map((t) => (

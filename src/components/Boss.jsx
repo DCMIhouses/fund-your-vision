@@ -1,5 +1,6 @@
 import Chart from './Chart'
 import Guide from './Guide'
+import { BossBar } from './Fx'
 import { fmt } from '../game'
 import { bossLimit, bossOptions, monthlyBurn, runForecast, scoreGame, totals } from '../engine'
 
@@ -11,6 +12,8 @@ export default function Boss({ s, dispatch }) {
   const preview = scoreGame(s, f, s.bossMoves)
   const crunch = baseline.insolventMonth || baseline.endCash < baseline.endExpenses
   const left = limit - s.bossMoves.length
+  const failed = preview.checks.filter((c) => !c.ok).length
+  const hp = Math.round((100 * failed) / Math.max(1, preview.checks.length))
   return (
     <section className="rounded-3xl border-2 border-hot bg-panel p-5 shadow-[0_0_60px_rgba(255,46,99,.25)] md:p-7">
       <div className="text-center">
@@ -21,6 +24,7 @@ export default function Boss({ s, dispatch }) {
           {crunch ? ' Untouched, your forecast ends ' + (baseline.insolventMonth ? `out of cash in month ${baseline.insolventMonth}.` : 'without a one-month reserve.') : ' Your untouched forecast survives, but can you make it stronger?'}
         </p>
       </div>
+      <BossBar hp={hp} defeated={hp === 0} />
       <div className="mt-6"><Guide id="boss" /></div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[['Available', fmt(totals(s).available)], ['Promo balances', fmt(s.funding.filter((x) => (x.type === 'credit' || x.type === 'partner') && x.status === 'available').reduce((a, x) => a + x.amount, 0))], ['Monthly burn', fmt(monthlyBurn(s))], ['Untouched month-18 cash', fmt(baseline.endCash)]].map(([k, v]) => (
