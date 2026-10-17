@@ -25,6 +25,7 @@ export default function BusinessScreen({ s, dispatch, report, book }) {
           <ul className="mt-3 space-y-1.5 text-sm">
             {Object.entries(m.bySource).map(([k, v]) => <li key={k} className="flex justify-between gap-2"><span className="text-fos-muted">{SOURCE_LABEL[k]}</span><span className="fos-num">{fmt(v)}</span></li>)}
             {!Object.keys(m.bySource).length && <li className="text-fos-muted">No cash raised yet.</li>}
+            {m.eventCash !== 0 && <li className="flex justify-between gap-2"><span className="text-fos-muted">Event costs and bonuses</span><span className="fos-num">{fmt(m.eventCash)}</span></li>}
           </ul>
           <div className="mt-3 space-y-1.5 border-t border-fos-line pt-3 text-sm">
             <div className="flex justify-between gap-2"><span><Term k="committed">Promised, not in bank yet</Term></span><span className="fos-num">{fmt(m.pendingAmount)}</span></div>

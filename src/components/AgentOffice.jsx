@@ -11,7 +11,8 @@ export default function AgentOffice({ agents, onOpen, compact = false, trigger =
   const latest = useRef(agents)
   const onOpenRef = useRef(onOpen)
   const onActivityRef = useRef(onActivity)
-  useEffect(() => { latest.current = agents; onOpenRef.current = onOpen; onActivityRef.current = onActivity })
+  const reduceRef = useRef(reduceMotion)
+  useEffect(() => { latest.current = agents; onOpenRef.current = onOpen; onActivityRef.current = onActivity; reduceRef.current = reduceMotion })
   const [sel, setSel] = useState(null)
   const [speed, setSpeed] = useState(1)
   const [paused, setPaused] = useState(false)
@@ -34,7 +35,7 @@ export default function AgentOffice({ agents, onOpen, compact = false, trigger =
         if (e.type === 'done') setOutputs((o) => (o.some((x) => x.k === e.job.id) ? o : [{ k: e.job.id, title: e.job.title, by: e.by }, ...o].slice(0, 6)))
       },
     }
-    g.init(host.current, cb).then(() => { if (!g.dead) { game.current = g; g.setAgents(latest.current) } })
+    g.init(host.current, cb).then(() => { if (!g.dead) { game.current = g; g.paused = reduceRef.current; g.setAgents(latest.current) } })
     const t = setInterval(() => { if (!g.dead && g.workers) setStates(Object.fromEntries(g.workers.map((w) => [w.id, g.stateOf(w.id)]))) }, 400)
     return () => { clearInterval(t); g.destroy(); game.current = null }
   }, [])

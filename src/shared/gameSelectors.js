@@ -39,8 +39,12 @@ export function moneyPicture(s) {
   const bySource = {}
   for (const f of s.funding) if (f.status === 'available' && f.type !== 'cut') bySource[f.type] = (bySource[f.type] || 0) + f.amount
   const target = s.startup.target
+  const eventCash = s.mods.cashBonus - s.mods.oneTimeCosts - s.funding.reduce((a, f) => a + (f.paidDown || 0), 0)
   return {
     ...t,
+    raisedCash: t.cash,
+    eventCash,
+    cash: t.cash + eventCash,
     target,
     pendingAmount: t.committed - t.available,
     pending: s.funding.filter((f) => f.status === 'committed'),
@@ -53,9 +57,8 @@ export function moneyPicture(s) {
 }
 
 export function runwayInfo(s) {
-  const t = totals(s)
   const burn = monthlyBurn(s)
-  const days = runwayDays(t.cash, s.startDays, burn)
+  const days = runwayDays(moneyPicture(s).cash, s.startDays, burn)
   return { days, months: days / 30, burn, bufferDays: s.startDays }
 }
 
@@ -200,8 +203,7 @@ export function optionAction(id, { amount, cardId, partnerId } = {}) {
 
 // Before/after numbers for a choice, computed by running the real reducer on a copy of the state.
 export function snapshotNumbers(s) {
-  const t = totals(s)
-  return { cash: t.cash, runway: runwayInfo(s).days, owner: ownership(s).founder, endCash: runForecast(s, []).endCash }
+  return { cash: moneyPicture(s).cash, runway: runwayInfo(s).days, owner: ownership(s).founder, endCash: runForecast(s, []).endCash }
 }
 
 export function eventChoicePreviews(s) {
