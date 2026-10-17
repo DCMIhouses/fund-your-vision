@@ -122,6 +122,7 @@ export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
             {meta?.streak > 0 && <span title="Daily streak" className="hidden rounded-lg border border-hot/50 px-2 py-1 font-mono text-[11px] font-black text-hot sm:inline">🔥 {meta.streak}</span>}
             <span className={`rounded-lg px-2 py-1 text-[10px] font-black uppercase ${s.mode === 'tournament' ? 'bg-gold text-ink' : 'border border-edge text-slate-400'}`}>{s.mode === 'tournament' ? 'Tournament' : 'Arcade'}</span>
             {s.phase !== 'setup' && <span className="hidden rounded-lg border border-cyan/50 px-2 py-1 font-mono text-[11px] text-cyan sm:inline">Fundability {liveScore(s)}</span>}
+            <a href="#pay" title="Pay by Zelle or wire" className="rounded-lg border border-gold/60 px-2 py-1 text-[11px] font-black uppercase text-gold hover:bg-gold/10">Pay</a>
             <button onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'} className="rounded-lg border border-edge px-2 py-1 text-[11px] text-slate-400 hover:text-white">{muted ? 'SFX OFF' : 'SFX ON'}</button>
             {s.phase !== 'setup' && <button onClick={() => dispatch({ type: 'RESTART' })} className="rounded-lg border border-edge px-2 py-1 text-[11px] text-slate-400 hover:border-gold hover:text-gold">Restart</button>}
           </div>

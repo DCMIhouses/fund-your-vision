@@ -12,6 +12,7 @@ import EventModal from './components/EventModal'
 import Boss from './components/Boss'
 import Results from './components/Results'
 import CommandCenter, { AgentStrip } from './components/CommandCenter'
+import PayPage from './components/PayPage'
 import { initialState } from './engine'
 import { gameReducer } from './store'
 import Guide from './components/Guide'
@@ -149,6 +150,13 @@ export default function App() {
   const dropMedal = useCallback((id) => setMedalQueue((q) => q.filter((x) => x !== id)), [])
   const toggleMute = () => { setMuted(!muted); setMutedState(!muted) }
   const blocked = !!s.activeEvent
+  const [route, setRoute] = useState(() => window.location.hash.slice(1))
+  useEffect(() => {
+    const on = () => { setRoute(window.location.hash.slice(1)); window.scrollTo({ top: 0 }) }
+    window.addEventListener('hashchange', on)
+    return () => window.removeEventListener('hashchange', on)
+  }, [])
+  const onPay = route === 'pay'
 
   return (
     <div className="grid-bg min-h-screen overflow-x-clip">
@@ -162,9 +170,11 @@ export default function App() {
         <div className="relative mt-3 bg-gradient-to-r from-sky-400 via-gold to-fuchsia-400 bg-clip-text text-xl font-black uppercase tracking-wide text-transparent sm:text-3xl">$10,000 to $1 Million to Fund Your Dream</div>
         <div className="relative mt-2 text-xs text-slate-400 sm:text-sm">Powered by <span className="font-semibold text-cyan">NationwideBusinessFunding.com</span> · Fractional Chief Capital Officer Platform</div>
       </header>
-      <TopBar s={s} dispatch={dispatch} muted={muted} toggleMute={toggleMute} meta={meta} />
+      {!onPay && <TopBar s={s} dispatch={dispatch} muted={muted} toggleMute={toggleMute} meta={meta} />}
 
       <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
+        {onPay && <PayPage onBack={() => { window.location.hash = '' }} />}
+        {!onPay && <>
         {s.phase === 'setup' && (
           <>
             <Guide id="overview" />
@@ -209,10 +219,13 @@ export default function App() {
         {s.phase === 'results' && s.result && <><Results s={s} dispatch={dispatch} /><div className="mt-10"><CommandCenter s={s} /></div></>}
         {s.phase !== 'fund' && s.phase !== 'setup' && <div className="mt-10"><TrophyRoom s={s} collection={collection} /></div>}
 
+        </>}
+
         <footer className="mt-10 border-t border-edge pt-4 text-center text-[10px] leading-relaxed text-slate-500">
           Educational simulation. The game does not approve loans, create binding offers, or match you with verified capital partners. Scores, approvals, limits, and forecasts are illustrative mock rules, not Experian or lender decisions.
           0% intro APR periods expire; business credit usually requires a personal guarantee; multiple entities do not automatically multiply borrowing capacity; authorized-user tradelines do not guarantee score changes; founder pay from loan proceeds must fit lender terms.
           <br />Powered by <a href="https://nationwidebusinessfunding.com" target="_blank" rel="noreferrer" className="text-cyan hover:underline">NationwideBusinessFunding.com</a>, Fractional Chief Capital Officer Platform.
+          <a href="#pay" className="ml-2 font-bold text-gold hover:underline">Make a payment</a>
           <button onClick={() => { if (window.confirm('Reset everything?')) dispatch({ type: 'RESET' }) }} className="ml-2 text-slate-600 underline hover:text-hot">Reset all</button>
         </footer>
       </main>
