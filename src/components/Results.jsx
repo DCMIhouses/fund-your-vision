@@ -63,7 +63,7 @@ function blueprint(s, t, r) {
   ].join('\n')
 }
 
-export default function Results({ s, dispatch }) {
+export default function Results({ s, dispatch, modern }) {
   const r = s.result
   const t = totals(s)
   const o = OUTCOME[r.outcome]
@@ -222,10 +222,10 @@ export default function Results({ s, dispatch }) {
           </div>
           <button onClick={share} className="mt-2 w-full rounded-lg border border-neon/60 py-1.5 text-xs font-black uppercase text-neon hover:bg-neon/10">{copied ? 'Copied ✓' : 'Share result'}</button>
           {qr && <div className="mt-2 flex items-center gap-2"><img src={qr} alt="QR code to play" className="h-20 w-20 rounded bg-white p-1" /><span className="text-xs text-slate-400">Scan to play on your phone</span></div>}
-          <button onClick={() => { setDispatchState('sending'); setTimeout(() => setDispatchState('sent'), 1600) }} disabled={dispatchState !== 'idle'}
+          {!modern && <button onClick={() => { setDispatchState('sending'); setTimeout(() => setDispatchState('sent'), 1600) }} disabled={dispatchState !== 'idle'}
             className={`mt-2 w-full rounded-lg py-1.5 text-xs font-black uppercase ${r.outcome === 'victory' ? 'bg-neon text-ink' : 'bg-edge text-slate-200'} disabled:opacity-80`}>
             {dispatchState === 'sent' ? '✓ Sent to War Room (simulated)' : dispatchState === 'sending' ? 'Dispatching…' : `Send plan to ${WAR_ROOM}-person War Room (simulated)`}
-          </button>
+          </button>}
           <button onClick={() => dispatch({ type: 'RESTART' })} className="mt-3 w-full rounded-lg bg-gold py-2 text-xs font-black uppercase text-ink hover:brightness-110">Play again</button>
         </div>
       </div>

@@ -179,7 +179,7 @@ export function SpinReveal({ id }) {
   )
 }
 
-export function Hangar({ meta, s, dispatch, today, collection }) {
+export function Hangar({ meta, s, dispatch, today, collection, onDaily }) {
   const count = medalCount(collection)
   const cur = activeRank(meta, count)
   const gem = rankGem(meta, count)
@@ -190,7 +190,8 @@ export function Hangar({ meta, s, dispatch, today, collection }) {
     dispatch({ type: 'SET_MODE', mode: 'arcade' })
     dispatch({ type: 'SETUP', patch: c.startup })
     dispatch({ type: 'PROFILE', patch: c.profile })
-    document.getElementById('setup-panel')?.scrollIntoView({ behavior: 'smooth' })
+    if (onDaily) onDaily()
+    else document.getElementById('setup-panel')?.scrollIntoView({ behavior: 'smooth' })
   }
   return (
     <section className="mb-8 rounded-3xl border-2 border-purple-500/60 bg-panel p-5 shadow-[0_0_50px_rgba(168,85,247,.2)] sm:p-8">

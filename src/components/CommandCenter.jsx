@@ -153,7 +153,7 @@ function Consultant({ report, typeId, onClose }) {
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl border border-cyan/50 bg-panel p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-xs font-black uppercase tracking-widest text-cyan">🧭 Guidance Consultant</div>
+            <div className="text-xs font-black uppercase tracking-widest text-cyan">🧭 Naomi · Mentor</div>
             <div className="text-lg font-black text-white">Discussing: {reportType(typeId).name}</div>
             <div className="text-xs text-slate-400">Answers use the report's checked numbers and fixed rules. Not live AI, not financial advice.</div>
           </div>
@@ -196,7 +196,7 @@ function Modal({ title, kicker, onClose, children }) {
 
 const TD = 'py-1.5 text-right font-mono'
 
-export default function CommandCenter({ s, goTo }) {
+export default function CommandCenter({ s, goTo, noOffice }) {
   const [snaps, setSnaps] = useState(loadSnaps)
   const company = s.startup.name || 'Your startup'
   const mine = snaps.filter((x) => x.company === company)
@@ -250,7 +250,7 @@ export default function CommandCenter({ s, goTo }) {
         </div>
       </div>
       <Guide id="reports" />
-      <AgentOffice agents={agentStates(report)} onOpen={openDesk} />
+      {!noOffice && <AgentOffice agents={agentStates(report)} onOpen={openDesk} />}
       <AgentBoard report={report} />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -433,7 +433,7 @@ export default function CommandCenter({ s, goTo }) {
         </Modal>
       )}
       {view === 'apps' && (
-        <Modal kicker="🔍 AI Underwriter" title="Application analysis" onClose={() => setView(null)}>
+        <Modal kicker="🔍 Lyra · Data Underwriter" title="Application analysis" onClose={() => setView(null)}>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <Tile label="Mock score" value={report.underwriting.fundability} sub={`Tier ${report.underwriting.tier.tier} · ${report.underwriting.tier.label}`} tone="text-cyan" />
             <Tile label="FICO" value={report.underwriting.profile.fico} sub="Illustrative" />
@@ -455,7 +455,7 @@ export default function CommandCenter({ s, goTo }) {
         </Modal>
       )}
       {view === 'builder' && (
-        <Modal kicker="📊 Reporting Agent" title="Live report builder" onClose={() => setView(null)}>
+        <Modal kicker="📊 Marcus · Analyst" title="Live report builder" onClose={() => setView(null)}>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {REPORT_TYPES.map((t) => (
               <button key={t.id} onClick={() => setTypeId(t.id)} className={`min-h-[48px] rounded-xl border px-3 py-2 text-left text-[13px] font-bold ${typeId === t.id ? 'border-gold bg-gold text-ink' : 'border-edge text-slate-300 hover:border-gold/60'}`}>{t.name}</button>
@@ -472,18 +472,18 @@ export default function CommandCenter({ s, goTo }) {
         </Modal>
       )}
       {view === 'risks' && (
-        <Modal kicker="🛡️ Risk Officer" title="Risk review" onClose={() => setView(null)}>
+        <Modal kicker="🛡️ Evelyn · Compliance & Risk" title="Risk review" onClose={() => setView(null)}>
           {report.risks.length === 0 && <div className="text-sm text-neon">No material risks found.</div>}
           <ul className="space-y-2">{report.risks.map((r) => <li key={r.id} className={`rounded-xl border bg-ink/60 p-3 ${sev[r.severity]}`}><div className="flex justify-between gap-2 text-sm font-black"><span>{r.title}</span><span className="text-[11px] uppercase">{r.severity}</span></div><div className="text-[13px] text-slate-300">{r.evidence}</div></li>)}</ul>
         </Modal>
       )}
       {view === 'capital' && (
-        <Modal kicker="🏛️ Capital Architect" title="Capital plan" onClose={() => setView(null)}>
+        <Modal kicker="🏛️ Sera · Matchmaker" title="Capital plan" onClose={() => setView(null)}>
           <ul className="space-y-2">{report.alternatives.map((x) => <li key={x.id} className="flex flex-wrap justify-between gap-2 rounded-xl border border-edge bg-ink/60 p-3 text-[13px]"><span className="font-bold text-white">{x.label}</span><span className="font-mono text-slate-300">IQ {x.score} · M18 {money(x.endCash)}</span></li>)}</ul>
         </Modal>
       )}
       {view === 'team' && (
-        <Modal kicker="📈 Growth Strategist" title="Team and costs" onClose={() => setView(null)}>
+        <Modal kicker="📈 Kaelen · Strategist" title="Team and costs" onClose={() => setView(null)}>
           {report.team.length === 0 ? <div className="text-sm text-slate-400">No team hired yet.</div> : <ul className="space-y-2">{report.team.map((t) => <li key={t.name} className="rounded-xl border border-edge bg-ink/60 p-3 text-[13px]"><div className="flex justify-between font-bold text-white"><span>{t.name}</span><span className="font-mono">{money(t.cost)}/mo</span></div><div className="text-slate-400">{t.effect}</div></li>)}</ul>}
         </Modal>
       )}

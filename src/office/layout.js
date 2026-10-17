@@ -1,5 +1,5 @@
-export const LEFT = ['architect', 'underwriting', 'vc', 'cfo', null]
-export const RIGHT = ['growth', 'risk', 'reporting', 'guide', null]
+export const LEFT = ['growth', 'underwriting', 'vc', 'cfo', null]
+export const RIGHT = ['risk', 'reporting', 'guide', 'architect', null]
 export const W = 1000
 export const ROW = 140
 export const rowY = (i) => 58 + i * ROW
@@ -16,19 +16,19 @@ export const TASKS = {
   guide: { title: 'Action plan', chain: ['guide', 'reporting'] },
 }
 export const ACT = { architect: 'Assembling funding plan', underwriting: 'Reviewing application', vc: 'Comparing offers', cfo: 'Updating cash-flow graph', growth: 'Checking campaigns', risk: 'Scanning for risks', reporting: 'Assembling report', guide: 'Reviewing assignments' }
-export const SHIRT = { architect: 0x7c3aed, underwriting: 0x0891b2, vc: 0xdb2777, cfo: 0x16a34a, growth: 0xea580c, risk: 0xdc2626, reporting: 0x2563eb, guide: 0x0d9488 }
-export const PANTS = { architect: 0x312e81, underwriting: 0x1e293b, vc: 0x374151, cfo: 0x1f2937, growth: 0x1e3a8a, risk: 0x3f3f46, reporting: 0x111827, guide: 0x134e4a }
-export const SKIN = { architect: 0xffdbac, underwriting: 0xe0ac69, vc: 0x8d5524, cfo: 0xf1c27d, growth: 0xc68642, risk: 0x8d5524, reporting: 0xa0663a, guide: 0xf1c27d }
-export const HAIR = { architect: 0x111827, underwriting: 0x3f2a14, vc: 0x0b0b0b, cfo: 0x6b4423, growth: 0x111827, risk: 0x1c1917, reporting: 0x111827, guide: 0xb45309 }
+export const SHIRT = { growth: 0x115e59, underwriting: 0xe7dcc4, vc: 0x1e2a4a, cfo: 0x15803d, risk: 0x1e3a8a, reporting: 0x6b7280, guide: 0xb4a2d9, architect: 0x7f1d3a }
+export const PANTS = { growth: 0x3f3a33, underwriting: 0x334155, vc: 0x1e2a4a, cfo: 0x1f2937, risk: 0x1e293b, reporting: 0x1f2937, guide: 0x4c1d95, architect: 0xe7e5e4 }
+export const SKIN = { growth: 0xc68642, underwriting: 0x7a4a2a, vc: 0xd9a066, cfo: 0x6b3e26, risk: 0x5a3520, reporting: 0xf1c9a0, guide: 0xf3d3c0, architect: 0xc89070 }
+export const HAIR = { growth: 0x3b2414, underwriting: 0x111111, vc: 0x111827, cfo: 0x1c1208, risk: 0x2a2a2a, reporting: 0xd6b26a, guide: 0xa78bfa, architect: 0xf1f5f9 }
 export const where = (id) => { const l = LEFT.indexOf(id); return l >= 0 ? ['L', l] : ['R', RIGHT.indexOf(id)] }
 export const seatOf = (id) => { const [s, i] = where(id); return { x: s === 'L' ? 286 : 714, y: rowY(i) + 44, side: s } }
 export const STYLE = {
-  architect: { hair: 'side', acc: 'blazer' },
-  underwriting: { hair: 'bun', acc: 'glasses' },
-  vc: { hair: 'short', acc: 'tie' },
-  cfo: { hair: 'pony', acc: 'glasses' },
-  growth: { hair: 'curly', acc: 'none' },
-  risk: { hair: 'buzz', acc: 'beard' },
-  reporting: { hair: 'afro', acc: 'tie' },
-  guide: { hair: 'long', acc: 'headset' },
+  growth: { hair: 'short', acc: 'none' },
+  underwriting: { hair: 'curly', acc: 'glasses' },
+  vc: { hair: 'side', acc: 'blazer' },
+  cfo: { hair: 'pony', acc: 'none' },
+  risk: { hair: 'bun', acc: 'glasses' },
+  reporting: { hair: 'side', acc: 'none' },
+  guide: { hair: 'long', acc: 'none' },
+  architect: { hair: 'long', acc: 'none' },
 }

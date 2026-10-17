@@ -27,7 +27,7 @@ function Amount({ value, min, max, step = 5000, onChange }) {
 }
 
 
-export default function FinanceCards({ s, dispatch, blocked, goTo }) {
+export default function FinanceCards({ s, dispatch, blocked, goTo, only, title }) {
   const ind = INDUSTRIES[s.startup.industry]
   const termMax = Math.round(Math.min(250000, s.startup.target * 0.6) / 5000) * 5000
   const savingsLeft = s.startup.savings - s.funding.filter((f) => f.type === 'savings').reduce((a, f) => a + f.amount, 0)
@@ -92,10 +92,10 @@ export default function FinanceCards({ s, dispatch, blocked, goTo }) {
   }
 
   return (
-    <Panel guide="fund" num="3" accent="gold" title="Financing Power-Up Cards"
+    <Panel guide={only ? undefined : 'fund'} num="3" accent="gold" title={title || 'Financing Power-Up Cards'}
       subtitle="Combine cards to hit the target. Every card changes the forecast; applying isn't approval, and approval isn't cash in hand.">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {FINANCE_CARDS.map((card) => {
+        {FINANCE_CARDS.filter((c) => !only || only.includes(c.id)).map((card) => {
           const list = entries(card.id)
           const last = list[list.length - 1]
           return (

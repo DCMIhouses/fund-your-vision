@@ -49,7 +49,7 @@ export default function AgentOffice({ agents, onOpen }) {
         <div>
           <div className="text-xs font-black uppercase tracking-[0.3em] text-cyan">The capital office · playable</div>
           <h3 className="text-aurora text-2xl font-black uppercase md:text-3xl">Your agents at work</h3>
-          <div className="text-xs text-slate-400">Click a worker to inspect or assign a task. Click a screen to open its work. Drag to pan, scroll to zoom. Rule-based agents, not live AI.</div>
+          <div className="text-xs text-slate-400">Click a worker to inspect or assign a task. Click a screen to open its work. Drag to pan, scroll to zoom. Simulated advisors: rule-based, not live AI.</div>
         </div>
         <div className="flex flex-wrap gap-1.5">
           <button className="min-h-[40px] rounded-xl bg-gold px-3 text-xs font-black uppercase text-ink disabled:opacity-50" disabled={states.architect?.busy} onClick={() => { pick('architect'); game.current?.assign('architect') }}>▶ Run full handoff</button>
@@ -64,7 +64,7 @@ export default function AgentOffice({ agents, onOpen }) {
       <div className="mt-3 flex gap-1.5 overflow-x-auto pb-1">
         {agents.map((x) => (
           <button key={x.id} onClick={() => pick(x.id)} className={`flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-bold ${sel === x.id ? 'border-gold bg-gold/15 text-gold' : 'border-edge text-slate-300 hover:border-cyan'}`}>
-            <span className={`h-2 w-2 rounded-full ${DOT[x.status]}`} />{x.icon} {x.name}
+            {x.photo && <img src={x.photo} alt="" className="-ml-2 h-7 w-7 rounded-full object-cover" />}<span className={`h-2 w-2 rounded-full ${DOT[x.status]}`} />{x.name}
           </button>
         ))}
       </div>
