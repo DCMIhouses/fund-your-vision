@@ -18,7 +18,7 @@ import Guide from './components/Guide'
 import { AchievementToasts, MedalShowcase, TrophyRoom } from './components/Medals'
 import { isMuted, play, setMuted } from './sfx'
 import { CoinBurst, Hangar, Mascot, QuestMap, Starfield } from './components/Fx'
-import { MEDAL_POINTS, bumpStreak, dailyName, dayKey, loadMeta, runAward, saveMeta } from './meta'
+import { MEDAL_POINTS, bumpStreak, dailyName, dayKey, loadMeta, medalCount, rankGem, runAward, saveMeta } from './meta'
 import { totals } from './engine'
 import { achievementById } from './achievements'
 
@@ -168,8 +168,8 @@ export default function App() {
         {s.phase === 'setup' && (
           <>
             <Guide id="overview" />
-            <Hangar meta={meta} update={updateMeta} s={s} dispatch={dispatch} today={today} collection={collection} />
-            <MedalShowcase collection={collection} />
+            <Hangar meta={meta} s={s} dispatch={dispatch} today={today} collection={collection} />
+            <MedalShowcase collection={collection} meta={meta} update={updateMeta} />
             <div className="mb-8"><PartnerBinder book={book} /></div>
             <Setup s={s} dispatch={dispatch} />
             <div className="mt-8 rounded-2xl border border-hot/40 bg-hot/5 p-4 text-sm leading-relaxed text-slate-300">
@@ -181,7 +181,7 @@ export default function App() {
         {s.phase === 'fund' && (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
             <div className="min-w-0">
-              <QuestMap tabs={TABS} tab={tab} setTab={setTab} s={s} skin={meta.skin} />
+              <QuestMap tabs={TABS} tab={tab} setTab={setTab} s={s} skin={rankGem(meta, medalCount(collection)).id} />
               <div key={tab} className="fade-up">
               {tab === 'team' && <Squad s={s} dispatch={dispatch} locked={blocked} />}
               {tab === 'underwrite' && <Underwriting s={s} dispatch={dispatch} blocked={blocked} />}

@@ -197,7 +197,7 @@ describe('achievements', () => {
     s = run(s, { type: 'HIRE', role: 'marketing' }, { type: 'HIRE', role: 'operator' })
     expect(has(s, 'dream_team')).toBe(true)
   })
-  it('secret medals use real conditions', () => {
+  it('advanced medals use real conditions', () => {
     earns('no_vc', fake({ result: { founderOwnership: 1 } }))
     misses('no_vc', b)
     earns('debt_slayer', fake({ result: { debtRemaining: 0 } }))
@@ -211,7 +211,7 @@ describe('achievements', () => {
     earns('partnership_pro', fake({ funding: [...b.funding, { type: 'partner', status: 'available', agreement: true, amount: 1 }] }))
     misses('partnership_pro', b)
     misses('cashflow_whisperer', fake({ result: { forecast: { ...b.result.forecast, minCash: -1 } } }))
-    expect(ACHIEVEMENTS.filter((x) => x.secret)).toHaveLength(8)
+    expect(ACHIEVEMENTS.some((x) => x.secret)).toBe(false)
   })
 })
 

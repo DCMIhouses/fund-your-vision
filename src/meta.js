@@ -16,18 +16,20 @@ export const activeRank = (meta, count) => {
 }
 
 export const SKINS = [
-  { id: 'classic', lvl: 1, name: 'Fresh Founder', c1: '#f5c08a', c2: '#a0522d', cost: 0, grad: 'from-orange-300 to-amber-800' },
-  { id: 'neon', lvl: 2, name: 'The Hustler', c1: '#f1f5f9', c2: '#64748b', cost: 100, grad: 'from-slate-100 to-slate-500' },
-  { id: 'gold', lvl: 3, name: 'The Strategist', c1: '#fde68a', c2: '#d97706', cost: 200, grad: 'from-gold to-orange-500' },
-  { id: 'flame', lvl: 4, name: 'The Dealmaker', c1: '#6ee7b7', c2: '#059669', cost: 300, grad: 'from-neon to-emerald-600' },
-  { id: 'galaxy', lvl: 5, name: 'The Tycoon', c1: '#93c5fd', c2: '#1d4ed8', cost: 500, grad: 'from-sky-300 to-blue-700' },
-  { id: 'diamond', lvl: 6, name: 'The Mogul', c1: '#f5d0fe', c2: '#7c3aed', cost: 800, grad: 'from-fuchsia-200 via-purple-400 to-violet-700' },
+  { id: 'classic', lvl: 1, name: 'Fresh Founder', gem: 'Topaz', c1: '#f5c08a', c2: '#a0522d', grad: 'from-orange-300 to-amber-800' },
+  { id: 'neon', lvl: 2, name: 'The Hustler', gem: 'Pearl', c1: '#f1f5f9', c2: '#64748b', grad: 'from-slate-100 to-slate-500' },
+  { id: 'gold', lvl: 3, name: 'The Strategist', gem: 'Citrine', c1: '#fde68a', c2: '#d97706', grad: 'from-gold to-orange-500' },
+  { id: 'flame', lvl: 4, name: 'The Dealmaker', gem: 'Emerald', c1: '#6ee7b7', c2: '#059669', grad: 'from-neon to-emerald-600' },
+  { id: 'galaxy', lvl: 5, name: 'The Tycoon', gem: 'Sapphire', c1: '#93c5fd', c2: '#1d4ed8', grad: 'from-sky-300 to-blue-700' },
+  { id: 'diamond', lvl: 6, name: 'The Mogul', gem: 'Amethyst', c1: '#f5d0fe', c2: '#7c3aed', grad: 'from-fuchsia-200 via-purple-400 to-violet-700' },
 ]
+export const gemForLevel = (level) => SKINS[level - 1] || SKINS[0]
+export const rankGem = (meta, count) => gemForLevel(activeRank(meta, count).level)
 
 export const MEDAL_POINTS = { common: 25, rare: 50, epic: 100, legendary: 250 }
 
 const KEY = 'fyv-meta'
-const DEFAULT = { points: 0, owned: ['classic'], skin: 'classic', avatar: 'rocket', streak: 0, bestStreak: 0, lastDay: null, dailyDone: null }
+const DEFAULT = { points: 0, avatar: 'rocket', streak: 0, bestStreak: 0, lastDay: null, dailyDone: null }
 
 export function loadMeta() {
   try { return { ...DEFAULT, ...JSON.parse(localStorage.getItem(KEY)) } } catch { return { ...DEFAULT } }

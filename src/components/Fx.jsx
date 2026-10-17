@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { fmt, runwayDays } from '../game'
 import { MIN_EVENTS, monthlyBurn, totals } from '../engine'
-import { AVATARS, EVENT_ICON, SKINS, activeRank, dailyConfig, dailyName, medalCount, topRank } from '../meta'
+import { EVENT_ICON, SKINS, activeRank, dailyConfig, dailyName, medalCount, rankGem } from '../meta'
 import Gem from './Gem'
 import { play } from '../sfx'
 
@@ -75,7 +75,7 @@ export function Mascot({ s, meta, collection }) {
   const line = mascotLine(s, last)
   const panic = s.phase === 'fund' && runwayDays(totals(s).cash, s.startDays, monthlyBurn(s)) < 60
   const avatar = activeRank(meta, medalCount(collection))
-  const skin = SKINS.find((k) => k.id === meta.skin) || SKINS[0]
+  const skin = rankGem(meta, medalCount(collection))
   return (
     <div className="pointer-events-none fixed bottom-3 left-3 z-[55] flex items-end gap-2">
       <button onClick={() => setHidden((h) => !h)} title={`Level ${avatar.level}: ${avatar.name}`}
@@ -179,11 +179,10 @@ export function SpinReveal({ id }) {
   )
 }
 
-export function Hangar({ meta, update, s, dispatch, today, collection }) {
+export function Hangar({ meta, s, dispatch, today, collection }) {
   const count = medalCount(collection)
-  const top = topRank(count)
   const cur = activeRank(meta, count)
-  const next = AVATARS.find((r) => r.need > count)
+  const gem = rankGem(meta, count)
   const daily = s.startup.name === dailyName(today)
   const startDaily = () => {
     const c = dailyConfig(today)
@@ -193,23 +192,17 @@ export function Hangar({ meta, update, s, dispatch, today, collection }) {
     dispatch({ type: 'PROFILE', patch: c.profile })
     document.getElementById('setup-panel')?.scrollIntoView({ behavior: 'smooth' })
   }
-  const buy = (k) => {
-    if (meta.owned.includes(k.id)) { play('click'); update({ ...meta, skin: k.id }); return }
-    if (meta.points < k.cost) return
-    play('buy')
-    update({ ...meta, points: meta.points - k.cost, owned: [...meta.owned, k.id], skin: k.id })
-  }
   return (
     <section className="mb-8 rounded-3xl border-2 border-purple-500/60 bg-panel p-5 shadow-[0_0_50px_rgba(168,85,247,.2)] sm:p-8">
       <div className="text-center">
         <div className="text-xs font-black uppercase tracking-[0.35em] text-fuchsia-300">Your founder hangar</div>
-        <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">Rank Up &amp; Collect Medals</h2>
+        <h2 className="mt-1 text-3xl font-black uppercase text-white md:text-5xl">Points, Streak &amp; Daily Challenge</h2>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-gold/50 bg-gold/5 p-4 text-center">
           <div className="text-xs font-black uppercase tracking-widest text-gold">Capital Points</div>
           <div className="mt-1 font-mono text-4xl font-black text-gold"><CountUp value={meta.points} format={(v) => Math.round(v).toLocaleString()} /></div>
-          <div className="text-xs text-slate-400">Earn points from medals and finished games. Spend them on medals. Game points only, not real money.</div>
+          <div className="text-xs text-slate-400">Earn points from medals and finished games. Game points only, not real money.</div>
         </div>
         <div className="rounded-2xl border border-hot/50 bg-hot/5 p-4 text-center">
           <div className="text-xs font-black uppercase tracking-widest text-hot">Daily streak</div>
@@ -224,54 +217,11 @@ export function Hangar({ meta, update, s, dispatch, today, collection }) {
           <div className="mt-1 text-xs text-slate-400">Finish it for +100 bonus points.</div>
         </div>
       </div>
-      <div className="mt-8 rounded-2xl border border-neon/40 bg-neon/5 p-4 sm:p-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <div className="text-xs font-black uppercase tracking-[0.3em] text-neon">Your founder rank</div>
-            <div className="mt-1 text-2xl font-black text-white">{cur.icon} Level {cur.level}: {cur.name}</div>
-            <div className="mt-1 max-w-xl text-sm text-slate-300">Collect medals to climb from Fresh Founder to The Mogul. Your rank badge sits in the corner and talks to you while you play. Tap any rank you have unlocked to wear it.</div>
-          </div>
-          <div className="w-full sm:w-auto sm:min-w-[220px] sm:text-right">
-            <div className="font-mono text-sm font-black text-white">{count} medal{count === 1 ? '' : 's'}</div>
-            <div className="text-xs text-slate-400">{next ? `${next.need - count} more to reach Level ${next.level}: ${next.name}` : 'Top rank reached!'}</div>
-            <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-edge">
-              <div className="h-full rounded-full bg-gradient-to-r from-neon to-gold transition-all duration-700" style={{ width: `${next ? Math.min(100, ((count - top.need) / (next.need - top.need)) * 100) : 100}%` }} />
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {AVATARS.map((a) => {
-            const open = count >= a.need
-            const on = cur.id === a.id
-            return (
-              <button key={a.id} disabled={!open} onClick={() => { play('click'); update({ ...meta, avatar: a.id }) }}
-                className={`relative flex min-h-[120px] flex-col items-center justify-center rounded-2xl border-2 p-3 text-center transition disabled:cursor-not-allowed ${on ? 'scale-105 border-neon bg-neon/10 shadow-[0_0_20px_rgba(57,255,136,.4)]' : open ? 'border-edge bg-ink/60 hover:border-neon/50' : 'border-edge/60 bg-ink/40'}`}>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${open ? 'bg-gold text-ink' : 'bg-edge text-slate-500'}`}>Level {a.level}</span>
-                <span className={`mt-2 text-3xl ${open ? '' : 'opacity-30 grayscale'}`}>{a.icon}</span>
-                <span className={`mt-1 text-xs font-black ${open ? 'text-white' : 'text-slate-500'}`}>{a.name}</span>
-                <span className={`text-[11px] font-bold ${on ? 'text-neon' : open ? 'text-slate-400' : 'text-slate-500'}`}>{on ? 'Wearing ✓' : open ? 'Unlocked · tap to wear' : `🔒 ${a.need} medals`}</span>
-              </button>
-            )
-          })}
-        </div>
-        <div className="mt-3 text-xs text-slate-500">Founder Rank counts medals from all your games. The Dreamer → Builder levels in the top bar are for the game you are playing right now.</div>
-      </div>
-      <div className="mt-6 text-center text-xs font-black uppercase tracking-[0.3em] text-slate-400">Medal shop · each medal is named for a Founder level · your medal marks your spot on the quest map</div>
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {SKINS.map((k) => {
-          const own = meta.owned.includes(k.id)
-          const on = meta.skin === k.id
-          const afford = meta.points >= k.cost
-          return (
-            <button key={k.id} onClick={() => buy(k)} disabled={!own && !afford}
-              className={`rounded-2xl border-2 p-3 text-center transition disabled:cursor-not-allowed ${on ? 'border-gold bg-gold/10' : 'border-edge bg-ink/60 hover:border-gold/60'} ${!own && !afford ? 'opacity-50' : ''}`}>
-              <span className={`mx-auto grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br ${k.grad} p-[2px] shadow-lg`}><span className="grid h-full w-full place-items-center rounded-full bg-ink"><Gem gem={k} className="h-9 w-9" /></span></span>
-              <div className="mt-1 text-xs font-black text-white">{k.name}</div>
-              <div className={`text-[11px] font-bold ${on ? 'text-gold' : own ? 'text-neon' : 'text-slate-400'}`}>{on ? 'Equipped' : own ? 'Owned · tap to use' : `${k.cost} pts`}</div>
-            </button>
-          )
-        })}
-      </div>
+      <a href="#medal-board" className="mt-6 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-edge bg-ink/50 p-4 text-center hover:border-gold/60">
+        <Gem gem={gem} className="h-10 w-10" />
+        <span className="text-sm font-black text-white">Wearing: Level {cur.level} {cur.name} · {gem.gem} medal</span>
+        <span className="text-xs font-bold text-gold">Founder Levels are on the Medal Board ↓</span>
+      </a>
     </section>
   )
 }

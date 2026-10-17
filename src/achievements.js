@@ -27,14 +27,14 @@ const RAW = [
   { id: 'comeback', name: 'Comeback Founder', icon: 'CB', rarity: 'epic', desc: 'Hit your target after surviving a major setback.', test: (s) => negativeEvents(s) >= 1 && reached(s, 1) },
   { id: 'runway_warrior', name: 'Runway Warrior', icon: 'RW', rarity: 'epic', desc: 'Survive the 18-month forecast.', test: (s) => !!s.result && !s.result.forecast.insolventMonth },
   { id: 'capital_master', name: 'Capital Master', icon: 'CM', rarity: 'legendary', desc: 'Score 90+ and achieve victory.', test: (s) => win(s) && s.result.score >= 90 },
-  { id: 'no_vc', secret: true, name: 'No VC Needed', icon: 'NV', rarity: 'epic', desc: 'Win without selling any equity.', test: (s) => win(s) && s.result.founderOwnership === 1 },
-  { id: 'negotiator', secret: true, name: 'The Negotiator', icon: 'NG', rarity: 'rare', desc: 'Accept an investor offer on attorney-negotiated terms.', test: (s) => s.funding.some((f) => f.type === 'vc' && f.negotiated && (f.status === 'committed' || f.status === 'available')) },
-  { id: 'debt_slayer', secret: true, name: 'Debt Slayer', icon: 'DS', rarity: 'legendary', desc: 'Retire all outstanding debt by month 18.', test: (s) => !!s.result && s.result.hadDebt && s.result.debtRemaining < 1 },
-  { id: 'against_all_odds', secret: true, name: 'Against All Odds', icon: 'AO', rarity: 'legendary', desc: 'Survive 3+ negative events and still win.', test: (s) => win(s) && negativeEvents(s) >= 3 },
-  { id: 'bootstrap_hero', secret: true, name: 'Bootstrap Hero', icon: 'BH', rarity: 'legendary', desc: 'Win with no external financing.', test: (s) => win(s) && !s.result.forecast.bridge && !s.funding.some((f) => EXTERNAL.includes(f.type) && f.status === 'available') },
-  { id: 'turnaround_king', secret: true, name: 'Turnaround King', icon: 'TK', rarity: 'epic', desc: 'Turn a failing boss forecast into a victory.', test: (s) => win(s) && s.result.baselineOutcome !== 'victory' },
-  { id: 'partnership_pro', secret: true, name: 'Partnership Pro', icon: 'PP', rarity: 'epic', desc: 'Win with a properly documented capital partner.', test: (s) => win(s) && s.funding.some((f) => f.type === 'partner' && f.status === 'available' && f.agreement) },
-  { id: 'cashflow_whisperer', secret: true, name: 'Cash-Flow Whisperer', icon: 'CW', rarity: 'epic', desc: 'Finish all 18 months with positive cash and no missed payments.', test: (s) => !!s.result && s.result.forecast.minCash > 0 },
+  { id: 'no_vc', name: 'No VC Needed', icon: 'NV', rarity: 'epic', desc: 'Win without selling any equity.', test: (s) => win(s) && s.result.founderOwnership === 1 },
+  { id: 'negotiator', name: 'The Negotiator', icon: 'NG', rarity: 'rare', desc: 'Accept an investor offer on attorney-negotiated terms.', test: (s) => s.funding.some((f) => f.type === 'vc' && f.negotiated && (f.status === 'committed' || f.status === 'available')) },
+  { id: 'debt_slayer', name: 'Debt Slayer', icon: 'DS', rarity: 'legendary', desc: 'Retire all outstanding debt by month 18.', test: (s) => !!s.result && s.result.hadDebt && s.result.debtRemaining < 1 },
+  { id: 'against_all_odds', name: 'Against All Odds', icon: 'AO', rarity: 'legendary', desc: 'Survive 3+ negative events and still win.', test: (s) => win(s) && negativeEvents(s) >= 3 },
+  { id: 'bootstrap_hero', name: 'Bootstrap Hero', icon: 'BH', rarity: 'legendary', desc: 'Win with no external financing.', test: (s) => win(s) && !s.result.forecast.bridge && !s.funding.some((f) => EXTERNAL.includes(f.type) && f.status === 'available') },
+  { id: 'turnaround_king', name: 'Turnaround King', icon: 'TK', rarity: 'epic', desc: 'Turn a failing boss forecast into a victory.', test: (s) => win(s) && s.result.baselineOutcome !== 'victory' },
+  { id: 'partnership_pro', name: 'Partnership Pro', icon: 'PP', rarity: 'epic', desc: 'Win with a properly documented capital partner.', test: (s) => win(s) && s.funding.some((f) => f.type === 'partner' && f.status === 'available' && f.agreement) },
+  { id: 'cashflow_whisperer', name: 'Cash-Flow Whisperer', icon: 'CW', rarity: 'epic', desc: 'Finish all 18 months with positive cash and no missed payments.', test: (s) => !!s.result && s.result.forecast.minCash > 0 },
 ]
 
 const ART = {
@@ -42,17 +42,7 @@ const ART = {
   capital_architect: '🏛️', comeback: '🔥', runway_warrior: '🛫', capital_master: '👑', no_vc: '🚫', negotiator: '⚖️', debt_slayer: '🐉',
   against_all_odds: '🎲', bootstrap_hero: '🥾', turnaround_king: '🔄', partnership_pro: '📜', cashflow_whisperer: '🌊',
 }
-const HINT = {
-  no_vc: 'Win the game and keep 100% of your company.',
-  negotiator: 'Bring a lawyer when an investor makes you an offer.',
-  debt_slayer: 'Owe $0 by the last month of the forecast.',
-  against_all_odds: 'Get hit by 3 or more bad events and still win.',
-  bootstrap_hero: 'Win without loans, cards, investors or partners.',
-  turnaround_king: 'Start the boss fight losing, then flip it into a win.',
-  partnership_pro: 'Win with a partner deal that is written down.',
-  cashflow_whisperer: 'Never let your cash hit $0 in all 18 months.',
-}
-export const ACHIEVEMENTS = RAW.map((a) => ({ ...a, art: ART[a.id], hint: HINT[a.id] }))
+export const ACHIEVEMENTS = RAW.map((a) => ({ ...a, art: ART[a.id] }))
 
 export const achievementById = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]))
 
