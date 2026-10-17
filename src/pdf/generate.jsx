@@ -15,7 +15,7 @@ async function render(report, typeId, logo, out) {
 export const renderReportBuffer = (report, typeId, logo) => render(report, typeId, logo, 'buffer')
 
 export async function downloadReportPdf(report, typeId) {
-  const logo = `${window.location.origin}/fyv-logo.png`
+  const logo = new URL(`${import.meta.env.BASE_URL}fyv-logo.png`, window.location.href).href
   const blob = await render(report, typeId, logo, 'blob')
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

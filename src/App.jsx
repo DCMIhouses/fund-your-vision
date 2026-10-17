@@ -157,7 +157,7 @@ export default function App() {
       <header className="relative overflow-hidden border-b border-purple-500/30 bg-gradient-to-b from-sky-500/10 via-ink to-ink px-4 py-6 text-center sm:py-10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_40%,rgba(56,189,248,.18),transparent_55%),radial-gradient(ellipse_at_50%_50%,rgba(251,191,36,.12),transparent_55%),radial-gradient(ellipse_at_70%_40%,rgba(168,85,247,.2),transparent_55%)]" />
         <h1 className="relative mx-auto w-full max-w-[min(520px,85vw)]">
-          <img src="/fyv-logo.png" alt="FYV: Fund Your Vision, The Startup Survival Game" className="medal-pop mx-auto w-full drop-shadow-[0_0_40px_rgba(168,85,247,.35)]" />
+          <img src={`${import.meta.env.BASE_URL}fyv-logo.png`} alt="FYV: Fund Your Vision, The Startup Survival Game" className="medal-pop mx-auto w-full drop-shadow-[0_0_40px_rgba(168,85,247,.35)]" />
         </h1>
         <div className="relative mt-3 bg-gradient-to-r from-sky-400 via-gold to-fuchsia-400 bg-clip-text text-xl font-black uppercase tracking-wide text-transparent sm:text-3xl">$10,000 to $1 Million to Fund Your Dream</div>
         <div className="relative mt-2 text-xs text-slate-400 sm:text-sm">Powered by <span className="font-semibold text-cyan">NationwideBusinessFunding.com</span> · Fractional Chief Capital Officer Platform</div>

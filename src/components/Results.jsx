@@ -215,7 +215,7 @@ export default function Results({ s, dispatch }) {
         <div className="rounded-2xl border border-edge bg-ink/60 p-4">
           <div className="text-xs font-black uppercase tracking-widest text-white">Share Your Result</div>
           <div className="mt-2 rounded-xl border border-neon/40 bg-gradient-to-br from-neon/10 via-ink to-cyan/10 p-3">
-            <img src="/fyv-logo.png" alt="FYV" className="h-12 w-auto" />
+            <img src={`${import.meta.env.BASE_URL}fyv-logo.png`} alt="FYV" className="h-12 w-auto" />
             <div className="text-sm font-black text-white">{s.startup.name}</div>
             <div className={`font-mono text-3xl font-black ${o.color}`}>{r.score}<span className="text-sm text-slate-400">/100</span></div>
             <div className="text-xs text-slate-300">{o.title} · {r.badge} · {level.name} · {medals.length} medals</div>

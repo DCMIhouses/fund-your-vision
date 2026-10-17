@@ -107,7 +107,7 @@ export default function TopBar({ s, dispatch, muted, toggleMute, meta }) {
       <div className="mx-auto max-w-7xl px-3 py-2 md:px-4 md:py-3">
         <div className={`flex items-center justify-between gap-3 ${mobileHide}`}>
           <div className="flex min-w-0 items-center gap-2 md:gap-3">
-            <img src="/favicon.png" alt="" className="h-9 w-9 shrink-0 object-contain md:h-11 md:w-11" />
+            <img src={`${import.meta.env.BASE_URL}favicon.png`} alt="" className="h-9 w-9 shrink-0 object-contain md:h-11 md:w-11" />
             <div className="min-w-0">
               <div className="text-xs font-black uppercase leading-tight tracking-tight text-white sm:text-base md:text-xl">
                 <span className="text-neon">FUND YOUR VISION</span> <span className="text-slate-400">(FYV)</span>
