@@ -1,5 +1,5 @@
-const COLORS = ['#6D5BD0', '#2B8FB0', '#C2557F', '#2F9E6B', '#D9772F', '#C24B4B', '#3A6FD8', '#22968A']
-const NAMES = ['Capital Architect', 'AI Underwriter', 'VC Negotiator', 'AI CFO', 'Growth Strategist', 'Risk Officer', 'Reporting Agent', 'Guidance Consultant']
+const COLORS = ['#1F5F5B', '#E6DCC6', '#1E2A4A', '#1F7A4A', '#7A1F35', '#1B2550', '#8A8F96', '#B79BE0']
+const NAMES = ['Kaelen · Strategist', 'Lyra · Underwriter', 'Vance · Negotiator', 'Maya · AI CFO', 'Sera · Matchmaker', 'Evelyn · Compliance', 'Marcus · Analyst', 'Naomi · Mentor']
 
 // Lightweight welcome-screen preview of the 10-desk office (5 per wall, 2 open). The playable office is PixiJS on the Play screen.
 export default function OfficePreview() {

@@ -3,6 +3,10 @@ import { BOSS_MONTH } from '../engine'
 import { fmt, fmtK } from '../game'
 import { GLOSSARY } from './gameSelectors'
 
+export function Avatar({ src, name, size = 44, className = '' }) {
+  return <img src={src} alt={name ? `${name} portrait` : ''} width={size} height={size} loading="lazy" className={`shrink-0 rounded-full object-cover ring-2 ring-white/70 ${className}`} style={{ width: size, height: size }} />
+}
+
 export function Card({ as: Tag = 'section', className = '', children, ...rest }) {
   return <Tag className={`rounded-[22px] border border-fos-line bg-fos-surface fos-shadow ${className}`} {...rest}>{children}</Tag>
 }

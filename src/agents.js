@@ -1,4 +1,5 @@
 import { money, pct } from './report'
+import { CHARACTERS } from './office/characters'
 
 const S = (status, finding, metric) => ({ status, finding, metric })
 
@@ -14,7 +15,7 @@ export const AGENTS = [
     if (r.forecast.minCash < k.monthlyBurn) return S('watch', `Lowest forecast cash is ${money(r.forecast.minCash)}, less than one month of costs.`, `${k.runwayDays} days runway`)
     return S('ok', `Forecast stays above $0 and ends at ${money(r.forecast.endCash)}.`, `${k.runwayDays} days runway`)
   } },
-  { id: 'risk', icon: '🛡️', name: 'Risk Officer', task: 'Looks for things that could hurt the business', run: (r) => {
+  { id: 'risk', icon: '🛡️', name: 'Risk Officer', task: 'Checks compliance and looks for things that could hurt the business', run: (r) => {
     const top = r.risks[0]
     if (!top) return S('ok', 'No material risks found.', '0 risks')
     return S(top.severity === 'High' ? 'alert' : top.severity === 'Medium' ? 'watch' : 'ok', `${top.title}: ${top.evidence}`, `${r.risks.length} risk${r.risks.length === 1 ? '' : 's'}`)
@@ -31,7 +32,7 @@ export const AGENTS = [
     const declined = u.applications.filter((a) => a.status === 'declined').length
     return S(u.fundability >= 60 ? 'ok' : 'watch', `Mock score ${u.fundability} (Tier ${u.tier.tier}). ${u.applications.length} application(s), ${declined} declined.`, `Score ${u.fundability}`)
   } },
-  { id: 'growth', icon: '📈', name: 'Growth Strategist', task: 'Tracks revenue growth and the sales team', run: (r) => {
+  { id: 'growth', icon: '📈', name: 'Growth Strategist', task: 'Connects you with partners and tracks revenue growth', run: (r) => {
     const k = r.kpis
     const sellers = r.team.filter((t) => /Marketing|Sales/.test(t.name)).length
     return S(sellers ? 'ok' : 'watch', `Revenue forecast ${money(k.month1Revenue)} in month 1 to ${money(k.month18Revenue)} in month 18. ${sellers ? `${sellers} growth hire(s).` : 'No marketing or sales hire yet.'}`, `${money(k.month18Revenue)}/mo`)
@@ -49,4 +50,7 @@ export const AGENTS = [
   } },
 ]
 
-export const agentStates = (r) => AGENTS.map((a) => ({ id: a.id, icon: a.icon, name: a.name, task: a.task, ...a.run(r) }))
+export const agentStates = (r) => AGENTS.map((a) => {
+  const c = CHARACTERS[a.id]
+  return { id: a.id, icon: a.icon, name: c.person, title: c.title, role: a.name, portrait: c.portrait, task: a.task, ...a.run(r) }
+})

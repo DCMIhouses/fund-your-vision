@@ -76,7 +76,7 @@ export default function BlueprintScreen({ s, report }) {
       </Card>
 
       <Card className="p-5">
-        <div className="text-sm font-semibold text-fos-gold">Ask the Guidance Consultant · guided explanations (rule-based)</div>
+        <div className="text-sm font-semibold text-fos-gold">Ask Naomi, your Mentor · guided explanations (rule-based)</div>
         <div className="mt-3 flex flex-wrap gap-2">{QUESTIONS.map(([id, label]) => <button key={id} onClick={() => setQ(id)} className={`min-h-[44px] rounded-full border px-4 text-sm ${q === id ? 'border-fos-gold bg-fos-gold/10' : 'border-fos-line hover:bg-fos-soft'}`}>{label}</button>)}</div>
         {q && <ul className="mt-3 space-y-1.5 text-[15px]" aria-live="polite">{answer({ ...report, changes: last ? compareSnapshots(last, snapshotOf(report)) : null }, q).map((l) => <li key={l}>{l}</li>)}</ul>}
       </Card>

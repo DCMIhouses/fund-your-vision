@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import AgentOffice from '../../components/AgentOffice'
 import { JOURNEY, OPTION_AGENT, currentMission, moneyPicture } from '../../shared/gameSelectors'
-import { Button, Card, Eyebrow, Pill, Sheet } from '../../shared/ui'
+import { Avatar, Button, Card, Eyebrow, Pill, Sheet } from '../../shared/ui'
+import { character } from '../../office/characters'
 import DecisionSheet from './DecisionSheet'
 import OfferCard from './OfferCard'
 import CashCrunch from './CashCrunch'
@@ -15,7 +16,7 @@ export function AgentList({ agents, onOpen }) {
       {agents.map((a) => (
         <li key={a.id}>
           <button onClick={() => onOpen(a.id)} className="flex min-h-[64px] w-full items-start justify-between gap-3 py-3 text-left">
-            <span className="min-w-0"><span className="block font-semibold">{a.name}</span><span className="block text-sm text-fos-muted">{a.finding}</span></span>
+            <span className="flex min-w-0 items-start gap-3"><Avatar src={a.portrait} name={a.name} /><span className="min-w-0"><span className="block font-semibold">{a.name} <span className="font-normal text-fos-muted">· {a.title}</span></span><span className="block text-sm text-fos-muted">{a.finding}</span></span></span>
             <Pill tone={LIGHT[a.status][0]}>{LIGHT[a.status][1]}</Pill>
           </button>
         </li>
@@ -89,7 +90,7 @@ export default function PlayScreen({ s, dispatch, go, report, agents, reduceMoti
           <div id="offers"><OfferCard s={s} dispatch={dispatch} /></div>
           {advice && s.phase === 'fund' && (
             <Card className="p-5">
-              <div className="text-sm font-semibold text-fos-gold">Guidance Consultant</div>
+              <div className="flex items-center gap-2 text-sm font-semibold text-fos-gold"><Avatar src={character('guide').portrait} name="Naomi" size={28} />Naomi · Mentor</div>
               <p className="mt-1 text-[15px]">“{advice.action}.”</p>
               <details className="mt-1 text-sm text-fos-muted"><summary className="min-h-[44px] cursor-pointer py-2 font-semibold text-fos-info">Why?</summary>{advice.why}</details>
               <p className="text-[12px] text-fos-muted">Guided explanation from game rules, not a real advisor.</p>

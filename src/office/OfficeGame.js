@@ -339,8 +339,8 @@ export default class OfficeGame {
       const plq = new Graphics(); plq.zIndex = 899
       plq.roundRect(lx - 112, y + 88, 224, 39, 9).fill({ color: 0x0a1122, alpha: 0.92 }).stroke({ width: 1.5, color: id ? 0xc9a35e : 0x475569, alpha: id ? 0.75 : 0.5 })
       if (id) plq.roundRect(lx - 108, y + 95, 4, 25, 2).fill(SHIRT[id])
-      const nm = txt(id ? '' : `Future Agent ${L ? 9 : 10}`, 16, id ? 0xf8fafc : 0x64748b, '800'); nm.anchor.set(0.5, 0); nm.position.set(lx, y + 90); nm.zIndex = 900
-      const tk = txt(id ? '' : 'Open desk · ready for expansion', 12, 0x94a3b8, '600'); tk.anchor.set(0.5, 0); tk.position.set(lx, y + 110); tk.zIndex = 900
+      const nm = txt(id ? '' : `Job opening · Desk ${L ? 9 : 10}`, 16, id ? 0xf8fafc : 0x64748b, '800'); nm.anchor.set(0.5, 0); nm.position.set(lx, y + 90); nm.zIndex = 900
+      const tk = txt(id ? '' : 'Open desk · waiting for a future hire', 12, 0x94a3b8, '600'); tk.anchor.set(0.5, 0); tk.position.set(lx, y + 110); tk.zIndex = 900
       this.world.addChild(g, frame, scr, glare, plq, nm, tk)
       this.desks[id || side] = { frame, scr, nm, tk, sx, sy, sw, sh, empty: !id }
       if (!id) {
@@ -446,7 +446,7 @@ export default class OfficeGame {
       const prev = this.agents[a.id]
       this.agents[a.id] = a
       const d = this.desks?.[a.id]
-      if (d) d.nm.text = `${a.icon} ${a.name}`
+      if (d) { d.nm.text = a.title ? `${a.name} · ${a.title}` : a.name; d.nm.scale.set(1); if (d.nm.width > 212) d.nm.scale.set(212 / d.nm.width) }
       const w = this.worker(a.id)
       if (!prev || !w) continue
       if (prev.status !== 'alert' && a.status === 'alert' && !w.away) { w.setState('error'); w.setBubble('!', 0xdc2626); w.react = w.t + 1.8 }

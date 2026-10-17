@@ -79,7 +79,7 @@ export default function EventSheet({ s, dispatch, open, onClose }) {
       </div>
       {ask && pick && (
         <Card className="mt-4 p-4">
-          <div className="text-sm font-semibold text-fos-gold">Guidance Consultant · guided explanation (rule-based)</div>
+          <div className="text-sm font-semibold text-fos-gold">Naomi · Mentor · guided explanation (rule-based)</div>
           <p className="mt-1 text-[15px]">In this game’s forecast, <b>{pick.choice.label}</b> leaves the most cash at month 18 ({fmt(pick.after.endCash)}){pick.after.insolventMonth ? ', although cash still runs out' : ''}. The best choice also depends on ownership, risk and what you plan next. It is your call.</p>
         </Card>
       )}

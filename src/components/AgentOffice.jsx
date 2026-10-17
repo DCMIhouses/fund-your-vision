@@ -65,7 +65,7 @@ export default function AgentOffice({ agents, onOpen, compact = false, trigger =
         </div>
         {a && (
           <div className="absolute inset-x-2 bottom-2 rounded-2xl bg-black/60 p-3 text-sm text-white backdrop-blur sm:left-auto sm:w-80">
-            <div className="flex items-center justify-between gap-2"><b>{a.name}</b><button className="min-h-[36px] px-2 text-white/70 hover:text-white" aria-label="Close worker details" onClick={() => { setSel(null); game.current?.select(null) }}>✕</button></div>
+            <div className="flex items-center justify-between gap-2"><span className="flex items-center gap-2">{a.portrait && <img src={a.portrait} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-white/60" />}<span><b>{a.name}</b> <span className="text-white/70">· {a.title}</span></span></span><button className="min-h-[36px] px-2 text-white/70 hover:text-white" aria-label="Close worker details" onClick={() => { setSel(null); game.current?.select(null) }}>✕</button></div>
             <div className="text-white/80">Doing now: {st?.task}</div>
             <div className="mt-1 text-white/70">{a.finding}</div>
             <div className="mt-2 flex gap-2">
@@ -99,7 +99,7 @@ export default function AgentOffice({ agents, onOpen, compact = false, trigger =
       <div className="mt-3 flex gap-1.5 overflow-x-auto pb-1">
         {agents.map((x) => (
           <button key={x.id} onClick={() => pick(x.id)} className={`flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-bold ${sel === x.id ? 'border-gold bg-gold/15 text-gold' : 'border-edge text-slate-300 hover:border-cyan'}`}>
-            <span className={`h-2 w-2 rounded-full ${DOT[x.status]}`} />{x.icon} {x.name}
+            <span className={`h-2 w-2 rounded-full ${DOT[x.status]}`} />{x.name}{x.title ? ` · ${x.title}` : ''}
           </button>
         ))}
       </div>
@@ -114,7 +114,7 @@ export default function AgentOffice({ agents, onOpen, compact = false, trigger =
           <div className="text-xs font-black uppercase tracking-widest text-slate-400">Inspect worker</div>
           {!a ? <div className="mt-2 text-sm text-slate-500">Click a worker in the office or a name above.</div> : (
             <div className="mt-2 space-y-2 text-sm">
-              <div className="flex items-center gap-2 font-black text-white"><span className={`h-2.5 w-2.5 rounded-full ${DOT[a.status]}`} />{a.icon} {a.name}</div>
+              <div className="flex items-center gap-2 font-black text-white"><span className={`h-2.5 w-2.5 rounded-full ${DOT[a.status]}`} />{a.portrait && <img src={a.portrait} alt="" className="h-9 w-9 rounded-full object-cover" />}{a.name}{a.title ? ` · ${a.title}` : ''}</div>
               <div className="text-slate-300"><b className="text-slate-400">Doing now:</b> {st?.task}</div>
               <div className="text-slate-400">{a.finding}</div>
               <button disabled={st?.busy} onClick={() => game.current?.assign(a.id)} className="min-h-[44px] w-full rounded-xl bg-gold text-xs font-black uppercase text-ink disabled:opacity-50">{st?.busy ? 'Busy…' : `Assign task: ${TASKS[a.id].title}`}</button>
