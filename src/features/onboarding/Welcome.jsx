@@ -7,7 +7,7 @@ export default function Welcome({ hasSave, saveName, onStart, onSample, onContin
     <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-10 sm:py-16 lg:grid-cols-[1.1fr_1fr]">
       <div className="fos-in">
         <div className="text-[15px] font-semibold text-fos-gold">FUND YOUR VISION</div>
-        <h1 className="fos-display mt-3 text-[40px] sm:text-[56px]">Launch your startup. No VCs. No private equity. No problem.</h1>
+        <h1 className="fos-display mt-3 text-[40px] sm:text-[56px]">Start Up Launcher<span className="mt-3 block text-[26px] sm:text-[34px]">NO PRIVATE EQUITY, NO VC’s, No Problem!</span></h1>
         <p className="mt-4 max-w-xl text-xl font-semibold">Could your business survive its first year?</p>
         <p className="mt-2 max-w-xl text-lg text-fos-muted">Build an idea, make funding decisions, and see whether your startup survives. Learn by playing. Investors are still an option in the game, so you can compare every path.</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
