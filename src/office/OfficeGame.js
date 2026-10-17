@@ -4,6 +4,7 @@ import { ACT, H, HAIR, HANDOFF, LEFT, PANTS, RIGHT, SHIRT, SKIN, STYLE, TASKS, W
 const STATUS = { ok: 0x39ff88, watch: 0xfbbf24, alert: 0xff2e63 }
 const TINT = { ok: 0x03140c, watch: 0x1f1704, alert: 0x22060d }
 const WALK = 125
+const AMBIENT = { architect: 'funding plan draft', underwriting: 'risk data file', vc: 'term sheet', cfo: 'runway forecast', growth: 'partner list', risk: 'compliance check', reporting: 'audit summary', guide: 'founder notes' }
 const lerp = (a, b, t) => a + (b - a) * t
 const shade = (c, f) => { const m = (v) => Math.max(0, Math.min(255, Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f))); return (m((c >> 16) & 255) << 16) | (m((c >> 8) & 255) << 8) | m(c & 255) }
 const rnd = (i) => { const v = Math.sin(i * 99.13) * 43758.5453; return v - Math.floor(v) }
@@ -388,9 +389,17 @@ export default class OfficeGame {
     const w = this.worker(id)
     if (!w || w.job || w.away) return false
     const job = { id: `${id}-${Date.now()}`, title, chain, idx: 0, source }
-    this.cb.onEvent?.({ type: 'start', text: `${this.name(id)} started: ${title}${source === 'event' ? ' (game event)' : ''}` })
-    this.work(w, job, 3)
+    if (source !== 'ambient') this.cb.onEvent?.({ type: 'start', text: `${this.name(id)} started: ${title}${source === 'event' ? ' (game event)' : ''}` })
+    this.work(w, job, source === 'ambient' ? 1.5 : 3)
     return true
+  }
+  // Illustrative background handoffs so the office keeps moving; not logged as real work.
+  ambient() {
+    if (this.workers.filter((w) => w.away).length >= 2) return
+    const free = this.workers.filter((w) => !w.job && !w.away && w.sitting() && HANDOFF[w.id] && !this.worker(HANDOFF[w.id])?.away)
+    if (!free.length) return
+    const w = free[Math.floor(Math.random() * free.length)]
+    this.startJob(w.id, AMBIENT[w.id], [w.id, HANDOFF[w.id]], 'ambient')
   }
   assign(id) { const t = TASKS[id]; return this.startJob(id, t.title, t.chain, 'player') }
   work(w, job, secs) {
@@ -400,6 +409,7 @@ export default class OfficeGame {
   finishWork(w) {
     const job = w.job
     const next = job.chain[job.idx + 1]
+    if (!next && job.source === 'ambient') { w.job = null; w.hasDoc = false; w.setState('typing'); this.nextFromInbox(w); return }
     if (!next) {
       w.job = null; w.hasDoc = false
       w.setState('celebrating'); w.setBubble('★', 0x16a34a); w.react = w.t + 1.6
@@ -416,7 +426,7 @@ export default class OfficeGame {
       const lane = -14
       w.go([this.visitPoint(w.id), this.aislePoint(w.id, lane), this.aislePoint(next, lane), this.visitPoint(next)], () => this.handoff(w, next, job))
     }
-    this.cb.onEvent?.({ type: 'walk', text: `${this.name(w.id)} picks up the ${job.title} folder and walks it to ${this.name(next)}` })
+    if (job.source !== 'ambient') this.cb.onEvent?.({ type: 'walk', text: `${this.name(w.id)} picks up the ${job.title} folder and walks it to ${this.name(next)}` })
   }
   seatSide(id) { return where(id)[0] }
   handoff(w, toId, job) {
@@ -429,8 +439,8 @@ export default class OfficeGame {
       w.hasDoc = false
       this.burst((w.x + r.x) / 2, w.y - 6)
       const nextJob = { ...job, idx: job.idx + 1 }
-      this.cb.onEvent?.({ type: 'handoff', text: `${this.name(w.id)} handed the ${job.title} to ${this.name(toId)}` })
-      if (rSeated) { r.hasDoc = true; this.work(r, nextJob, toId === 'reporting' ? 4 : 3) } else r.inbox.push(nextJob)
+      if (job.source !== 'ambient') this.cb.onEvent?.({ type: 'handoff', text: `${this.name(w.id)} handed the ${job.title} to ${this.name(toId)}` })
+      if (rSeated) { r.hasDoc = true; this.work(r, nextJob, job.source === 'ambient' ? 2 : toId === 'reporting' ? 4 : 3) } else r.inbox.push(nextJob)
       w.carryTo = null
       w.go([this.aislePoint(toId, 14), this.aislePoint(w.id, 14), this.visitPoint(w.id), { x: w.seat.x, y: w.seat.y }], () => {
         w.away = false; w.walkFacing = 0
@@ -458,6 +468,8 @@ export default class OfficeGame {
     if (this.dead) return
     const dt = this.paused ? 0 : Math.min(0.25, rawDt) * this.speed
     this.timers = (this.timers || []).filter((tm) => { tm.left -= dt; if (tm.left <= 0) { tm.fn(); return false } return true })
+    this.ambientT = (this.ambientT ?? 2.5) - dt
+    if (this.ambientT <= 0) { this.ambientT = 4 + Math.random() * 4; this.ambient() }
     for (const w of this.workers) {
       if (w.job && !w.away && (w.state === 'typing' || w.state === 'reading')) {
         w.workLeft -= dt
