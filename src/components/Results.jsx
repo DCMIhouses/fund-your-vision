@@ -11,7 +11,6 @@ import { validateRun } from '../store'
 
 const LB_KEY = 'fyv-leaderboard'
 const loadLb = () => { try { return JSON.parse(localStorage.getItem(LB_KEY)) || [] } catch { return [] } }
-const WAR_ROOM = 22
 const OUTCOME = {
   victory: { title: 'VICTORY', sub: 'Funded, sustainable, and still in control.', color: 'text-neon', ring: 'border-neon shadow-[0_0_60px_rgba(57,255,136,.35)]' },
   partial: { title: 'PARTIAL SUCCESS', sub: 'You survived, but the plan has cracks.', color: 'text-gold', ring: 'border-gold shadow-[0_0_60px_rgba(251,191,36,.25)]' },
@@ -74,7 +73,6 @@ export default function Results({ s, dispatch }) {
   const [status, setStatus] = useState(null)
   const [consent, setConsent] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [dispatchState, setDispatchState] = useState('idle')
   const [qr, setQr] = useState(null)
   const gameUrl = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''
   const runwayMonths = r.forecast.insolventMonth ? r.forecast.insolventMonth - 1 : 18
@@ -222,10 +220,7 @@ export default function Results({ s, dispatch }) {
           </div>
           <button onClick={share} className="mt-2 w-full rounded-lg border border-neon/60 py-1.5 text-xs font-black uppercase text-neon hover:bg-neon/10">{copied ? 'Copied ✓' : 'Share result'}</button>
           {qr && <div className="mt-2 flex items-center gap-2"><img src={qr} alt="QR code to play" className="h-20 w-20 rounded bg-white p-1" /><span className="text-xs text-slate-400">Scan to play on your phone</span></div>}
-          <button onClick={() => { setDispatchState('sending'); setTimeout(() => setDispatchState('sent'), 1600) }} disabled={dispatchState !== 'idle'}
-            className={`mt-2 w-full rounded-lg py-1.5 text-xs font-black uppercase ${r.outcome === 'victory' ? 'bg-neon text-ink' : 'bg-edge text-slate-200'} disabled:opacity-80`}>
-            {dispatchState === 'sent' ? '✓ Sent to War Room (simulated)' : dispatchState === 'sending' ? 'Dispatching…' : `Send plan to ${WAR_ROOM}-person War Room (simulated)`}
-          </button>
+          <p className="text-xs text-slate-400">Nothing is sent from this game. Use the links above to contact NationwideBusinessFunding.com yourself.</p>
           <button onClick={() => dispatch({ type: 'RESTART' })} className="mt-3 w-full rounded-lg bg-gold py-2 text-xs font-black uppercase text-ink hover:brightness-110">Play again</button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 let ctx = null
-let muted = localStorage.getItem('fyv-muted') === '1'
+let muted = localStorage.getItem('fyv-muted') !== '0'
 
 export const isMuted = () => muted
 export function setMuted(v) {
