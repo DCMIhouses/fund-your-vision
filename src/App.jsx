@@ -226,6 +226,7 @@ export default function App() {
           0% intro APR periods expire; business credit usually requires a personal guarantee; multiple entities do not automatically multiply borrowing capacity; authorized-user tradelines do not guarantee score changes; founder pay from loan proceeds must fit lender terms.
           <br />Powered by <a href="https://nationwidebusinessfunding.com" target="_blank" rel="noreferrer" className="text-cyan hover:underline">NationwideBusinessFunding.com</a>, Fractional Chief Capital Officer Platform.
           <a href="#pay" className="ml-2 font-bold text-gold hover:underline">Make a payment</a>
+          <a href="?ui=v2" className="ml-2 font-bold text-cyan hover:underline">Back to the new FYV</a>
           <button onClick={() => { if (window.confirm('Reset everything?')) dispatch({ type: 'RESET' }) }} className="ml-2 text-slate-600 underline hover:text-hot">Reset all</button>
         </footer>
       </main>

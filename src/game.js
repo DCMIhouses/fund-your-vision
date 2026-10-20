@@ -59,15 +59,20 @@ export function compatibility(partner, needs) {
   return Math.round(clamp(48 + overlap * 14 + (partner.fico - 720) / 6, 30, 99))
 }
 
+export function fundabilityFactors(p) {
+  return [
+    { id: 'fico', label: 'Personal credit score', pts: clamp(((p.fico - 500) / 350) * 45, 0, 45), max: 45 },
+    { id: 'util', label: 'How much of your credit you use', pts: p.utilization <= 10 ? 20 : p.utilization <= 30 ? 14 : p.utilization <= 50 ? 7 : p.utilization <= 75 ? 3 : 0, max: 20 },
+    { id: 'inq', label: 'Recent credit applications', pts: Math.max(0, 15 - p.inquiries * 2.5), max: 15 },
+    { id: 'age', label: 'Age of your credit history', pts: Math.min(10, p.oldestYears * 1.5), max: 10 },
+    { id: 'accts', label: 'Open accounts (credit mix)', pts: Math.min(5, p.openAccounts), max: 5 },
+    { id: 'income', label: 'Income', pts: Math.min(5, p.income / 30000), max: 5 },
+    { id: 'derog', label: 'Late payments or collections', pts: p.derogatory ? -25 : 0, max: 0 },
+  ]
+}
+
 export function fundabilityScore(p) {
-  const fico = clamp(((p.fico - 500) / 350) * 45, 0, 45)
-  const util = p.utilization <= 10 ? 20 : p.utilization <= 30 ? 14 : p.utilization <= 50 ? 7 : p.utilization <= 75 ? 3 : 0
-  const inq = Math.max(0, 15 - p.inquiries * 2.5)
-  const age = Math.min(10, p.oldestYears * 1.5)
-  const accts = Math.min(5, p.openAccounts)
-  const income = Math.min(5, p.income / 30000)
-  const derog = p.derogatory ? -25 : 0
-  return Math.round(clamp(fico + util + inq + age + accts + income + derog, 0, 100))
+  return Math.round(clamp(fundabilityFactors(p).reduce((a, f) => a + f.pts, 0), 0, 100))
 }
 
 export function tierFor(score) {
